@@ -1,0 +1,841 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<title>むしむし プログラミング</title>
+<style>
+  :root {
+    --bg: #f2f8e8;
+    --panel: #ffffff;
+    --ink: #3a3226;
+    --grass1: #b8dd8a;
+    --grass2: #a8d378;
+    --accent: #ff9838;
+    --accent-dark: #e97f1e;
+    --green: #6dbb4a;
+    --green-dark: #55a235;
+    --blue: #5aa8e8;
+    --card-move: #7ec95c;
+    --card-eat: #ffb35c;
+    --shadow: 0 3px 0 rgba(0,0,0,0.12);
+    --radius: 16px;
+  }
+  * { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+  html,body { height:100%; overscroll-behavior:none; }
+  body {
+    font-family: "Hiragino Maru Gothic ProN", "BIZ UDGothic", "Yu Gothic", sans-serif;
+    background: var(--bg); color: var(--ink);
+    user-select:none; -webkit-user-select:none; touch-action:manipulation;
+    overflow:hidden;
+  }
+  .screen { display:none; position:fixed; inset:0; flex-direction:column; }
+  .screen.active { display:flex; }
+
+  button {
+    font-family:inherit; border:none; cursor:pointer; color:var(--ink);
+    border-radius:var(--radius); background:var(--panel); box-shadow:var(--shadow);
+  }
+  button:active { transform:translateY(2px); box-shadow:0 1px 0 rgba(0,0,0,0.12); }
+
+  /* ===== タイトル ===== */
+  #screen-title { align-items:center; justify-content:center; gap:24px;
+    background: linear-gradient(#cfe9ff 0%, #e8f6d0 55%, #b8dd8a 100%); }
+  #screen-title h1 { font-size:clamp(30px,6vw,52px); color:#3f7a1f; text-shadow:2px 2px 0 #fff; letter-spacing:2px; text-align:center; line-height:1.3; }
+  #title-parade { display:flex; gap:14px; }
+  #title-parade svg { width:clamp(48px,9vw,84px); height:auto; animation:hop 1.6s ease-in-out infinite; }
+  #title-parade svg:nth-child(2){ animation-delay:.2s } #title-parade svg:nth-child(3){ animation-delay:.4s }
+  #title-parade svg:nth-child(4){ animation-delay:.6s } #title-parade svg:nth-child(5){ animation-delay:.8s }
+  #title-parade svg:nth-child(6){ animation-delay:1.0s }
+  @keyframes hop { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-10px)} }
+  #btn-start { font-size:clamp(22px,4vw,32px); padding:18px 56px; background:var(--accent); color:#fff; font-weight:bold; }
+  #title-ver { position:absolute; bottom:8px; right:12px; font-size:11px; color:#7a8a6a; }
+
+  /* ===== マップ（めんをえらぶ） ===== */
+  #screen-map { background: linear-gradient(#dff0c0, #c2e096); padding: max(10px, env(safe-area-inset-top)) 16px 16px; }
+  .map-header { display:flex; align-items:center; justify-content:space-between; padding:6px 4px 12px; }
+  .map-header h2 { font-size:clamp(20px,3.5vw,28px); color:#3f7a1f; }
+  .map-header .hbtns { display:flex; gap:10px; }
+  .map-header button { font-size:clamp(15px,2.5vw,19px); padding:10px 18px; font-weight:bold; }
+  #map-levels { flex:1; display:flex; flex-wrap:wrap; gap:clamp(10px,2vw,20px); align-content:center; justify-content:center; overflow:auto; }
+  .lv-btn { width:clamp(130px,21vw,190px); padding:14px 8px 12px; display:flex; flex-direction:column; align-items:center; gap:6px; background:#fffef5; }
+  .lv-btn svg { width:clamp(48px,7vw,70px); height:auto; }
+  .lv-btn .lv-num { font-size:13px; color:#8a9a76; font-weight:bold; }
+  .lv-btn .lv-name { font-size:clamp(14px,2.2vw,17px); font-weight:bold; line-height:1.3; text-align:center; }
+  .lv-btn .lv-badges { font-size:20px; min-height:26px; }
+  .lv-btn.locked { filter:grayscale(1); opacity:.55; }
+  .lv-btn.locked .lv-badges::before { content:"🔒"; }
+
+  /* ===== ゲーム ===== */
+  #screen-game { background:var(--bg); }
+  #game-header { display:flex; align-items:center; gap:8px; padding: max(8px, env(safe-area-inset-top)) 12px 6px; }
+  #game-header button { font-size:15px; padding:9px 14px; font-weight:bold; white-space:nowrap; }
+  #lv-title { flex:1; text-align:center; font-size:clamp(16px,2.8vw,21px); font-weight:bold; color:#3f7a1f; }
+  #goal-bar { margin:0 12px; padding:8px 14px; background:#fff8e6; border:2px solid #f0d9a0; border-radius:12px; font-size:clamp(14px,2.4vw,17px); line-height:1.45; display:flex; align-items:center; gap:8px; }
+  #goal-bar .goal-text { flex:1; }
+  #btn-hint { font-size:14px; padding:8px 12px; display:none; background:#fff3b8; }
+  #btn-hint.show { display:block; }
+
+  #program-wrap { margin:8px 12px 0; background:#eef3e2; border-radius:12px; padding:8px 10px; }
+  #program-label { font-size:12px; color:#7a8a6a; font-weight:bold; margin-bottom:4px; display:flex; justify-content:space-between; }
+  #program-row { display:flex; gap:6px; overflow-x:auto; min-height:58px; align-items:center; -webkit-overflow-scrolling:touch; }
+  #program-row:empty::before { content:"下の カードを タップして ならべてね"; color:#9aa88a; font-size:14px; padding-left:6px; }
+  .pcard { flex:0 0 auto; width:52px; height:52px; border-radius:12px; display:flex; flex-direction:column; align-items:center; justify-content:center; font-weight:bold; color:#fff; box-shadow:var(--shadow); position:relative; font-size:24px; transition:transform .15s; }
+  .pcard .pnum { position:absolute; top:1px; left:5px; font-size:10px; opacity:.8; }
+  .pcard.exec { transform:scale(1.18); box-shadow:0 0 0 4px #ffe066, 0 3px 0 rgba(0,0,0,.12); z-index:2; }
+  .pcard.move { background:var(--card-move); }
+  .pcard.eat { background:var(--card-eat); font-size:15px; }
+
+  #stage-wrap { flex:1; display:flex; align-items:center; justify-content:center; padding:6px 12px; position:relative; min-height:0; }
+  #stage { max-width:100%; max-height:100%; }
+  #bubble { position:absolute; left:50%; bottom:10px; transform:translateX(-50%); background:#fff; border:3px solid var(--accent); border-radius:16px; padding:10px 20px; font-size:clamp(16px,2.8vw,20px); font-weight:bold; display:none; z-index:5; white-space:nowrap; box-shadow:0 4px 10px rgba(0,0,0,.15); }
+  #bubble.show { display:block; animation:pop .25s; }
+  @keyframes pop { 0%{transform:translateX(-50%) scale(.6)} 100%{transform:translateX(-50%) scale(1)} }
+
+  #palette { display:flex; align-items:center; gap:8px; padding:8px 12px calc(10px + env(safe-area-inset-bottom)); flex-wrap:wrap; justify-content:center; }
+  .cmd-btn { width:clamp(56px,8vw,68px); height:clamp(56px,8vw,68px); font-size:28px; font-weight:bold; color:#fff; border-radius:14px; }
+  .cmd-btn.move { background:var(--card-move); }
+  .cmd-btn.eat { background:var(--card-eat); font-size:16px; line-height:1.15; }
+  .util-btn { font-size:15px; padding:0 14px; height:clamp(48px,7vw,56px); font-weight:bold; background:#fff; }
+  #btn-run { font-size:clamp(18px,3vw,23px); padding:0 26px; height:clamp(56px,8vw,68px); background:var(--accent); color:#fff; font-weight:bold; }
+  .sep { width:6px; }
+  body.running .cmd-btn, body.running .util-btn, body.running #btn-run { opacity:.45; pointer-events:none; }
+
+  /* ===== クリアオーバーレイ ===== */
+  #overlay { position:fixed; inset:0; background:rgba(60,80,30,.45); display:none; align-items:center; justify-content:center; z-index:20; }
+  #overlay.show { display:flex; }
+  #overlay-card { background:#fffef5; border-radius:24px; padding:26px 34px; text-align:center; max-width:min(90vw,460px); display:flex; flex-direction:column; gap:12px; align-items:center; animation:pop2 .35s; }
+  @keyframes pop2 { 0%{transform:scale(.5); opacity:0} 100%{transform:scale(1); opacity:1} }
+  #overlay-card h3 { font-size:clamp(26px,5vw,36px); color:var(--accent-dark); }
+  #overlay-card svg { width:90px; height:auto; }
+  #overlay-badges { font-size:30px; min-height:36px; }
+  #overlay-msg { font-size:clamp(15px,2.6vw,18px); line-height:1.5; }
+  #overlay-btns { display:flex; gap:12px; flex-wrap:wrap; justify-content:center; }
+  #overlay-btns button { font-size:clamp(16px,2.8vw,20px); padding:13px 22px; font-weight:bold; }
+  #overlay-btns .primary { background:var(--accent); color:#fff; }
+
+  /* ===== ずかん ===== */
+  #screen-zukan { background:linear-gradient(#fdf3d8,#f6e6bd); padding: max(10px, env(safe-area-inset-top)) 16px 16px; }
+  #zukan-grid { flex:1; display:flex; flex-wrap:wrap; gap:clamp(10px,2vw,18px); align-content:flex-start; justify-content:center; overflow:auto; padding-top:6px; }
+  .zk-card { width:clamp(150px,23vw,210px); background:#fffef8; border-radius:18px; padding:16px 12px; display:flex; flex-direction:column; align-items:center; gap:8px; box-shadow:var(--shadow); }
+  .zk-card svg { width:clamp(56px,8vw,80px); height:auto; }
+  .zk-card .zk-name { font-weight:bold; font-size:clamp(15px,2.4vw,18px); }
+  .zk-card .zk-fact { font-size:clamp(12px,2vw,14px); line-height:1.5; color:#6a5f4a; text-align:center; }
+  .zk-card.unknown svg { filter:brightness(0) opacity(.25); }
+  .zk-card.unknown .zk-fact { color:#b0a888; }
+
+  /* ===== おうちのかたへ ===== */
+  #screen-parent { background:#eef2f5; padding: max(10px, env(safe-area-inset-top)) 20px 20px; overflow:auto; display:none; }
+  #screen-parent.active { display:block; }
+  .parent-box { max-width:640px; margin:0 auto; background:#fff; border-radius:16px; padding:22px 26px; box-shadow:var(--shadow); }
+  .parent-box h2 { font-size:20px; margin-bottom:12px; }
+  .parent-box h3 { font-size:16px; margin:18px 0 6px; }
+  .parent-box p, .parent-box li { font-size:14px; line-height:1.7; }
+  .parent-box ul { padding-left:20px; }
+  .parent-box .btnrow { display:flex; gap:10px; flex-wrap:wrap; margin:10px 0; }
+  .parent-box button { font-size:14px; padding:10px 16px; border:1px solid #ccd5dd; box-shadow:none; }
+  .danger { color:#c0392b; }
+
+  /* ===== selftest ===== */
+  #selftest-overlay { position:fixed; inset:0; background:#fff; z-index:99; overflow:auto; padding:20px; display:none; font-family:monospace; }
+  #selftest-overlay.show { display:block; }
+  #selftest-overlay div { font-size:13px; line-height:1.7; }
+  #selftest-overlay .ok { color:#1a8a3a; } #selftest-overlay .ng { color:#c0392b; font-weight:bold; }
+  #selftest-overlay h2 { font-family:inherit; margin-bottom:10px; }
+
+  .stage-shake { animation:shake .4s; }
+  @keyframes shake { 0%,100%{transform:translateX(0)} 25%{transform:translateX(-6px)} 75%{transform:translateX(6px)} }
+</style>
+</head>
+<body>
+
+<!-- ============ タイトル ============ -->
+<div id="screen-title" class="screen active">
+  <div id="title-parade"></div>
+  <h1>むしむし<br>プログラミング</h1>
+  <button id="btn-start">はじめる</button>
+  <div id="title-ver"></div>
+</div>
+
+<!-- ============ マップ ============ -->
+<div id="screen-map" class="screen">
+  <div class="map-header">
+    <h2>🏝️ じゅんばんの しま</h2>
+    <div class="hbtns">
+      <button id="btn-zukan">📖 ずかん</button>
+      <button id="btn-parent" title="おうちのかたへ">⚙</button>
+    </div>
+  </div>
+  <div id="map-levels"></div>
+</div>
+
+<!-- ============ ゲーム ============ -->
+<div id="screen-game" class="screen">
+  <div id="game-header">
+    <button id="btn-back">← マップ</button>
+    <div id="lv-title"></div>
+    <button id="btn-speak">🔊 読み上げ</button>
+    <button id="btn-mute">🔈</button>
+  </div>
+  <div id="goal-bar">
+    <span>🎯</span><span class="goal-text" id="goal-text"></span>
+    <button id="btn-hint">💡ヒント</button>
+  </div>
+  <div id="program-wrap">
+    <div id="program-label"><span>めいれいカード（タップで けせるよ）</span><span id="card-count"></span></div>
+    <div id="program-row"></div>
+  </div>
+  <div id="stage-wrap">
+    <svg id="stage" xmlns="http://www.w3.org/2000/svg"></svg>
+    <div id="bubble"></div>
+  </div>
+  <div id="palette">
+    <button class="cmd-btn move" data-cmd="U">⬆</button>
+    <button class="cmd-btn move" data-cmd="D">⬇</button>
+    <button class="cmd-btn move" data-cmd="L">⬅</button>
+    <button class="cmd-btn move" data-cmd="R">➡</button>
+    <button class="cmd-btn eat" data-cmd="E">😋<br>食べる</button>
+    <div class="sep"></div>
+    <button class="util-btn" id="btn-undo">一つ<br>けす</button>
+    <button class="util-btn" id="btn-clear">ぜんぶ<br>けす</button>
+    <div class="sep"></div>
+    <button id="btn-run">▶ さぁ行こう！</button>
+  </div>
+</div>
+
+<!-- ============ クリア/メッセージ オーバーレイ ============ -->
+<div id="overlay">
+  <div id="overlay-card">
+    <h3 id="overlay-title">🎉 やったー！</h3>
+    <div id="overlay-creature"></div>
+    <div id="overlay-badges"></div>
+    <div id="overlay-msg"></div>
+    <div id="overlay-btns">
+      <button id="btn-retry">もう一回</button>
+      <button id="btn-map2">マップへ</button>
+      <button id="btn-next" class="primary">つぎへ ▶</button>
+    </div>
+  </div>
+</div>
+
+<!-- ============ ずかん ============ -->
+<div id="screen-zukan" class="screen">
+  <div class="map-header">
+    <h2 id="zukan-title">📖 いきもの ずかん</h2>
+    <div class="hbtns"><button id="btn-zukan-back">← もどる</button></div>
+  </div>
+  <div id="zukan-grid"></div>
+</div>
+
+<!-- ============ おうちのかたへ ============ -->
+<div id="screen-parent" class="screen">
+  <div class="parent-box">
+    <h2>おうちのかたへ</h2>
+    <p>このアプリは、小学校低学年のお子さん向けの「考える力を育てる」パズルゲームです。命令カードを並べて生き物をエサまで導きます。時間制限・ゲームオーバーはなく、何度でもやり直せます。</p>
+    <h3>データについて</h3>
+    <p>クリア状況・ずかんは、この端末のブラウザ内にのみ保存されます（外部送信はありません）。同じURLで開き続ける限り保存されます。</p>
+    <div class="btnrow">
+      <button id="btn-export">バックアップを保存（JSON）</button>
+      <button id="btn-import">バックアップから復元</button>
+      <input type="file" id="import-file" accept=".json,application/json" style="display:none">
+    </div>
+    <div class="btnrow">
+      <button id="btn-reset" class="danger">データを全て消去してやり直す</button>
+    </div>
+    <h3>ヒント機能</h3>
+    <p>同じ面で3回失敗すると「💡ヒント」ボタンが現れます。まずは自分で考えさせて、詰まったときだけ使わせるのがおすすめです。</p>
+    <div class="btnrow"><button id="btn-parent-back">← ゲームにもどる</button></div>
+    <p style="color:#8a929a; font-size:12px; margin-top:10px;" id="parent-ver"></p>
+  </div>
+</div>
+
+<div id="selftest-overlay"><h2>セルフテスト</h2><div id="selftest-out"></div></div>
+
+<script>
+'use strict';
+/* =====================================================================
+   むしむし プログラミング — しま1（じゅんばんの しま）
+   単一HTML / 外部依存なし / iPad Safari 対応 / localStorage 保存
+===================================================================== */
+const APP_VERSION = '1.0.0';
+const DATA_SCHEMA = 1;
+const STORAGE_KEY = 'mushimushi-programming';
+const MAX_CARDS = 20;
+const CELL = 100; // SVG内セルサイズ
+
+/* ---------------- いきもの（SVG・右向きが基本） ---------------- */
+const CREATURES = {
+  kabuto: { name:'カブトムシ', kind:'こん虫',
+    fact:'木のしるが 大すき。りっぱなツノは オスだけに あるんだよ。',
+    svg:`<g><line x1="30" y1="72" x2="22" y2="84" stroke="#4a3216" stroke-width="4" stroke-linecap="round"/><line x1="48" y1="76" x2="44" y2="88" stroke="#4a3216" stroke-width="4" stroke-linecap="round"/><line x1="64" y1="74" x2="68" y2="86" stroke="#4a3216" stroke-width="4" stroke-linecap="round"/><ellipse cx="46" cy="58" rx="30" ry="21" fill="#7a4a21"/><path d="M20 52 Q46 30 72 50" fill="#8f5a2b"/><circle cx="74" cy="52" r="13" fill="#5d3617"/><path d="M80 44 Q88 30 85 22" stroke="#5d3617" stroke-width="5" fill="none" stroke-linecap="round"/><path d="M85 22 L78 16 M85 22 L93 18" stroke="#5d3617" stroke-width="4" fill="none" stroke-linecap="round"/><circle cx="77" cy="51" r="4.5" fill="#fff"/><circle cx="78.5" cy="52" r="2.2" fill="#222"/><path d="M30 50 Q46 42 62 50" stroke="#5d3617" stroke-width="2" fill="none" opacity=".5"/></g>` },
+  ari: { name:'アリ', kind:'こん虫',
+    fact:'自分の 体より ずっと おもいものも はこべる 力もち！',
+    svg:`<g><line x1="40" y1="66" x2="30" y2="82" stroke="#2c2016" stroke-width="3.5" stroke-linecap="round"/><line x1="52" y1="68" x2="50" y2="84" stroke="#2c2016" stroke-width="3.5" stroke-linecap="round"/><line x1="62" y1="66" x2="70" y2="82" stroke="#2c2016" stroke-width="3.5" stroke-linecap="round"/><ellipse cx="32" cy="58" rx="17" ry="13" fill="#4a3423"/><circle cx="53" cy="58" r="10" fill="#5a4028"/><circle cx="70" cy="53" r="12" fill="#4a3423"/><path d="M74 44 Q78 34 74 28" stroke="#4a3423" stroke-width="3" fill="none" stroke-linecap="round"/><path d="M66 44 Q64 34 58 30" stroke="#4a3423" stroke-width="3" fill="none" stroke-linecap="round"/><circle cx="74" cy="52" r="4" fill="#fff"/><circle cx="75.5" cy="53" r="2" fill="#222"/></g>` },
+  dango: { name:'ダンゴムシ', kind:'虫のなかま',
+    fact:'びっくりすると まるくなるよ。じつは エビや カニに 近い なかま！',
+    svg:`<g><line x1="34" y1="74" x2="30" y2="84" stroke="#5a6068" stroke-width="3.5" stroke-linecap="round"/><line x1="46" y1="76" x2="44" y2="86" stroke="#5a6068" stroke-width="3.5" stroke-linecap="round"/><line x1="58" y1="76" x2="58" y2="86" stroke="#5a6068" stroke-width="3.5" stroke-linecap="round"/><path d="M18 74 Q18 34 48 32 Q78 34 80 74 Z" fill="#8a8f98"/><path d="M30 40 Q48 33 66 40 M24 50 Q48 41 74 50 M21 62 Q48 52 78 62" stroke="#6d737d" stroke-width="3" fill="none"/><circle cx="80" cy="66" r="10" fill="#7a8089"/><path d="M84 58 Q88 50 86 46 M78 58 Q78 49 74 46" stroke="#7a8089" stroke-width="3" fill="none" stroke-linecap="round"/><circle cx="83" cy="64" r="3.8" fill="#fff"/><circle cx="84.5" cy="65" r="1.9" fill="#222"/></g>` },
+  katatsu: { name:'カタツムリ', kind:'生きもの',
+    fact:'小さな はが 1万本 いじょう！ はっぱを けずって 食べるよ。',
+    svg:`<g><path d="M14 78 Q40 70 60 74 Q76 76 78 62 Q80 46 74 40" fill="none" stroke="#e8c99a" stroke-width="13" stroke-linecap="round"/><circle cx="40" cy="52" r="23" fill="#c98d4f"/><path d="M40 52 m0 -17 a17 17 0 1 1 -12 29 a11 11 0 1 0 8 -19 a5 5 0 1 1 4 -10" fill="none" stroke="#9a6633" stroke-width="4" stroke-linecap="round"/><path d="M74 44 Q76 32 72 26 M82 48 Q88 38 86 30" stroke="#e8c99a" stroke-width="4" fill="none" stroke-linecap="round"/><circle cx="72" cy="24" r="4" fill="#e8c99a"/><circle cx="87" cy="28" r="4" fill="#e8c99a"/><circle cx="76" cy="58" r="4" fill="#fff"/><circle cx="77.5" cy="59" r="2" fill="#222"/><path d="M72 68 Q76 70 80 68" stroke="#b09268" stroke-width="2.5" fill="none" stroke-linecap="round"/></g>` },
+  risu: { name:'リス', kind:'どうぶつ',
+    fact:'どんぐりを 土に かくすよ。ときどき かくした ばしょを わすれちゃう！',
+    svg:`<g><path d="M34 76 Q6 72 12 44 Q16 20 36 26 Q24 44 34 58 Z" fill="#a2622d"/><ellipse cx="52" cy="62" rx="22" ry="18" fill="#b97a3e"/><circle cx="72" cy="48" r="15" fill="#b97a3e"/><path d="M64 36 L60 24 L72 32 Z" fill="#a2622d"/><path d="M80 36 L84 24 L88 34 Z" fill="#a2622d"/><ellipse cx="54" cy="68" rx="12" ry="9" fill="#e9cfa8"/><circle cx="76" cy="46" r="4.5" fill="#fff"/><circle cx="77.5" cy="47" r="2.2" fill="#222"/><circle cx="85" cy="52" r="3" fill="#7a4a21"/><line x1="46" y1="80" x2="44" y2="88" stroke="#8a5426" stroke-width="4" stroke-linecap="round"/><line x1="62" y1="80" x2="64" y2="88" stroke="#8a5426" stroke-width="4" stroke-linecap="round"/></g>` },
+  kaeru: { name:'カエル', kind:'どうぶつ',
+    fact:'長い したを びゅん！と のばして 虫を つかまえるよ。',
+    svg:`<g><ellipse cx="50" cy="64" rx="28" ry="20" fill="#58a14e"/><ellipse cx="50" cy="70" rx="18" ry="11" fill="#cfe8b8"/><circle cx="34" cy="42" r="11" fill="#58a14e"/><circle cx="66" cy="42" r="11" fill="#58a14e"/><circle cx="34" cy="40" r="6.5" fill="#fff"/><circle cx="66" cy="40" r="6.5" fill="#fff"/><circle cx="36" cy="41" r="3" fill="#222"/><circle cx="68" cy="41" r="3" fill="#222"/><path d="M40 60 Q50 66 60 60" stroke="#3a7a34" stroke-width="3" fill="none" stroke-linecap="round"/><path d="M24 76 Q14 82 20 86 Q28 88 32 82" fill="#4a8a42"/><path d="M76 76 Q86 82 80 86 Q72 88 68 82" fill="#4a8a42"/></g>` },
+};
+
+/* ---------------- レベルデータ ---------------- */
+/* path方式: いける マス を stones で指定（L6）。rocks は しょうがいぶつ */
+const LEVELS = [
+  { id:'1-1', name:'まっすぐ すすもう', creature:'kabuto',
+    grid:{w:5,h:3}, start:{x:0,y:1},
+    foods:[{x:3,y:1,emoji:'🍯',name:'じゅえき'}], rocks:[], par:4,
+    goal:'カブトムシを 🍯じゅえきまで つれて行こう！さいごに「食べる」を わすれずに！',
+    hint:'➡を 3回 ならべて、さいごに「食べる」だよ',
+    speak:'カブトムシを じゅえきまで つれていこう！ さいごに たべるを わすれずに！' },
+  { id:'1-2', name:'まがり道', creature:'ari',
+    grid:{w:5,h:4}, start:{x:0,y:0},
+    foods:[{x:2,y:2,emoji:'🍬',name:'さとうがし'}], rocks:[], par:5,
+    goal:'アリさんは あまいものが 大すき。🍬まで つれて行こう！',
+    hint:'右に 2回、下に 2回で つくよ',
+    speak:'ありさんは あまいものが だいすき。おかしまで つれていこう！' },
+  { id:'1-3', name:'岩を よけて', creature:'dango',
+    grid:{w:5,h:4}, start:{x:0,y:1},
+    foods:[{x:4,y:1,emoji:'🍂',name:'おちば'}], rocks:[{x:2,y:0},{x:2,y:1}], par:7,
+    goal:'岩が とおせんぼ！ 回り道を 考えて 🍂おちばまで 行こう！',
+    hint:'岩の 下がわを 通ってみよう',
+    speak:'いわが とおせんぼ！ まわりみちを かんがえて おちばまで いこう！' },
+  { id:'1-4', name:'どっちの道が 近い？', creature:'katatsu',
+    grid:{w:6,h:5}, start:{x:0,y:2},
+    foods:[{x:5,y:2,emoji:'🥬',name:'はっぱ'}], rocks:[{x:1,y:2},{x:2,y:2},{x:3,y:2},{x:4,y:2},{x:2,y:1}], par:8,
+    goal:'上の道と 下の道、どっちが 近いかな？ くらべてから すすもう！',
+    hint:'上の道は とおまわり。下の道を 数えてみよう',
+    speak:'うえのみちと したのみち、どっちが ちかいかな？ くらべてから すすもう！' },
+  { id:'1-5', name:'どんぐりを 二つ', creature:'risu',
+    grid:{w:6,h:4}, start:{x:0,y:3},
+    foods:[{x:2,y:1,emoji:'🌰',name:'どんぐり'},{x:5,y:3,emoji:'🌰',name:'どんぐり'}], rocks:[], par:11,
+    goal:'どんぐりが 2こ！ どっちから とりに行くか、じゅんばんを 考えよう！',
+    hint:'近い どんぐりから とりに行くと いいよ。1こずつ「食べる」を おしてね',
+    speak:'どんぐりが にこ！ どっちから とりにいくか、じゅんばんを かんがえよう！' },
+  { id:'1-6', name:'池を わたろう', creature:'kaeru',
+    grid:{w:7,h:5}, start:{x:0,y:2},
+    foods:[{x:6,y:3,emoji:'🪰',name:'ハエ'}], rocks:[],
+    stones:[[0,2],[1,2],[2,2],[2,1],[3,1],[4,1],[4,2],[4,3],[5,3],[6,3]], par:10,
+    goal:'ふかい池は 石の上しか あるけないよ。とび石を たどって 🪰まで！',
+    hint:'石を ゆびで なぞってから カードを ならべてみよう',
+    speak:'ふかいいけは いしのうえしか あるけないよ。とびいしを たどって ハエのところまで いこう！' },
+];
+
+const DIRS = { U:{x:0,y:-1}, D:{x:0,y:1}, L:{x:-1,y:0}, R:{x:1,y:0} };
+
+/* ---------------- ゲームエンジン（純ロジック・selftestと共用） ---------------- */
+function isBlocked(level, x, y) {
+  if (x < 0 || y < 0 || x >= level.grid.w || y >= level.grid.h) return 'wall';
+  if (level.rocks.some(r => r.x === x && r.y === y)) return 'rock';
+  if (level.stones && !level.stones.some(s => s[0] === x && s[1] === y)) return 'water';
+  return null;
+}
+function makeState(level) {
+  return { x: level.start.x, y: level.start.y, foods: level.foods.map(f => ({...f, eaten:false})) };
+}
+// 1コマンド適用 → イベントを返す（UIもselftestもこれを使う）
+function applyCmd(st, cmd, level) {
+  if (cmd === 'E') {
+    const f = st.foods.find(f => !f.eaten && f.x === st.x && f.y === st.y);
+    if (!f) return { type:'eat-empty' };
+    f.eaten = true;
+    return { type:'eat', food:f, allEaten: st.foods.every(f => f.eaten) };
+  }
+  const d = DIRS[cmd];
+  const nx = st.x + d.x, ny = st.y + d.y;
+  const block = isBlocked(level, nx, ny);
+  if (block) return { type:'blocked', reason:block, nx, ny };
+  st.x = nx; st.y = ny;
+  return { type:'move', x:nx, y:ny };
+}
+function simulate(level, program) {
+  const st = makeState(level);
+  let steps = 0;
+  for (const cmd of program) {
+    steps++;
+    const ev = applyCmd(st, cmd, level);
+    if (ev.type === 'blocked') return { result:'fail-' + ev.reason, steps };
+    if (ev.type === 'eat-empty') return { result:'fail-eat-empty', steps };
+    if (ev.type === 'eat' && ev.allEaten) return { result:'clear', steps };
+  }
+  return { result: st.foods.every(f => f.eaten) ? 'clear' : 'fail-food-left', steps };
+}
+
+/* ---------------- 保存 ---------------- */
+function defaultSave() {
+  return { schema: DATA_SCHEMA, version: APP_VERSION, cleared:{}, zukan:[], settings:{ mute:false } };
+}
+function loadSave() {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (!raw) return defaultSave();
+    const d = JSON.parse(raw);
+    if (!d || typeof d !== 'object' || !d.cleared) return defaultSave();
+    d.schema = d.schema || DATA_SCHEMA;
+    d.zukan = d.zukan || [];
+    d.settings = d.settings || { mute:false };
+    return d;
+  } catch(e) { return defaultSave(); }
+}
+function persist() {
+  try { localStorage.setItem(STORAGE_KEY, JSON.stringify(SAVE)); } catch(e) {}
+}
+let SAVE = loadSave();
+if (navigator.storage && navigator.storage.persist) { navigator.storage.persist().catch(()=>{}); }
+
+/* ---------------- サウンド ---------------- */
+let audioCtx = null;
+function beep(freq, dur, type, vol, when) {
+  if (SAVE.settings.mute) return;
+  try {
+    if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    if (audioCtx.state === 'suspended') audioCtx.resume();
+    const t = audioCtx.currentTime + (when || 0);
+    const o = audioCtx.createOscillator(), g = audioCtx.createGain();
+    o.type = type || 'sine'; o.frequency.value = freq;
+    g.gain.setValueAtTime(0.0001, t);
+    g.gain.linearRampToValueAtTime(vol || 0.12, t + 0.01);
+    g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+    o.connect(g); g.connect(audioCtx.destination);
+    o.start(t); o.stop(t + dur + 0.05);
+  } catch(e) {}
+}
+const SFX = {
+  tap:   () => beep(660, 0.08, 'sine', 0.08),
+  step:  () => beep(440, 0.09, 'triangle', 0.09),
+  eat:   () => { beep(520, 0.12, 'sine', 0.12); beep(780, 0.15, 'sine', 0.1, 0.08); },
+  fail:  () => beep(180, 0.3, 'sine', 0.1),
+  clear: () => { [523,659,784,1047].forEach((f,i) => beep(f, 0.22, 'sine', 0.11, i*0.13)); },
+};
+
+/* ---------------- よみあげ ---------------- */
+function speak(text) {
+  try {
+    speechSynthesis.cancel();
+    const u = new SpeechSynthesisUtterance(text);
+    u.lang = 'ja-JP'; u.rate = 0.9; u.pitch = 1.1;
+    speechSynthesis.speak(u);
+  } catch(e) {}
+}
+
+/* ---------------- 画面管理 ---------------- */
+const $ = id => document.getElementById(id);
+function showScreen(name) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  $('screen-' + name).classList.add('active');
+}
+function creatureSVG(key, size) {
+  return `<svg viewBox="0 0 100 100" width="${size||64}" height="${size||64}" xmlns="http://www.w3.org/2000/svg">${CREATURES[key].svg}</svg>`;
+}
+
+/* ---------------- タイトル ---------------- */
+function initTitle() {
+  $('title-parade').innerHTML = Object.keys(CREATURES).map(k => creatureSVG(k)).join('');
+  $('title-ver').textContent = 'v' + APP_VERSION;
+  $('parent-ver').textContent = 'むしむしプログラミング v' + APP_VERSION + '（データ形式 ' + DATA_SCHEMA + '）';
+}
+$('btn-start').addEventListener('click', () => { SFX.tap(); renderMap(); showScreen('map'); });
+
+/* ---------------- マップ ---------------- */
+function isUnlocked(idx) {
+  if (idx === 0) return true;
+  return !!(SAVE.cleared[LEVELS[idx-1].id] && SAVE.cleared[LEVELS[idx-1].id].clear);
+}
+function renderMap() {
+  const wrap = $('map-levels');
+  wrap.innerHTML = '';
+  LEVELS.forEach((lv, i) => {
+    const b = document.createElement('button');
+    b.className = 'lv-btn' + (isUnlocked(i) ? '' : ' locked');
+    const rec = SAVE.cleared[lv.id] || {};
+    const badges = (rec.clear ? '⭐' : '') + (rec.perfect ? '🏅' : '');
+    b.innerHTML = `<span class="lv-num">ステージ${i+1}</span>${creatureSVG(lv.creature, 60)}<span class="lv-name">${lv.name}</span><span class="lv-badges">${badges}</span>`;
+    b.addEventListener('click', () => {
+      if (!isUnlocked(i)) { SFX.fail(); return; }
+      SFX.tap(); startLevel(i);
+    });
+    wrap.appendChild(b);
+  });
+}
+$('btn-zukan').addEventListener('click', () => { SFX.tap(); renderZukan(); showScreen('zukan'); });
+$('btn-zukan-back').addEventListener('click', () => { SFX.tap(); renderMap(); showScreen('map'); });
+$('btn-parent').addEventListener('click', () => { SFX.tap(); showScreen('parent'); });
+$('btn-parent-back').addEventListener('click', () => { SFX.tap(); renderMap(); showScreen('map'); });
+
+/* ---------------- ずかん ---------------- */
+function renderZukan() {
+  const grid = $('zukan-grid');
+  grid.innerHTML = '';
+  const keys = Object.keys(CREATURES);
+  const got = keys.filter(k => SAVE.zukan.includes(k)).length;
+  $('zukan-title').textContent = `📖 生きもの ずかん（${got}／${keys.length}）`;
+  keys.forEach(k => {
+    const c = CREATURES[k];
+    const known = SAVE.zukan.includes(k);
+    const div = document.createElement('div');
+    div.className = 'zk-card' + (known ? '' : ' unknown');
+    div.innerHTML = known
+      ? `${creatureSVG(k, 72)}<div class="zk-name">${c.name}</div><div class="zk-fact">${c.fact}</div>`
+      : `${creatureSVG(k, 72)}<div class="zk-name">？？？</div><div class="zk-fact">クリアすると なかま入りするよ</div>`;
+    grid.appendChild(div);
+  });
+}
+
+/* ---------------- ゲーム本体 ---------------- */
+let G = null; // 現在のゲーム状態
+
+function startLevel(idx) {
+  const level = LEVELS[idx];
+  G = { idx, level, program: [], state: makeState(level), running:false, failCount:0 };
+  $('lv-title').textContent = `ステージ${idx+1}：${level.name}`;
+  $('goal-text').textContent = level.goal;
+  $('btn-hint').classList.remove('show');
+  updateMuteBtn();
+  renderProgram();
+  renderStage();
+  showScreen('game');
+}
+
+function renderProgram() {
+  const row = $('program-row');
+  row.innerHTML = '';
+  G.program.forEach((cmd, i) => {
+    const d = document.createElement('div');
+    d.className = 'pcard ' + (cmd === 'E' ? 'eat' : 'move');
+    d.dataset.i = i;
+    d.innerHTML = `<span class="pnum">${i+1}</span>` + (cmd === 'E' ? '😋<br>食べる' : {U:'⬆',D:'⬇',L:'⬅',R:'➡'}[cmd]);
+    d.addEventListener('click', () => {
+      if (G.running) return;
+      SFX.tap();
+      G.program.splice(i, 1);
+      renderProgram();
+    });
+    row.appendChild(d);
+  });
+  $('card-count').textContent = `${G.program.length}まい ／ 🏅は ${G.level.par}まいまで`;
+}
+
+function tileFill(x, y) { return (x + y) % 2 === 0 ? 'var(--grass1)' : 'var(--grass2)'; }
+
+function renderStage() {
+  const lv = G.level, w = lv.grid.w, h = lv.grid.h;
+  const svg = $('stage');
+  svg.setAttribute('viewBox', `0 0 ${w*CELL} ${h*CELL}`);
+  // 画面に収める
+  const isWide = w / h > 1.6;
+  svg.style.width = isWide ? '100%' : 'auto';
+  svg.style.height = isWide ? 'auto' : '100%';
+  let s = '';
+  for (let y = 0; y < h; y++) for (let x = 0; x < w; x++) {
+    const water = lv.stones && !lv.stones.some(p => p[0] === x && p[1] === y);
+    if (water) {
+      s += `<rect x="${x*CELL}" y="${y*CELL}" width="${CELL}" height="${CELL}" fill="#7cbfec"/>`;
+      s += `<path d="M${x*CELL+18} ${y*CELL+55} q10 -8 20 0 q10 8 20 0 q10 -8 24 0" stroke="#a8d8f5" stroke-width="4" fill="none" stroke-linecap="round"/>`;
+    } else {
+      s += `<rect x="${x*CELL}" y="${y*CELL}" width="${CELL}" height="${CELL}" fill="${tileFill(x,y)}"/>`;
+      if (lv.stones) s += `<ellipse cx="${x*CELL+50}" cy="${y*CELL+55}" rx="38" ry="30" fill="#d8d2c2" stroke="#b8b2a2" stroke-width="3"/>`;
+    }
+  }
+  // グリッド線
+  s += `<g stroke="rgba(255,255,255,.35)" stroke-width="2">`;
+  for (let x = 1; x < w; x++) s += `<line x1="${x*CELL}" y1="0" x2="${x*CELL}" y2="${h*CELL}"/>`;
+  for (let y = 1; y < h; y++) s += `<line x1="0" y1="${y*CELL}" x2="${w*CELL}" y2="${y*CELL}"/>`;
+  s += `</g>`;
+  // いわ
+  lv.rocks.forEach(r => {
+    s += `<g transform="translate(${r.x*CELL},${r.y*CELL})"><ellipse cx="50" cy="62" rx="36" ry="26" fill="#9a938a"/><ellipse cx="42" cy="50" rx="26" ry="20" fill="#aaa39a"/><ellipse cx="36" cy="44" rx="8" ry="5" fill="#c2bbb2"/></g>`;
+  });
+  // エサ
+  lv.foods.forEach((f, i) => {
+    s += `<text id="food-${i}" x="${f.x*CELL+50}" y="${f.y*CELL+68}" font-size="56" text-anchor="middle">${f.emoji}</text>`;
+  });
+  // スタートマーク
+  s += `<rect x="${lv.start.x*CELL+6}" y="${lv.start.y*CELL+6}" width="${CELL-12}" height="${CELL-12}" rx="14" fill="none" stroke="#fff" stroke-width="3" stroke-dasharray="8 7" opacity=".7"/>`;
+  // 主人公
+  s += `<g id="actor" style="transition:transform .55s ease-in-out"><g id="actor-flip" transform-origin="50 50">${CREATURES[lv.creature].svg}</g></g>`;
+  svg.innerHTML = s;
+  placeActor(lv.start.x, lv.start.y, true);
+}
+
+function placeActor(x, y, instant) {
+  const actor = $('actor');
+  if (!actor) return;
+  if (instant) { actor.style.transition = 'none'; }
+  actor.style.transform = `translate(${x*CELL}px, ${y*CELL}px)`;
+  if (instant) { void actor.getBoundingClientRect(); actor.style.transition = 'transform .55s ease-in-out'; }
+}
+function faceActor(cmd) {
+  const flip = $('actor-flip');
+  if (!flip) return;
+  if (cmd === 'L') flip.setAttribute('transform', 'scale(-1,1) translate(-100,0)');
+  if (cmd === 'R') flip.removeAttribute('transform');
+}
+
+function showBubble(text, ms) {
+  const b = $('bubble');
+  b.textContent = text;
+  b.classList.remove('show'); void b.offsetWidth; b.classList.add('show');
+  clearTimeout(showBubble._t);
+  showBubble._t = setTimeout(() => b.classList.remove('show'), ms || 2200);
+}
+
+const sleep = ms => new Promise(r => setTimeout(r, ms));
+
+/* --- 実行 --- */
+async function runProgram() {
+  if (G.running) return;
+  if (G.program.length === 0) { showBubble('カードを ならべてね'); SFX.fail(); return; }
+  G.running = true;
+  document.body.classList.add('running');
+  // リセット
+  G.state = makeState(G.level);
+  renderStage();
+  await sleep(400);
+
+  const cards = $('program-row').children;
+  let failed = false;
+
+  for (let i = 0; i < G.program.length; i++) {
+    const cmd = G.program[i];
+    for (const c of cards) c.classList.remove('exec');
+    cards[i].classList.add('exec');
+    cards[i].scrollIntoView({ block:'nearest', inline:'center', behavior:'smooth' });
+    await sleep(150);
+
+    const ev = applyCmd(G.state, cmd, G.level);
+
+    if (ev.type === 'move') {
+      faceActor(cmd);
+      SFX.step();
+      placeActor(ev.x, ev.y);
+      await sleep(620);
+    } else if (ev.type === 'blocked') {
+      // ちょっとだけ進んで戻る
+      faceActor(cmd);
+      const d = DIRS[cmd];
+      const a = $('actor');
+      a.style.transition = 'transform .2s';
+      a.style.transform = `translate(${(G.state.x + d.x*0.25)*CELL}px, ${(G.state.y + d.y*0.25)*CELL}px)`;
+      await sleep(210);
+      a.style.transform = `translate(${G.state.x*CELL}px, ${G.state.y*CELL}px)`;
+      await sleep(210);
+      a.style.transition = 'transform .55s ease-in-out';
+      $('stage').classList.add('stage-shake');
+      setTimeout(() => $('stage').classList.remove('stage-shake'), 450);
+      SFX.fail();
+      const msg = ev.reason === 'rock' ? '岩で 通れないよ！' : ev.reason === 'water' ? 'そこは ふかい 水だよ！' : 'そっちは 行けないよ！';
+      showBubble('あれれ？ ' + msg, 2600);
+      failed = true;
+      break;
+    } else if (ev.type === 'eat') {
+      SFX.eat();
+      const fi = G.level.foods.indexOf(G.level.foods.find(f => f.x === ev.food.x && f.y === ev.food.y));
+      const el = $('food-' + fi);
+      if (el) { el.style.transition = 'opacity .4s, font-size .4s'; el.style.opacity = '0'; }
+      showBubble('ぱくっ！ ' + ev.food.name + 'を 食べたよ！', 1600);
+      await sleep(650);
+      if (ev.allEaten) { await sleep(300); onClear(i + 1); return; }
+    } else if (ev.type === 'eat-empty') {
+      SFX.fail();
+      showBubble('あれれ？ ここには 食べものが ないよ', 2600);
+      failed = true;
+      break;
+    }
+  }
+
+  for (const c of cards) c.classList.remove('exec');
+
+  if (!failed) {
+    // 全カード実行したがエサが残っている
+    SFX.fail();
+    const remain = G.state.foods.filter(f => !f.eaten).length;
+    const onFood = G.state.foods.some(f => !f.eaten && f.x === G.state.x && f.y === G.state.y);
+    showBubble(onFood ? 'おしい！「食べる」カードを わすれてるよ！' : 'まだ 食べものが のこってるよ（あと' + remain + 'こ）', 3000);
+    failed = true;
+  }
+
+  if (failed) {
+    G.failCount++;
+    if (G.failCount >= 3) $('btn-hint').classList.add('show');
+    await sleep(1400);
+    G.state = makeState(G.level);
+    placeActor(G.level.start.x, G.level.start.y, true);
+    // エサ復活
+    G.level.foods.forEach((f, i) => { const el = $('food-' + i); if (el) { el.style.opacity = '1'; } });
+    showBubble('もう一回 考えてみよう！', 2000);
+  }
+  G.running = false;
+  document.body.classList.remove('running');
+}
+
+function onClear(usedCards) {
+  SFX.clear();
+  const lv = G.level;
+  const perfect = usedCards <= lv.par;
+  const rec = SAVE.cleared[lv.id] || {};
+  const firstClear = !rec.clear;
+  rec.clear = true;
+  if (perfect) rec.perfect = true;
+  SAVE.cleared[lv.id] = rec;
+  const newZukan = !SAVE.zukan.includes(lv.creature);
+  if (newZukan) SAVE.zukan.push(lv.creature);
+  persist();
+
+  $('overlay-title').textContent = '🎉 やったー！';
+  $('overlay-creature').innerHTML = creatureSVG(lv.creature, 90);
+  $('overlay-badges').textContent = '⭐' + (perfect ? ' 🏅' : '');
+  let msg = `カード${usedCards}まいで クリア！`;
+  if (perfect) msg += '<br>🏅 ぴったりしょう！ すごい！';
+  else msg += `<br>カード${lv.par}まいまでで クリアすると 🏅が もらえるよ`;
+  if (newZukan) msg += `<br><b>📖 ずかんに「${CREATURES[lv.creature].name}」が なかま入り！</b>`;
+  $('overlay-msg').innerHTML = msg;
+  $('btn-next').style.display = (G.idx < LEVELS.length - 1) ? '' : 'none';
+  if (LEVELS.every(l => SAVE.cleared[l.id] && SAVE.cleared[l.id].clear)) {
+    $('overlay-msg').innerHTML += '<br><b>🏝️ じゅんばんの しま、ぜんぶ クリア！！</b>';
+  }
+  $('overlay').classList.add('show');
+  G.running = false;
+  document.body.classList.remove('running');
+  if (firstClear && !SAVE.settings.mute) speak('やったー！クリアだよ！');
+}
+
+/* --- ゲーム画面のボタン --- */
+document.querySelectorAll('.cmd-btn').forEach(b => {
+  b.addEventListener('click', () => {
+    if (G.running) return;
+    if (G.program.length >= MAX_CARDS) { showBubble('カードは ' + MAX_CARDS + 'まいまでだよ'); return; }
+    SFX.tap();
+    G.program.push(b.dataset.cmd);
+    renderProgram();
+    $('program-row').scrollLeft = $('program-row').scrollWidth;
+  });
+});
+$('btn-undo').addEventListener('click', () => { if (G.running) return; SFX.tap(); G.program.pop(); renderProgram(); });
+$('btn-clear').addEventListener('click', () => { if (G.running) return; SFX.tap(); G.program = []; renderProgram(); });
+$('btn-run').addEventListener('click', runProgram);
+$('btn-back').addEventListener('click', () => { if (G && G.running) return; SFX.tap(); speechSynthesis.cancel(); renderMap(); showScreen('map'); });
+$('btn-speak').addEventListener('click', () => { SFX.tap(); speak(G.level.speak || G.level.goal); });
+$('btn-hint').addEventListener('click', () => { SFX.tap(); showBubble('💡 ' + G.level.hint, 5000); speak(G.level.hint); });
+$('btn-mute').addEventListener('click', () => {
+  SAVE.settings.mute = !SAVE.settings.mute; persist(); updateMuteBtn();
+  if (SAVE.settings.mute) speechSynthesis.cancel();
+});
+function updateMuteBtn() { $('btn-mute').textContent = SAVE.settings.mute ? '🔇' : '🔈'; }
+
+/* --- オーバーレイのボタン --- */
+$('btn-retry').addEventListener('click', () => { SFX.tap(); $('overlay').classList.remove('show'); startLevel(G.idx); });
+$('btn-map2').addEventListener('click', () => { SFX.tap(); $('overlay').classList.remove('show'); renderMap(); showScreen('map'); });
+$('btn-next').addEventListener('click', () => { SFX.tap(); $('overlay').classList.remove('show'); startLevel(G.idx + 1); });
+
+/* ---------------- バックアップ ---------------- */
+$('btn-export').addEventListener('click', () => {
+  const blob = new Blob([JSON.stringify(SAVE, null, 2)], { type:'application/json' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  const d = new Date();
+  a.download = `むしむしプログラミング_バックアップ_${d.getFullYear()}${String(d.getMonth()+1).padStart(2,'0')}${String(d.getDate()).padStart(2,'0')}.json`;
+  a.click();
+  setTimeout(() => URL.revokeObjectURL(a.href), 5000);
+});
+$('btn-import').addEventListener('click', () => $('import-file').click());
+$('import-file').addEventListener('change', e => {
+  const file = e.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = () => {
+    try {
+      const d = JSON.parse(reader.result);
+      if (!d || typeof d !== 'object' || !d.cleared) throw new Error('形式が違います');
+      SAVE = d;
+      SAVE.schema = SAVE.schema || DATA_SCHEMA;
+      SAVE.zukan = SAVE.zukan || [];
+      SAVE.settings = SAVE.settings || { mute:false };
+      persist();
+      alert('復元しました');
+    } catch(err) { alert('読み込めませんでした：バックアップファイルを確認してください'); }
+    e.target.value = '';
+  };
+  reader.readAsText(file);
+});
+$('btn-reset').addEventListener('click', () => {
+  if (!confirm('クリア状況・ずかんを全て消去します。よろしいですか？')) return;
+  if (!confirm('本当に消去しますか？（元に戻せません）')) return;
+  SAVE = defaultSave();
+  persist();
+  alert('消去しました');
+});
+
+/* ---------------- セルフテスト（?selftest=1） ---------------- */
+const SOLUTIONS = {
+  '1-1': ['R','R','R','E'],
+  '1-2': ['R','R','D','D','E'],
+  '1-3': ['R','D','R','R','U','R','E'],
+  '1-4': ['D','R','R','R','R','R','U','E'],
+  '1-5': ['U','U','R','R','E','D','D','R','R','R','E'],
+  '1-6': ['R','R','U','R','R','D','D','R','R','E'],
+};
+function runSelftest() {
+  const out = [];
+  const T = (name, cond) => out.push({ name, ok: !!cond });
+
+  // 1-6: 各面の想定解がクリアでき、手数がparと一致（=🏅がとれる）
+  LEVELS.forEach(lv => {
+    const r = simulate(lv, SOLUTIONS[lv.id]);
+    T(`${lv.id} 想定解でクリア`, r.result === 'clear');
+    T(`${lv.id} 想定解の手数(${SOLUTIONS[lv.id].length}) == par(${lv.par})`, SOLUTIONS[lv.id].length === lv.par && r.result === 'clear');
+  });
+  // 失敗パターン
+  T('画面外に出ると fail-wall', simulate(LEVELS[0], ['L']).result === 'fail-wall');
+  T('岩に当たると fail-rock', simulate(LEVELS[2], ['R','R']).result === 'fail-rock');
+  T('水に入ると fail-water', simulate(LEVELS[5], ['D']).result === 'fail-water');
+  T('何もない所で「たべる」は fail-eat-empty', simulate(LEVELS[0], ['E']).result === 'fail-eat-empty');
+  T('エサを食べずに終了は fail-food-left', simulate(LEVELS[0], ['R','R','R']).result === 'fail-food-left');
+  T('どんぐり1個だけでは fail-food-left', simulate(LEVELS[4], ['U','U','R','R','E']).result === 'fail-food-left');
+  // 1-4: 上回り（遠回り）はクリアできるがparを超える
+  const longRoute = ['U','R','U','R','R','D','R','R','D','E'];
+  const lr = simulate(LEVELS[3], longRoute);
+  T('1-4 遠回りルートもクリア可', lr.result === 'clear');
+  T('1-4 遠回りは par 超え（🏅なし）', longRoute.length > LEVELS[3].par);
+  // レベル整合性
+  T('全レベル par <= MAX_CARDS', LEVELS.every(lv => lv.par <= MAX_CARDS));
+  T('全レベル スタート地点が通行可', LEVELS.every(lv => !isBlocked(lv, lv.start.x, lv.start.y)));
+  T('全レベル エサが通行可能マス上', LEVELS.every(lv => lv.foods.every(f => !isBlocked(lv, f.x, f.y))));
+  T('全レベル 主人公が図鑑に定義済み', LEVELS.every(lv => !!CREATURES[lv.creature]));
+  // 保存
+  const bak = localStorage.getItem(STORAGE_KEY);
+  try {
+    const test = defaultSave();
+    test.cleared['1-1'] = { clear:true, perfect:true };
+    test.zukan.push('kabuto');
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(test));
+    const re = loadSave();
+    T('保存→読込 roundtrip', re.cleared['1-1'].perfect === true && re.zukan.includes('kabuto'));
+    localStorage.setItem(STORAGE_KEY, '{"broken":');
+    T('壊れたデータでもデフォルトで起動', loadSave().cleared && Object.keys(loadSave().cleared).length === 0);
+  } finally {
+    if (bak === null) localStorage.removeItem(STORAGE_KEY); else localStorage.setItem(STORAGE_KEY, bak);
+  }
+
+  const okCount = out.filter(t => t.ok).length;
+  const el = $('selftest-out');
+  el.innerHTML = out.map(t => `<div class="${t.ok?'ok':'ng'}">${t.ok?'✅':'❌'} ${t.name}</div>`).join('')
+    + `<h2 style="margin-top:14px">${okCount} / ${out.length} 件 合格</h2>`;
+  $('selftest-overlay').classList.add('show');
+  document.title = `selftest ${okCount}/${out.length}`;
+  return { ok: okCount, total: out.length };
+}
+
+/* ---------------- 起動 ---------------- */
+initTitle();
+if (location.search.includes('selftest=1')) runSelftest();
+</script>
+</body>
+</html>
