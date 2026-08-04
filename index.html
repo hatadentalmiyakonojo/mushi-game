@@ -171,6 +171,14 @@
   #overlay-card svg { width:86px; height:auto; }
   #overlay-badges { font-size:28px; min-height:34px; }
   #overlay-msg { font-size:clamp(14px,2.4vw,17px); line-height:1.55; }
+  /* とっておきの まめちしき */
+  #overlay-fact { display:none; background:#fff8e0; border:3px dashed #f0c860; border-radius:16px;
+                  padding:11px 16px 13px; text-align:left; animation:pop2 .5s .25s backwards; }
+  #overlay-fact.show { display:block; }
+  #overlay-fact .of-head { display:flex; align-items:center; gap:9px; justify-content:space-between;
+                           font-weight:bold; color:#b07d0a; font-size:clamp(12px,2.1vw,15px); margin-bottom:6px; }
+  #overlay-fact .of-head button { font-size:12px; padding:6px 11px; background:#fff; flex-shrink:0; }
+  #overlay-fact .of-body { font-size:clamp(13px,2.3vw,16px); line-height:1.65; }
   #overlay-btns { display:flex; gap:12px; flex-wrap:wrap; justify-content:center; }
   #overlay-btns button { font-size:clamp(15px,2.6vw,19px); padding:13px 20px; font-weight:bold; }
   #overlay-btns .primary { background:var(--accent); color:#fff; }
@@ -194,6 +202,8 @@
   .zk-card svg { width:clamp(48px,6.4vw,66px); height:auto; }
   .zk-card .zk-name { font-weight:bold; font-size:clamp(13px,2vw,16px); }
   .zk-card .zk-fact { font-size:clamp(11px,1.7vw,13px); line-height:1.5; color:#6a5f4a; text-align:center; }
+  .zk-card .zk-wow { font-size:clamp(11px,1.7vw,13px); line-height:1.55; color:#8a6a2a; text-align:left;
+                     background:#fff6d8; border-radius:10px; padding:7px 9px; width:100%; }
   .zk-card.unknown svg { filter:brightness(0) opacity(.25); }
   .zk-card.unknown .zk-fact { color:#b0a888; }
 
@@ -301,6 +311,7 @@
     <div id="overlay-creature"></div>
     <div id="overlay-badges"></div>
     <div id="overlay-msg"></div>
+    <div id="overlay-fact"></div>
     <div id="overlay-btns">
       <button id="btn-retry">もう一回</button>
       <button id="btn-map2">マップへ</button>
@@ -391,7 +402,7 @@
    単一HTML / 外部依存なし / iPad Safari 対応 / localStorage 保存
    しま1 じゅんばん / しま2 くりかえし / しま3 もしも / しま4 名前をつける / しま5 じゆう
 ===================================================================== */
-const APP_VERSION = '2.1.0';
+const APP_VERSION = '2.2.0';
 const DATA_SCHEMA = 1;
 const STORAGE_KEY = 'mushimushi-programming';
 const CELL = 100;          // SVG内セルサイズ
@@ -456,7 +467,7 @@ const CREATURES = {
 
   /* --- しま4 --- */
   usagi: { name:'ウサギ',
-    fact:'耳が 長いのは 音を よく きくため。目は 横にも よく 見える。',
+    fact:'耳が 長いのは 音を よく きくため。目は うしろまで 見える。',
     svg:`<g><ellipse cx="42" cy="66" rx="27" ry="20" fill="#f5f0e6"/><circle cx="16" cy="62" r="11" fill="#fff"/><circle cx="68" cy="52" r="17" fill="#f8f4ea"/><ellipse cx="61" cy="26" rx="6.5" ry="19" fill="#f8f4ea" transform="rotate(-8 61 26)"/><ellipse cx="77" cy="26" rx="6.5" ry="19" fill="#f8f4ea" transform="rotate(9 77 26)"/><ellipse cx="61" cy="28" rx="3" ry="12" fill="#f7c6cf" transform="rotate(-8 61 28)"/><ellipse cx="77" cy="28" rx="3" ry="12" fill="#f7c6cf" transform="rotate(9 77 28)"/><circle cx="76" cy="50" r="3.6" fill="#3a3226"/><circle cx="62" cy="50" r="3.6" fill="#3a3226"/><path d="M69 58 l-4.5 -4 l9 0 z" fill="#f7a6b5"/><line x1="34" y1="82" x2="31" y2="88" stroke="#e0d8c8" stroke-width="4" stroke-linecap="round"/><line x1="52" y1="84" x2="53" y2="90" stroke="#e0d8c8" stroke-width="4" stroke-linecap="round"/></g>` },
   kame: { name:'カメ',
     fact:'ゆっくり あるくけど、100年 いじょう 生きる ことも ある。',
@@ -471,6 +482,33 @@ const CREATURES = {
     fact:'鳥だけど 空を とばずに、海を およぐよ。およぐのは とても 早い。',
     svg:`<g><ellipse cx="46" cy="62" rx="26" ry="30" fill="#33404d"/><ellipse cx="50" cy="66" rx="17" ry="24" fill="#fdfbf6"/><circle cx="54" cy="32" r="19" fill="#33404d"/><ellipse cx="58" cy="38" rx="12" ry="11" fill="#fdfbf6"/><path d="M70 33 l15 5 l-15 5 z" fill="#f4a63a"/><circle cx="63" cy="27" r="4.5" fill="#fff"/><circle cx="64.5" cy="28" r="2.2" fill="#222"/><path d="M22 58 q-12 14 -3 23 q9 -7 9 -19 z" fill="#2a343f"/><ellipse cx="40" cy="90" rx="10" ry="5" fill="#f4a63a"/><ellipse cx="60" cy="90" rx="10" ry="5" fill="#f4a63a"/></g>` },
 };
+
+/* とっておきの まめちしき（クリアした ときに 出る・ずかんにも のこる）
+   ※ 2年生までの 漢字だけ（selftestで 自動チェック）・内容は 事実に 合わせること */
+const WOW = {
+  kabuto:  '体の 20ばいの おもさを ひっぱれるよ。人が 車を ひっぱるのと 同じくらいの 力もちだ！',
+  ari:     'アリの ぎょうれつは、先に 行った なかまが つけた においの 道を たどって いるんだ。',
+  dango:   'かべに ぶつかると 右、つぎは 左、と こうごに まがる くせが あるよ。じぶんで ためして みてね！',
+  katatsu: 'からと 体は くっついて いて、ぬぐ ことは できないよ。ナメクジに なる というのは まちがい。',
+  risu:    'わすれられた どんぐりは めを 出して 木に なる。リスは しらないうちに 森を 作って いるんだ。',
+  kaeru:   'ものを のみこむ とき 目を つぶるよ。目玉を 下げて、のどの おくへ おしこんで いるんだ。',
+  batta:   'バッタの 耳は 頭に ないよ。おなかの よこに あるんだ。',
+  tento:   'てんとうむしは 上へ 上へと のぼって いく。てっぺんまで 行くと はねを 広げて とび立つよ。',
+  hachi:   '8の字に おどる ダンスで、花の ばしょを なかまに 教えるんだ。',
+  chou:    '足で あじが わかるよ。花に とまった しゅんかんに、みつが あるか わかるんだ。',
+  semi:    '鳴くのは オスだけ。メスに 来て ほしくて 鳴いて いるんだよ。',
+  kamakiri:'首を うしろまで 回せる めずらしい 虫。目で えものを ずっと おいかけて いるよ。',
+  tonbo:   '小さな 目が 1万こ いじょう あつまって、あの 大きな 目に なって いるんだ。',
+  kuwagata:'おとなに なってから 3年 いじょう 生きる ものも いるよ。虫の 中では とても 長生き。',
+  hotaru:  'ホタルの 光は さわっても あつく ならない ふしぎな 光。オスと メスが 光で よび合って いるんだ。',
+  amenbo:  'あめの ような あまい においが するから「アメンボ」。名前の りゆうは においなんだ。',
+  usagi:   '耳から 体の ねつを にがして、あつさを ふせいで いるんだ。耳は 大きな せんぷうきだね。',
+  kame:    'こうらは 中の ほねと つながって いるよ。だから ぬいだり できないんだ。',
+  harinezumi:'はりは かたく なった 毛。ネズミでは なく、モグラに 近い なかまだよ。',
+  kitsune: '雪の 下を 走る ねずみの 音を 聞きわけて、まっすぐ 頭から とびこむよ。',
+  penguin: 'コウテイペンギンは 海の 500m 下まで もぐれるよ。ビルより ずっと ふかい ところだ。',
+};
+Object.keys(WOW).forEach(k => { if (CREATURES[k]) CREATURES[k].wow = WOW[k]; });
 
 /* ---------------- 命令ノード ---------------- */
 let NID = 0;
@@ -947,8 +985,10 @@ function renderZukan() {
       const div = document.createElement('div');
       div.className = 'zk-card' + (known ? '' : ' unknown');
       div.innerHTML = known
-        ? `${creatureSVG(k, 66)}<div class="zk-name">${c.name}</div><div class="zk-fact">${c.fact}</div>`
+        ? `${creatureSVG(k, 66)}<div class="zk-name">${c.name}</div><div class="zk-fact">${c.fact}</div>` +
+          `<div class="zk-wow">🔎 ${c.wow}</div>`
         : `${creatureSVG(k, 66)}<div class="zk-name">？？？</div><div class="zk-fact">クリアすると なかま入りするよ</div>`;
+      if (known) div.addEventListener('click', () => { SFX.tap(); speak(c.name + '。' + c.fact + ' ' + c.wow); });
       row.appendChild(div);
     });
     grid.appendChild(row);
@@ -1429,6 +1469,7 @@ function onClear(usedSteps) {
     $('overlay-msg').innerHTML = `じぶんで 作った マップを クリア！<br>カード${cards}まい・${usedSteps}歩 だったよ。`;
     $('btn-next').style.display = 'none';
     $('btn-map2').textContent = 'マップを なおす';
+    $('overlay-fact').classList.remove('show');
     $('overlay').classList.add('show');
     return;
   }
@@ -1461,9 +1502,20 @@ function onClear(usedSteps) {
     if (next) msg += `<br>つぎは <b>${next.icon} ${next.name}</b>だ！`;
   }
   $('overlay-msg').innerHTML = msg;
+  showWowFact(lv.creature);
   $('btn-next').style.display = last ? 'none' : '';
   $('overlay').classList.add('show');
-  if (firstClear) speak('やったー！クリアだよ！');
+  if (firstClear) speak('やったー！クリアだよ！ ' + CREATURES[lv.creature].wow);
+}
+/* とっておきの まめちしきを 出す */
+function showWowFact(key) {
+  const c = CREATURES[key];
+  const fx = $('overlay-fact');
+  if (!c || !c.wow) { fx.classList.remove('show'); return; }
+  fx.innerHTML = `<div class="of-head"><span>🔎 ${c.name}の とっておきの まめちしき</span>` +
+                 `<button type="button">🔊 読む</button></div><div class="of-body">${c.wow}</div>`;
+  fx.querySelector('button').addEventListener('click', () => { SFX.tap(); speak(c.wow); });
+  fx.classList.add('show');
 }
 
 /* --- ゲーム画面ボタン --- */
@@ -1872,6 +1924,29 @@ function runSelftest() {
     const noFunc = [LP(5, P('R').concat([IF('like', P('E'))]))].concat(P('U'), [LP(3, P('R').concat([IF('like', P('E'))]))]);
     return simulate(lv, noFunc, []).result === 'clear' && countNodes(noFunc) > lv.par;
   })());
+
+  // --- まめちしき ---
+  T('全21匹に とっておきの まめちしきが ある',
+    Object.keys(CREATURES).every(k => typeof CREATURES[k].wow === 'string' && CREATURES[k].wow.length >= 10));
+  T('まめちしきは ずかんの 一言と 別の 文', Object.keys(CREATURES).every(k => CREATURES[k].wow !== CREATURES[k].fact));
+  T('まめちしきの あて先が 全部 実在の 生きもの', Object.keys(WOW).every(k => !!CREATURES[k]));
+  T('まめちしきに 重複が ない', new Set(Object.values(WOW)).size === Object.keys(WOW).length);
+
+  // --- 漢字が 2年生までか（院長の 指示。新しい 文章を 足したら ここで 引っかかる） ---
+  (() => {
+    const G1 = '一右雨円王音下火花貝学気九休玉金空月犬見五口校左三山子四糸字耳七車手十出女小上森人水正生青夕石赤千川先早草足村大男竹中虫町天田土二日入年白八百文木本名目立力林六';
+    const G2 = '引羽雲園遠何科夏家歌画回会海絵外角楽活間丸岩顔汽記帰弓牛魚京強教近兄形計元言原戸古午後語工公広交光考行高黄合谷国黒今才細作算止市矢姉思紙寺自時室社弱首秋週春書少場色食心新親図数西声星晴切雪船線前組走多太体台地池知茶昼長鳥朝直通弟店点電刀冬当東答頭同道読内南肉馬売買麦半番父風分聞米歩母方北毎妹万明鳴毛門夜野友用曜来里理話';
+    const ok = new Set(Array.from(G1 + G2));
+    const texts = [];
+    Object.values(CREATURES).forEach(c => texts.push(c.name, c.fact, c.wow));
+    ISLANDS.forEach(is => texts.push(is.name, is.sub));
+    ALL_LEVELS.forEach(lv => texts.push(lv.name, lv.goal, lv.hint, lv.clearMsg || '', (lv.foods||[]).map(f=>f.name).join('')));
+    const bad = [];
+    texts.forEach(t => Array.from(String(t)).forEach(ch => {
+      if (/[一-鿿]/.test(ch) && !ok.has(ch) && bad.indexOf(ch) < 0) bad.push(ch);
+    }));
+    T('文章の 漢字が すべて 2年生まで' + (bad.length ? '（NG: ' + bad.join('') + '）' : ''), bad.length === 0);
+  })();
 
   // --- カードメーターの 表示ロジック ---
   T('メーター: しま1は「近い道」・しま2以降は「みじかい プログラム」',
