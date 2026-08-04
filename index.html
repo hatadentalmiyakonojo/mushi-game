@@ -16,10 +16,12 @@
     --accent: #ff9838;
     --accent-dark: #e97f1e;
     --green: #6dbb4a;
-    --green-dark: #55a235;
     --blue: #5aa8e8;
     --card-move: #7ec95c;
     --card-eat: #ffb35c;
+    --card-loop: #6aa9e8;
+    --card-if: #e8845a;
+    --card-call: #b07fd8;
     --shadow: 0 3px 0 rgba(0,0,0,0.12);
     --radius: 16px;
   }
@@ -39,6 +41,7 @@
     border-radius:var(--radius); background:var(--panel); box-shadow:var(--shadow);
   }
   button:active { transform:translateY(2px); box-shadow:0 1px 0 rgba(0,0,0,0.12); }
+  button[disabled] { opacity:.4; pointer-events:none; }
 
   /* ===== タイトル ===== */
   #screen-title { align-items:center; justify-content:center; gap:24px;
@@ -53,12 +56,24 @@
   #btn-start { font-size:clamp(22px,4vw,32px); padding:18px 56px; background:var(--accent); color:#fff; font-weight:bold; }
   #title-ver { position:absolute; bottom:8px; right:12px; font-size:11px; color:#7a8a6a; }
 
-  /* ===== マップ（めんをえらぶ） ===== */
+  /* ===== 共通ヘッダ ===== */
+  .map-header { display:flex; align-items:center; justify-content:space-between; padding:6px 4px 12px; gap:10px; }
+  .map-header h2 { font-size:clamp(18px,3.2vw,27px); color:#3f7a1f; }
+  .map-header .hbtns { display:flex; gap:10px; flex-shrink:0; }
+  .map-header button { font-size:clamp(14px,2.3vw,18px); padding:10px 16px; font-weight:bold; white-space:nowrap; }
+
+  /* ===== しま えらび ===== */
+  #screen-islands { background:linear-gradient(#cfe9ff,#dff0c0); padding: max(10px, env(safe-area-inset-top)) 16px 16px; }
+  #island-list { flex:1; display:flex; flex-wrap:wrap; gap:clamp(10px,2vw,18px); align-content:center; justify-content:center; overflow:auto; }
+  .is-btn { width:clamp(150px,18vw,215px); padding:16px 10px 14px; display:flex; flex-direction:column; align-items:center; gap:6px; background:#fffef5; }
+  .is-btn .is-icon { font-size:clamp(30px,5vw,44px); }
+  .is-btn .is-name { font-size:clamp(15px,2.3vw,19px); font-weight:bold; text-align:center; line-height:1.3; }
+  .is-btn .is-sub { font-size:clamp(11px,1.8vw,14px); color:#7a8a6a; text-align:center; line-height:1.35; }
+  .is-btn .is-prog { font-size:16px; min-height:22px; letter-spacing:1px; }
+  .is-btn.locked { filter:grayscale(1); opacity:.55; }
+
+  /* ===== めん えらび ===== */
   #screen-map { background: linear-gradient(#dff0c0, #c2e096); padding: max(10px, env(safe-area-inset-top)) 16px 16px; }
-  .map-header { display:flex; align-items:center; justify-content:space-between; padding:6px 4px 12px; }
-  .map-header h2 { font-size:clamp(20px,3.5vw,28px); color:#3f7a1f; }
-  .map-header .hbtns { display:flex; gap:10px; }
-  .map-header button { font-size:clamp(15px,2.5vw,19px); padding:10px 18px; font-weight:bold; }
   #map-levels { flex:1; display:flex; flex-wrap:wrap; gap:clamp(10px,2vw,20px); align-content:center; justify-content:center; overflow:auto; }
   .lv-btn { width:clamp(130px,21vw,190px); padding:14px 8px 12px; display:flex; flex-direction:column; align-items:center; gap:6px; background:#fffef5; }
   .lv-btn svg { width:clamp(48px,7vw,70px); height:auto; }
@@ -71,65 +86,119 @@
   /* ===== ゲーム ===== */
   #screen-game { background:var(--bg); }
   #game-header { display:flex; align-items:center; gap:8px; padding: max(8px, env(safe-area-inset-top)) 12px 6px; }
-  #game-header button { font-size:15px; padding:9px 14px; font-weight:bold; white-space:nowrap; }
-  #lv-title { flex:1; text-align:center; font-size:clamp(16px,2.8vw,21px); font-weight:bold; color:#3f7a1f; }
-  #goal-bar { margin:0 12px; padding:8px 14px; background:#fff8e6; border:2px solid #f0d9a0; border-radius:12px; font-size:clamp(14px,2.4vw,17px); line-height:1.45; display:flex; align-items:center; gap:8px; }
+  #game-header button { font-size:14px; padding:9px 12px; font-weight:bold; white-space:nowrap; }
+  #lv-title { flex:1; text-align:center; font-size:clamp(15px,2.6vw,20px); font-weight:bold; color:#3f7a1f; }
+  #goal-bar { margin:0 12px; padding:7px 14px; background:#fff8e6; border:2px solid #f0d9a0; border-radius:12px; font-size:clamp(13px,2.2vw,16px); line-height:1.45; display:flex; align-items:center; gap:8px; }
   #goal-bar .goal-text { flex:1; }
-  #btn-hint { font-size:14px; padding:8px 12px; display:none; background:#fff3b8; }
+  #limit-tag { font-size:12px; font-weight:bold; color:#b06a1a; background:#ffeccc; border-radius:8px; padding:3px 8px; white-space:nowrap; }
+  #btn-hint { font-size:13px; padding:7px 11px; display:none; background:#fff3b8; }
   #btn-hint.show { display:block; }
 
-  #program-wrap { margin:8px 12px 0; background:#eef3e2; border-radius:12px; padding:8px 10px; }
-  #program-label { font-size:12px; color:#7a8a6a; font-weight:bold; margin-bottom:4px; display:flex; justify-content:space-between; }
-  #program-row { display:flex; gap:6px; overflow-x:auto; min-height:58px; align-items:center; -webkit-overflow-scrolling:touch; }
-  #program-row:empty::before { content:"下の カードを タップして ならべてね"; color:#9aa88a; font-size:14px; padding-left:6px; }
-  .pcard { flex:0 0 auto; width:52px; height:52px; border-radius:12px; display:flex; flex-direction:column; align-items:center; justify-content:center; font-weight:bold; color:#fff; box-shadow:var(--shadow); position:relative; font-size:24px; transition:transform .15s; }
-  .pcard .pnum { position:absolute; top:1px; left:5px; font-size:10px; opacity:.8; }
-  .pcard.exec { transform:scale(1.18); box-shadow:0 0 0 4px #ffe066, 0 3px 0 rgba(0,0,0,.12); z-index:2; }
+  #editors { margin:8px 12px 0; display:flex; flex-direction:column; gap:6px; max-height:36vh; overflow-y:auto; }
+  .prow { background:#eef3e2; border-radius:12px; padding:6px 10px 8px; border:3px solid transparent; }
+  .prow.active { border-color:#ffcf5a; background:#f6f9ec; }
+  .prow-label { font-size:12px; color:#6a7a5a; font-weight:bold; margin-bottom:4px; display:flex; justify-content:space-between; align-items:center; gap:8px; }
+  .prow-label .tag { background:#dbe6cb; border-radius:8px; padding:3px 9px; font-size:12px; }
+  .prow.active .tag { background:#ffcf5a; }
+  .prow-row { display:flex; gap:6px; overflow-x:auto; min-height:56px; align-items:flex-start; -webkit-overflow-scrolling:touch; padding-bottom:2px; }
+
+  .pcard { flex:0 0 auto; width:52px; height:52px; border-radius:12px; display:flex; flex-direction:column; align-items:center; justify-content:center; font-weight:bold; color:#fff; box-shadow:var(--shadow); position:relative; font-size:24px; transition:transform .15s; line-height:1.1; }
   .pcard.move { background:var(--card-move); }
-  .pcard.eat { background:var(--card-eat); font-size:15px; }
+  .pcard.eat { background:var(--card-eat); font-size:14px; }
+  .pcard.call { background:var(--card-call); font-size:13px; }
+  .pcard.exec, .pbox.exec > .pbox-head { animation:none; }
+  .pcard.exec { transform:scale(1.18); box-shadow:0 0 0 4px #ffe066, 0 3px 0 rgba(0,0,0,.12); z-index:2; }
+
+  .pbox { flex:0 0 auto; border-radius:14px; padding:4px 5px 5px; display:flex; flex-direction:column; gap:3px; box-shadow:var(--shadow); }
+  .pbox.loop { background:#cfe3ff; border:3px solid var(--card-loop); }
+  .pbox.cond { background:#ffe2cc; border:3px solid var(--card-if); }
+  .pbox.open { border-style:dashed; box-shadow:0 0 0 3px #ffe066, var(--shadow); }
+  .pbox-head { display:flex; align-items:center; gap:5px; font-size:12px; font-weight:bold; color:#3a3226; padding:1px 3px; white-space:nowrap; }
+  .pbox-head .hlabel { padding:2px 4px; border-radius:6px; }
+  .pbox.exec > .pbox-head .hlabel { background:#ffe066; }
+  .pbox-head .xbtn { width:20px; height:20px; border-radius:10px; background:rgba(255,255,255,.85); font-size:12px; line-height:20px; text-align:center; box-shadow:none; padding:0; }
+  .pbox-head .iter { background:#fff; border-radius:8px; padding:1px 6px; font-size:11px; min-width:16px; text-align:center; }
+  .pbox-body { display:flex; gap:5px; min-height:56px; align-items:flex-start; padding:3px 5px; background:rgba(255,255,255,.55); border-radius:10px; }
+  .caret { flex:0 0 auto; width:12px; height:52px; border-radius:6px; background:#ffb300; animation:blink 1s ease-in-out infinite; }
+  @keyframes blink { 0%,100%{opacity:1} 50%{opacity:.25} }
+  .empty-hint { font-size:13px; color:#9aa88a; padding:16px 4px 0; white-space:nowrap; }
 
   #stage-wrap { flex:1; display:flex; align-items:center; justify-content:center; padding:6px 12px; position:relative; min-height:0; }
-  #stage { max-width:100%; max-height:100%; }
-  #bubble { position:absolute; left:50%; bottom:10px; transform:translateX(-50%); background:#fff; border:3px solid var(--accent); border-radius:16px; padding:10px 20px; font-size:clamp(16px,2.8vw,20px); font-weight:bold; display:none; z-index:5; white-space:nowrap; box-shadow:0 4px 10px rgba(0,0,0,.15); }
+  #stage { width:100%; height:100%; }
+  #bubble { position:absolute; left:50%; bottom:10px; transform:translateX(-50%); background:#fff; border:3px solid var(--accent); border-radius:16px; padding:10px 20px; font-size:clamp(15px,2.6vw,19px); font-weight:bold; display:none; z-index:5; white-space:nowrap; box-shadow:0 4px 10px rgba(0,0,0,.15); }
   #bubble.show { display:block; animation:pop .25s; }
   @keyframes pop { 0%{transform:translateX(-50%) scale(.6)} 100%{transform:translateX(-50%) scale(1)} }
 
-  #palette { display:flex; align-items:center; gap:8px; padding:8px 12px calc(10px + env(safe-area-inset-bottom)); flex-wrap:wrap; justify-content:center; }
-  .cmd-btn { width:clamp(56px,8vw,68px); height:clamp(56px,8vw,68px); font-size:28px; font-weight:bold; color:#fff; border-radius:14px; }
+  #palette { display:flex; align-items:center; gap:7px; padding:8px 12px calc(10px + env(safe-area-inset-bottom)); flex-wrap:wrap; justify-content:center; }
+  .cmd-btn { width:clamp(50px,6.4vw,62px); height:clamp(50px,6.4vw,62px); font-size:26px; font-weight:bold; color:#fff; border-radius:14px; padding:0; line-height:1.1; }
   .cmd-btn.move { background:var(--card-move); }
-  .cmd-btn.eat { background:var(--card-eat); font-size:16px; line-height:1.15; }
-  .util-btn { font-size:15px; padding:0 14px; height:clamp(48px,7vw,56px); font-weight:bold; background:#fff; }
-  #btn-run { font-size:clamp(18px,3vw,23px); padding:0 26px; height:clamp(56px,8vw,68px); background:var(--accent); color:#fff; font-weight:bold; }
-  .sep { width:6px; }
-  body.running .cmd-btn, body.running .util-btn, body.running #btn-run { opacity:.45; pointer-events:none; }
+  .cmd-btn.eat { background:var(--card-eat); font-size:14px; }
+  .cmd-btn.loop { background:var(--card-loop); font-size:13px; }
+  .cmd-btn.cond { background:var(--card-if); font-size:12px; }
+  .cmd-btn.call { background:var(--card-call); font-size:13px; }
+  .util-btn { font-size:14px; padding:0 12px; height:clamp(44px,5.5vw,52px); font-weight:bold; background:#fff; line-height:1.15; }
+  /* はこを開いても パレットの ならびが 動かないよう 場所は いつも 取っておく */
+  #btn-closebox { background:#ffd75e; font-size:15px; padding:0 16px; height:clamp(50px,6.4vw,62px); font-weight:bold; visibility:hidden; }
+  #btn-closebox.show { visibility:visible; }
+  #btn-run { font-size:clamp(17px,2.7vw,22px); padding:0 22px; height:clamp(50px,6.4vw,62px); background:var(--accent); color:#fff; font-weight:bold; }
+  .sep { width:5px; }
+  body.running .cmd-btn, body.running .util-btn, body.running #btn-run, body.running #btn-closebox,
+  body.running .pbox-head .xbtn { opacity:.45; pointer-events:none; }
 
-  /* ===== クリアオーバーレイ ===== */
+  /* ===== オーバーレイ ===== */
   #overlay { position:fixed; inset:0; background:rgba(60,80,30,.45); display:none; align-items:center; justify-content:center; z-index:20; }
   #overlay.show { display:flex; }
-  #overlay-card { background:#fffef5; border-radius:24px; padding:26px 34px; text-align:center; max-width:min(90vw,460px); display:flex; flex-direction:column; gap:12px; align-items:center; animation:pop2 .35s; }
+  #overlay-card { background:#fffef5; border-radius:24px; padding:26px 34px; text-align:center; max-width:min(90vw,470px); display:flex; flex-direction:column; gap:12px; align-items:center; animation:pop2 .35s; }
   @keyframes pop2 { 0%{transform:scale(.5); opacity:0} 100%{transform:scale(1); opacity:1} }
-  #overlay-card h3 { font-size:clamp(26px,5vw,36px); color:var(--accent-dark); }
-  #overlay-card svg { width:90px; height:auto; }
-  #overlay-badges { font-size:30px; min-height:36px; }
-  #overlay-msg { font-size:clamp(15px,2.6vw,18px); line-height:1.5; }
+  #overlay-card h3 { font-size:clamp(24px,4.6vw,34px); color:var(--accent-dark); }
+  #overlay-card svg { width:86px; height:auto; }
+  #overlay-badges { font-size:28px; min-height:34px; }
+  #overlay-msg { font-size:clamp(14px,2.4vw,17px); line-height:1.55; }
   #overlay-btns { display:flex; gap:12px; flex-wrap:wrap; justify-content:center; }
-  #overlay-btns button { font-size:clamp(16px,2.8vw,20px); padding:13px 22px; font-weight:bold; }
+  #overlay-btns button { font-size:clamp(15px,2.6vw,19px); padding:13px 20px; font-weight:bold; }
   #overlay-btns .primary { background:var(--accent); color:#fff; }
+
+  /* ===== モーダル（回数えらび等） ===== */
+  #modal { position:fixed; inset:0; background:rgba(40,50,30,.42); display:none; align-items:center; justify-content:center; z-index:30; }
+  #modal.show { display:flex; }
+  #modal-card { background:#fffef5; border-radius:22px; padding:22px 26px; display:flex; flex-direction:column; gap:14px; align-items:center; max-width:min(92vw,520px); }
+  #modal-card h3 { font-size:clamp(18px,3.2vw,24px); }
+  #modal-body { display:flex; flex-wrap:wrap; gap:10px; justify-content:center; }
+  #modal-body button { font-size:clamp(17px,3vw,22px); font-weight:bold; min-width:62px; padding:14px 16px; background:#eaf3dd; }
+  #modal-body button.sel { background:var(--accent); color:#fff; }
+  #modal-cancel { font-size:15px; padding:10px 18px; }
 
   /* ===== ずかん ===== */
   #screen-zukan { background:linear-gradient(#fdf3d8,#f6e6bd); padding: max(10px, env(safe-area-inset-top)) 16px 16px; }
-  #zukan-grid { flex:1; display:flex; flex-wrap:wrap; gap:clamp(10px,2vw,18px); align-content:flex-start; justify-content:center; overflow:auto; padding-top:6px; }
-  .zk-card { width:clamp(150px,23vw,210px); background:#fffef8; border-radius:18px; padding:16px 12px; display:flex; flex-direction:column; align-items:center; gap:8px; box-shadow:var(--shadow); }
-  .zk-card svg { width:clamp(56px,8vw,80px); height:auto; }
-  .zk-card .zk-name { font-weight:bold; font-size:clamp(15px,2.4vw,18px); }
-  .zk-card .zk-fact { font-size:clamp(12px,2vw,14px); line-height:1.5; color:#6a5f4a; text-align:center; }
+  #zukan-grid { flex:1; overflow:auto; padding-top:6px; }
+  .zk-sec { font-size:clamp(14px,2.2vw,17px); font-weight:bold; color:#8a6a2a; margin:10px 0 8px; }
+  .zk-row { display:flex; flex-wrap:wrap; gap:clamp(8px,1.6vw,14px); }
+  .zk-card { width:clamp(128px,17vw,182px); background:#fffef8; border-radius:16px; padding:12px 10px; display:flex; flex-direction:column; align-items:center; gap:6px; box-shadow:var(--shadow); }
+  .zk-card svg { width:clamp(48px,6.4vw,66px); height:auto; }
+  .zk-card .zk-name { font-weight:bold; font-size:clamp(13px,2vw,16px); }
+  .zk-card .zk-fact { font-size:clamp(11px,1.7vw,13px); line-height:1.5; color:#6a5f4a; text-align:center; }
   .zk-card.unknown svg { filter:brightness(0) opacity(.25); }
   .zk-card.unknown .zk-fact { color:#b0a888; }
+
+  /* ===== じゆうの しま（マップ作り） ===== */
+  #screen-free { background:linear-gradient(#e4f0ff,#dff0c0); padding: max(10px, env(safe-area-inset-top)) 14px 10px; }
+  #free-tools { display:flex; gap:7px; flex-wrap:wrap; justify-content:center; padding-bottom:6px; }
+  .tool-btn { font-size:13px; font-weight:bold; padding:9px 12px; background:#fff; line-height:1.2; }
+  .tool-btn.sel { background:var(--accent); color:#fff; }
+  #free-stage-wrap { flex:1; display:flex; align-items:center; justify-content:center; min-height:0; position:relative; }
+  #free-stage { width:100%; height:100%; }
+  #free-bottom { display:flex; gap:8px; flex-wrap:wrap; align-items:center; justify-content:center; padding:8px 0 calc(4px + env(safe-area-inset-bottom)); font-size:13px; font-weight:bold; }
+  #free-creatures { display:flex; gap:6px; max-width:min(46vw,420px); overflow-x:auto; padding:2px; }
+  .fc-btn { flex:0 0 auto; width:46px; height:46px; padding:2px; background:#fff; border-radius:12px; }
+  .fc-btn svg { width:100%; height:100%; }
+  .fc-btn.sel { background:var(--accent); }
+  #free-bottom button { font-size:13px; padding:9px 12px; font-weight:bold; }
+  #btn-free-play { background:var(--accent); color:#fff; font-size:16px; padding:11px 20px; }
 
   /* ===== おうちのかたへ ===== */
   #screen-parent { background:#eef2f5; padding: max(10px, env(safe-area-inset-top)) 20px 20px; overflow:auto; display:none; }
   #screen-parent.active { display:block; }
-  .parent-box { max-width:640px; margin:0 auto; background:#fff; border-radius:16px; padding:22px 26px; box-shadow:var(--shadow); }
+  .parent-box { max-width:660px; margin:0 auto; background:#fff; border-radius:16px; padding:22px 26px; box-shadow:var(--shadow); }
   .parent-box h2 { font-size:20px; margin-bottom:12px; }
   .parent-box h3 { font-size:16px; margin:18px 0 6px; }
   .parent-box p, .parent-box li { font-size:14px; line-height:1.7; }
@@ -141,7 +210,7 @@
   /* ===== selftest ===== */
   #selftest-overlay { position:fixed; inset:0; background:#fff; z-index:99; overflow:auto; padding:20px; display:none; font-family:monospace; }
   #selftest-overlay.show { display:block; }
-  #selftest-overlay div { font-size:13px; line-height:1.7; }
+  #selftest-overlay div { font-size:13px; line-height:1.65; }
   #selftest-overlay .ok { color:#1a8a3a; } #selftest-overlay .ng { color:#c0392b; font-weight:bold; }
   #selftest-overlay h2 { font-family:inherit; margin-bottom:10px; }
 
@@ -159,13 +228,24 @@
   <div id="title-ver"></div>
 </div>
 
-<!-- ============ マップ ============ -->
-<div id="screen-map" class="screen">
+<!-- ============ しま えらび ============ -->
+<div id="screen-islands" class="screen">
   <div class="map-header">
-    <h2>🏝️ じゅんばんの しま</h2>
+    <h2>🗺️ しまを えらぼう</h2>
     <div class="hbtns">
       <button id="btn-zukan">📖 ずかん</button>
       <button id="btn-parent" title="おうちのかたへ">⚙</button>
+    </div>
+  </div>
+  <div id="island-list"></div>
+</div>
+
+<!-- ============ めん えらび ============ -->
+<div id="screen-map" class="screen">
+  <div class="map-header">
+    <h2 id="map-title"></h2>
+    <div class="hbtns">
+      <button id="btn-map-back">← しま</button>
     </div>
   </div>
   <div id="map-levels"></div>
@@ -174,38 +254,26 @@
 <!-- ============ ゲーム ============ -->
 <div id="screen-game" class="screen">
   <div id="game-header">
-    <button id="btn-back">← マップ</button>
+    <button id="btn-back">← もどる</button>
     <div id="lv-title"></div>
     <button id="btn-speak">🔊 読み上げ</button>
+    <button id="btn-fast">🐢</button>
     <button id="btn-mute">🔈</button>
   </div>
   <div id="goal-bar">
     <span>🎯</span><span class="goal-text" id="goal-text"></span>
+    <span id="limit-tag"></span>
     <button id="btn-hint">💡ヒント</button>
   </div>
-  <div id="program-wrap">
-    <div id="program-label"><span>めいれいカード（タップで けせるよ）</span><span id="card-count"></span></div>
-    <div id="program-row"></div>
-  </div>
+  <div id="editors"></div>
   <div id="stage-wrap">
     <svg id="stage" xmlns="http://www.w3.org/2000/svg"></svg>
     <div id="bubble"></div>
   </div>
-  <div id="palette">
-    <button class="cmd-btn move" data-cmd="U">⬆</button>
-    <button class="cmd-btn move" data-cmd="D">⬇</button>
-    <button class="cmd-btn move" data-cmd="L">⬅</button>
-    <button class="cmd-btn move" data-cmd="R">➡</button>
-    <button class="cmd-btn eat" data-cmd="E">😋<br>食べる</button>
-    <div class="sep"></div>
-    <button class="util-btn" id="btn-undo">一つ<br>けす</button>
-    <button class="util-btn" id="btn-clear">ぜんぶ<br>けす</button>
-    <div class="sep"></div>
-    <button id="btn-run">▶ さぁ行こう！</button>
-  </div>
+  <div id="palette"></div>
 </div>
 
-<!-- ============ クリア/メッセージ オーバーレイ ============ -->
+<!-- ============ クリア/メッセージ ============ -->
 <div id="overlay">
   <div id="overlay-card">
     <h3 id="overlay-title">🎉 やったー！</h3>
@@ -220,22 +288,64 @@
   </div>
 </div>
 
+<!-- ============ モーダル ============ -->
+<div id="modal">
+  <div id="modal-card">
+    <h3 id="modal-title"></h3>
+    <div id="modal-body"></div>
+    <button id="modal-cancel">やめる</button>
+  </div>
+</div>
+
 <!-- ============ ずかん ============ -->
 <div id="screen-zukan" class="screen">
   <div class="map-header">
-    <h2 id="zukan-title">📖 いきもの ずかん</h2>
+    <h2 id="zukan-title">📖 生きもの ずかん</h2>
     <div class="hbtns"><button id="btn-zukan-back">← もどる</button></div>
   </div>
   <div id="zukan-grid"></div>
+</div>
+
+<!-- ============ じゆうの しま ============ -->
+<div id="screen-free" class="screen">
+  <div class="map-header">
+    <h2>🎨 じぶんで マップを 作ろう</h2>
+    <div class="hbtns">
+      <button id="btn-free-play">▶ あそぶ</button>
+      <button id="btn-free-back">← しま</button>
+    </div>
+  </div>
+  <div id="free-tools"></div>
+  <div id="free-stage-wrap"><svg id="free-stage" xmlns="http://www.w3.org/2000/svg"></svg></div>
+  <div id="free-bottom">
+    <span>ひろさ</span>
+    <button class="tool-btn" data-size="s">小</button>
+    <button class="tool-btn" data-size="m">中</button>
+    <button class="tool-btn" data-size="l">大</button>
+    <span>｜いきもの</span>
+    <div id="free-creatures"></div>
+    <button id="btn-free-clear">まっさら</button>
+    <button id="btn-free-save">ほぞん</button>
+    <button id="btn-free-load">よみこむ</button>
+  </div>
 </div>
 
 <!-- ============ おうちのかたへ ============ -->
 <div id="screen-parent" class="screen">
   <div class="parent-box">
     <h2>おうちのかたへ</h2>
-    <p>このアプリは、小学校低学年のお子さん向けの「考える力を育てる」パズルゲームです。命令カードを並べて生き物をエサまで導きます。時間制限・ゲームオーバーはなく、何度でもやり直せます。</p>
+    <p>小学校低学年向けの「考える力を育てる」パズルゲームです。命令カードを並べて生き物をエサまで導きます。時間制限・ゲームオーバーはなく、何度でもやり直せます。</p>
+    <h3>5つのしま（学習の順序）</h3>
+    <ul>
+      <li><b>じゅんばんの しま</b>… 順次実行。やることを順番に並べる</li>
+      <li><b>くりかえしの しま</b>… ループ。同じ動きをまとめる（＝規則性を見つける）</li>
+      <li><b>もしもの しま</b>… 条件分岐。「〜だったら〜する」＝場合分け</li>
+      <li><b>名前を つける しま</b>… 手続き（関数）。動きのかたまりに名前をつけて使い回す＝抽象化</li>
+      <li><b>じゆうの しま</b>… 自分でマップを作って遊ぶ</li>
+    </ul>
+    <p>各面には「カードは○まいまで」という制限があります。これは指の速さではなく<b>考え方</b>を要求する仕掛けで、少ない手数で書くには規則性を見つける必要があります。制限を超えても遊べますが、🏅は最短手数で解けたときだけつきます。</p>
     <h3>データについて</h3>
-    <p>クリア状況・ずかんは、この端末のブラウザ内にのみ保存されます（外部送信はありません）。同じURLで開き続ける限り保存されます。</p>
+    <p>クリア状況・ずかん・作ったマップは、この端末のブラウザ内にのみ保存されます（外部送信はありません）。同じURLで開き続ける限り保存されます。</p>
     <div class="btnrow">
       <button id="btn-export">バックアップを保存（JSON）</button>
       <button id="btn-import">バックアップから復元</button>
@@ -256,98 +366,330 @@
 <script>
 'use strict';
 /* =====================================================================
-   むしむし プログラミング — しま1（じゅんばんの しま）
+   むしむし プログラミング
    単一HTML / 外部依存なし / iPad Safari 対応 / localStorage 保存
+   しま1 じゅんばん / しま2 くりかえし / しま3 もしも / しま4 名前をつける / しま5 じゆう
 ===================================================================== */
-const APP_VERSION = '1.0.0';
+const APP_VERSION = '2.0.0';
 const DATA_SCHEMA = 1;
 const STORAGE_KEY = 'mushimushi-programming';
-const MAX_CARDS = 20;
-const CELL = 100; // SVG内セルサイズ
+const CELL = 100;          // SVG内セルサイズ
+const STEP_LIMIT = 400;    // 無限っぽい実行の保険
+const DEPTH_LIMIT = 6;
 
 /* ---------------- いきもの（SVG・右向きが基本） ---------------- */
 const CREATURES = {
-  kabuto: { name:'カブトムシ', kind:'こん虫',
+  /* --- しま1 --- */
+  kabuto: { name:'カブトムシ',
     fact:'木のしるが 大すき。りっぱなツノは オスだけに あるんだよ。',
     svg:`<g><line x1="30" y1="72" x2="22" y2="84" stroke="#4a3216" stroke-width="4" stroke-linecap="round"/><line x1="48" y1="76" x2="44" y2="88" stroke="#4a3216" stroke-width="4" stroke-linecap="round"/><line x1="64" y1="74" x2="68" y2="86" stroke="#4a3216" stroke-width="4" stroke-linecap="round"/><ellipse cx="46" cy="58" rx="30" ry="21" fill="#7a4a21"/><path d="M20 52 Q46 30 72 50" fill="#8f5a2b"/><circle cx="74" cy="52" r="13" fill="#5d3617"/><path d="M80 44 Q88 30 85 22" stroke="#5d3617" stroke-width="5" fill="none" stroke-linecap="round"/><path d="M85 22 L78 16 M85 22 L93 18" stroke="#5d3617" stroke-width="4" fill="none" stroke-linecap="round"/><circle cx="77" cy="51" r="4.5" fill="#fff"/><circle cx="78.5" cy="52" r="2.2" fill="#222"/><path d="M30 50 Q46 42 62 50" stroke="#5d3617" stroke-width="2" fill="none" opacity=".5"/></g>` },
-  ari: { name:'アリ', kind:'こん虫',
+  ari: { name:'アリ',
     fact:'自分の 体より ずっと おもいものも はこべる 力もち！',
     svg:`<g><line x1="40" y1="66" x2="30" y2="82" stroke="#2c2016" stroke-width="3.5" stroke-linecap="round"/><line x1="52" y1="68" x2="50" y2="84" stroke="#2c2016" stroke-width="3.5" stroke-linecap="round"/><line x1="62" y1="66" x2="70" y2="82" stroke="#2c2016" stroke-width="3.5" stroke-linecap="round"/><ellipse cx="32" cy="58" rx="17" ry="13" fill="#4a3423"/><circle cx="53" cy="58" r="10" fill="#5a4028"/><circle cx="70" cy="53" r="12" fill="#4a3423"/><path d="M74 44 Q78 34 74 28" stroke="#4a3423" stroke-width="3" fill="none" stroke-linecap="round"/><path d="M66 44 Q64 34 58 30" stroke="#4a3423" stroke-width="3" fill="none" stroke-linecap="round"/><circle cx="74" cy="52" r="4" fill="#fff"/><circle cx="75.5" cy="53" r="2" fill="#222"/></g>` },
-  dango: { name:'ダンゴムシ', kind:'虫のなかま',
+  dango: { name:'ダンゴムシ',
     fact:'びっくりすると まるくなるよ。じつは エビや カニに 近い なかま！',
     svg:`<g><line x1="34" y1="74" x2="30" y2="84" stroke="#5a6068" stroke-width="3.5" stroke-linecap="round"/><line x1="46" y1="76" x2="44" y2="86" stroke="#5a6068" stroke-width="3.5" stroke-linecap="round"/><line x1="58" y1="76" x2="58" y2="86" stroke="#5a6068" stroke-width="3.5" stroke-linecap="round"/><path d="M18 74 Q18 34 48 32 Q78 34 80 74 Z" fill="#8a8f98"/><path d="M30 40 Q48 33 66 40 M24 50 Q48 41 74 50 M21 62 Q48 52 78 62" stroke="#6d737d" stroke-width="3" fill="none"/><circle cx="80" cy="66" r="10" fill="#7a8089"/><path d="M84 58 Q88 50 86 46 M78 58 Q78 49 74 46" stroke="#7a8089" stroke-width="3" fill="none" stroke-linecap="round"/><circle cx="83" cy="64" r="3.8" fill="#fff"/><circle cx="84.5" cy="65" r="1.9" fill="#222"/></g>` },
-  katatsu: { name:'カタツムリ', kind:'生きもの',
+  katatsu: { name:'カタツムリ',
     fact:'小さな はが 1万本 いじょう！ はっぱを けずって 食べるよ。',
     svg:`<g><path d="M14 78 Q40 70 60 74 Q76 76 78 62 Q80 46 74 40" fill="none" stroke="#e8c99a" stroke-width="13" stroke-linecap="round"/><circle cx="40" cy="52" r="23" fill="#c98d4f"/><path d="M40 52 m0 -17 a17 17 0 1 1 -12 29 a11 11 0 1 0 8 -19 a5 5 0 1 1 4 -10" fill="none" stroke="#9a6633" stroke-width="4" stroke-linecap="round"/><path d="M74 44 Q76 32 72 26 M82 48 Q88 38 86 30" stroke="#e8c99a" stroke-width="4" fill="none" stroke-linecap="round"/><circle cx="72" cy="24" r="4" fill="#e8c99a"/><circle cx="87" cy="28" r="4" fill="#e8c99a"/><circle cx="76" cy="58" r="4" fill="#fff"/><circle cx="77.5" cy="59" r="2" fill="#222"/><path d="M72 68 Q76 70 80 68" stroke="#b09268" stroke-width="2.5" fill="none" stroke-linecap="round"/></g>` },
-  risu: { name:'リス', kind:'どうぶつ',
+  risu: { name:'リス',
     fact:'どんぐりを 土に かくすよ。ときどき かくした ばしょを わすれちゃう！',
     svg:`<g><path d="M34 76 Q6 72 12 44 Q16 20 36 26 Q24 44 34 58 Z" fill="#a2622d"/><ellipse cx="52" cy="62" rx="22" ry="18" fill="#b97a3e"/><circle cx="72" cy="48" r="15" fill="#b97a3e"/><path d="M64 36 L60 24 L72 32 Z" fill="#a2622d"/><path d="M80 36 L84 24 L88 34 Z" fill="#a2622d"/><ellipse cx="54" cy="68" rx="12" ry="9" fill="#e9cfa8"/><circle cx="76" cy="46" r="4.5" fill="#fff"/><circle cx="77.5" cy="47" r="2.2" fill="#222"/><circle cx="85" cy="52" r="3" fill="#7a4a21"/><line x1="46" y1="80" x2="44" y2="88" stroke="#8a5426" stroke-width="4" stroke-linecap="round"/><line x1="62" y1="80" x2="64" y2="88" stroke="#8a5426" stroke-width="4" stroke-linecap="round"/></g>` },
-  kaeru: { name:'カエル', kind:'どうぶつ',
+  kaeru: { name:'カエル',
     fact:'長い したを びゅん！と のばして 虫を つかまえるよ。',
     svg:`<g><ellipse cx="50" cy="64" rx="28" ry="20" fill="#58a14e"/><ellipse cx="50" cy="70" rx="18" ry="11" fill="#cfe8b8"/><circle cx="34" cy="42" r="11" fill="#58a14e"/><circle cx="66" cy="42" r="11" fill="#58a14e"/><circle cx="34" cy="40" r="6.5" fill="#fff"/><circle cx="66" cy="40" r="6.5" fill="#fff"/><circle cx="36" cy="41" r="3" fill="#222"/><circle cx="68" cy="41" r="3" fill="#222"/><path d="M40 60 Q50 66 60 60" stroke="#3a7a34" stroke-width="3" fill="none" stroke-linecap="round"/><path d="M24 76 Q14 82 20 86 Q28 88 32 82" fill="#4a8a42"/><path d="M76 76 Q86 82 80 86 Q72 88 68 82" fill="#4a8a42"/></g>` },
+
+  /* --- しま2 --- */
+  batta: { name:'バッタ',
+    fact:'うしろ足で 高く とべるよ。体の 20ばいも とぶ ことが ある。',
+    svg:`<g><line x1="52" y1="70" x2="48" y2="84" stroke="#558b2f" stroke-width="3.5" stroke-linecap="round"/><line x1="62" y1="70" x2="62" y2="84" stroke="#558b2f" stroke-width="3.5" stroke-linecap="round"/><path d="M38 62 L26 38 L36 36 L48 60 Z" fill="#689f38"/><path d="M28 38 L20 80" stroke="#558b2f" stroke-width="4.5" fill="none" stroke-linecap="round"/><ellipse cx="48" cy="58" rx="30" ry="14" fill="#8bc34a"/><ellipse cx="44" cy="53" rx="25" ry="8" fill="#9ccc65"/><circle cx="76" cy="52" r="12" fill="#8bc34a"/><path d="M82 44 Q90 34 88 26 M76 42 Q78 32 72 26" stroke="#8bc34a" stroke-width="3" fill="none" stroke-linecap="round"/><circle cx="80" cy="50" r="4.5" fill="#fff"/><circle cx="81.5" cy="51" r="2.2" fill="#222"/></g>` },
+  tento: { name:'テントウムシ',
+    fact:'アブラムシを たくさん 食べる 虫。人の やくに 立つよ。',
+    svg:`<g><line x1="30" y1="72" x2="24" y2="84" stroke="#2e2420" stroke-width="3.5" stroke-linecap="round"/><line x1="46" y1="78" x2="44" y2="88" stroke="#2e2420" stroke-width="3.5" stroke-linecap="round"/><line x1="60" y1="76" x2="64" y2="86" stroke="#2e2420" stroke-width="3.5" stroke-linecap="round"/><ellipse cx="46" cy="58" rx="30" ry="23" fill="#e53935"/><path d="M46 36 L46 80" stroke="#3a2a2a" stroke-width="3.5"/><circle cx="34" cy="50" r="6" fill="#3a2a2a"/><circle cx="58" cy="50" r="6" fill="#3a2a2a"/><circle cx="38" cy="68" r="5" fill="#3a2a2a"/><circle cx="56" cy="68" r="5" fill="#3a2a2a"/><ellipse cx="34" cy="46" rx="7" ry="4" fill="#f4736f" opacity=".5"/><circle cx="74" cy="54" r="12" fill="#3a2a2a"/><path d="M80 46 Q88 36 86 30 M70 45 Q68 36 62 32" stroke="#3a2a2a" stroke-width="3" fill="none" stroke-linecap="round"/><circle cx="78" cy="52" r="4" fill="#fff"/><circle cx="79.5" cy="53" r="2" fill="#222"/></g>` },
+  hachi: { name:'ミツバチ',
+    fact:'花の みつを あつめて はちみつを 作るよ。',
+    svg:`<g><ellipse cx="40" cy="38" rx="20" ry="11" fill="#eaf6ff" opacity=".85" transform="rotate(-22 40 38)"/><ellipse cx="58" cy="36" rx="17" ry="10" fill="#eaf6ff" opacity=".85" transform="rotate(-10 58 36)"/><ellipse cx="46" cy="60" rx="28" ry="19" fill="#f9c22e"/><ellipse cx="34" cy="60" rx="4" ry="16" fill="#3a2a18"/><ellipse cx="46" cy="60" rx="4" ry="18" fill="#3a2a18"/><ellipse cx="58" cy="60" rx="4" ry="16" fill="#3a2a18"/><path d="M18 60 l-7 -6 M18 60 l-7 6" stroke="#3a2a18" stroke-width="4" fill="none" stroke-linecap="round"/><circle cx="76" cy="54" r="13" fill="#3a2a18"/><path d="M82 44 Q88 34 86 28 M72 43 Q68 34 62 30" stroke="#3a2a18" stroke-width="3" fill="none" stroke-linecap="round"/><circle cx="80" cy="52" r="4.5" fill="#fff"/><circle cx="81.5" cy="53" r="2.2" fill="#222"/></g>` },
+  chou: { name:'チョウ',
+    fact:'口が ストローみたいに 長いよ。花の みつが 大すき。',
+    svg:`<g><ellipse cx="32" cy="42" rx="21" ry="17" fill="#ffa3c4" transform="rotate(-20 32 42)"/><ellipse cx="68" cy="42" rx="21" ry="17" fill="#ffa3c4" transform="rotate(20 68 42)"/><ellipse cx="35" cy="72" rx="15" ry="12" fill="#ff7fae" transform="rotate(20 35 72)"/><ellipse cx="65" cy="72" rx="15" ry="12" fill="#ff7fae" transform="rotate(-20 65 72)"/><circle cx="32" cy="42" r="6" fill="#fff" opacity=".75"/><circle cx="68" cy="42" r="6" fill="#fff" opacity=".75"/><ellipse cx="50" cy="58" rx="6" ry="24" fill="#6b4a2b"/><circle cx="50" cy="34" r="9" fill="#6b4a2b"/><path d="M45 27 Q38 17 32 15 M55 27 Q62 17 68 15" stroke="#6b4a2b" stroke-width="3" fill="none" stroke-linecap="round"/><circle cx="46" cy="32" r="3" fill="#fff"/><circle cx="54" cy="32" r="3" fill="#fff"/><circle cx="46.5" cy="33" r="1.6" fill="#222"/><circle cx="54.5" cy="33" r="1.6" fill="#222"/></g>` },
+  semi: { name:'セミ',
+    fact:'土の 中で 何年も くらして、夏に 出てくるよ。',
+    svg:`<g><ellipse cx="38" cy="44" rx="30" ry="13" fill="#dceaf2" opacity=".85" transform="rotate(10 38 44)"/><ellipse cx="38" cy="62" rx="28" ry="11" fill="#dceaf2" opacity=".75" transform="rotate(20 38 62)"/><ellipse cx="52" cy="56" rx="25" ry="15" fill="#5a4634"/><path d="M34 52 q18 -6 34 -2" stroke="#48372a" stroke-width="3" fill="none"/><circle cx="74" cy="52" r="14" fill="#4a382a"/><circle cx="79" cy="46" r="4.5" fill="#fff"/><circle cx="80.5" cy="47" r="2.2" fill="#222"/><circle cx="68" cy="44" r="4" fill="#3a2a1e"/><path d="M42 68 q10 5 20 1" stroke="#3a2a1e" stroke-width="3" fill="none" stroke-linecap="round"/></g>` },
+
+  /* --- しま3 --- */
+  kamakiri: { name:'カマキリ',
+    fact:'前足の カマで 虫を つかまえる ハンター。',
+    svg:`<g><line x1="34" y1="66" x2="26" y2="82" stroke="#689f38" stroke-width="3.5" stroke-linecap="round"/><line x1="46" y1="66" x2="44" y2="84" stroke="#689f38" stroke-width="3.5" stroke-linecap="round"/><ellipse cx="34" cy="60" rx="28" ry="10" fill="#7cb342" transform="rotate(-8 34 60)"/><ellipse cx="58" cy="52" rx="15" ry="10" fill="#8bc34a"/><path d="M66 46 L84 34 L88 44 L72 54 Z" fill="#8bc34a"/><path d="M64 52 L78 42" stroke="#689f38" stroke-width="6" stroke-linecap="round"/><path d="M78 42 L70 34" stroke="#689f38" stroke-width="6" stroke-linecap="round"/><path d="M70 34 l-5 3 l3 -6 z" fill="#558b2f"/><circle cx="82" cy="40" r="4.5" fill="#fff"/><circle cx="83.5" cy="41" r="2.2" fill="#222"/><path d="M86 32 Q92 24 90 18" stroke="#8bc34a" stroke-width="2.5" fill="none" stroke-linecap="round"/></g>` },
+  tonbo: { name:'トンボ',
+    fact:'目が とても 大きくて、うしろにも とべるよ。',
+    svg:`<g><ellipse cx="42" cy="36" rx="26" ry="8" fill="#cfeaf7" opacity=".85" transform="rotate(-12 42 36)"/><ellipse cx="42" cy="72" rx="26" ry="8" fill="#cfeaf7" opacity=".85" transform="rotate(12 42 72)"/><ellipse cx="60" cy="38" rx="19" ry="7" fill="#cfeaf7" opacity=".7" transform="rotate(-8 60 38)"/><ellipse cx="60" cy="70" rx="19" ry="7" fill="#cfeaf7" opacity=".7" transform="rotate(8 60 70)"/><rect x="12" y="50" width="56" height="9" rx="4.5" fill="#4a98b8"/><rect x="12" y="50" width="14" height="9" rx="4.5" fill="#3a7a98"/><circle cx="74" cy="54" r="14" fill="#57a8c8"/><circle cx="79" cy="49" r="5" fill="#fff"/><circle cx="80.5" cy="50" r="2.5" fill="#222"/><circle cx="70" cy="46" r="4" fill="#fff" opacity=".6"/></g>` },
+  kuwagata: { name:'クワガタ',
+    fact:'大きな あごで けんかを するよ。あごが 大きいのは オス。',
+    svg:`<g><line x1="30" y1="72" x2="22" y2="84" stroke="#2e1f14" stroke-width="4" stroke-linecap="round"/><line x1="46" y1="76" x2="44" y2="88" stroke="#2e1f14" stroke-width="4" stroke-linecap="round"/><line x1="60" y1="74" x2="64" y2="86" stroke="#2e1f14" stroke-width="4" stroke-linecap="round"/><ellipse cx="44" cy="58" rx="29" ry="20" fill="#3e2b1c"/><ellipse cx="40" cy="53" rx="23" ry="13" fill="#54402c"/><path d="M44 40 L44 76" stroke="#2a1c12" stroke-width="2.5" opacity=".7"/><circle cx="72" cy="54" r="12" fill="#2e1f14"/><path d="M80 47 Q94 38 88 28" stroke="#2e1f14" stroke-width="5" fill="none" stroke-linecap="round"/><path d="M80 61 Q94 64 90 74" stroke="#2e1f14" stroke-width="5" fill="none" stroke-linecap="round"/><path d="M88 28 l4 5 M90 74 l5 -3" stroke="#2e1f14" stroke-width="4" stroke-linecap="round"/><circle cx="75" cy="51" r="4" fill="#fff"/><circle cx="76.5" cy="52" r="2" fill="#222"/></g>` },
+  hotaru: { name:'ホタル',
+    fact:'おしりが 光るよ。きれいな 水の ある ところに すむ。',
+    svg:`<g><circle cx="28" cy="58" r="17" fill="#fff3a0" opacity=".55"/><ellipse cx="32" cy="58" rx="17" ry="13" fill="#ffe066"/><ellipse cx="56" cy="56" rx="25" ry="16" fill="#4a3a2a"/><ellipse cx="52" cy="52" rx="19" ry="9" fill="#5c4a36"/><circle cx="76" cy="52" r="12" fill="#c0392b"/><circle cx="79" cy="49" r="4" fill="#fff"/><circle cx="80.5" cy="50" r="2" fill="#222"/><path d="M82 43 Q88 33 86 27 M72 42 Q70 32 64 28" stroke="#4a3a2a" stroke-width="3" fill="none" stroke-linecap="round"/><line x1="44" y1="70" x2="40" y2="82" stroke="#3a2e22" stroke-width="3.5" stroke-linecap="round"/><line x1="58" y1="70" x2="60" y2="82" stroke="#3a2e22" stroke-width="3.5" stroke-linecap="round"/></g>` },
+  amenbo: { name:'アメンボ',
+    fact:'水の 上を すべる 虫。足の 先に あぶらが あるよ。',
+    svg:`<g><path d="M42 54 L16 28 M46 58 L22 80 M52 52 L38 20 M56 60 L46 86 M62 54 L86 28 M64 60 L84 80" stroke="#4a3a2a" stroke-width="3" fill="none" stroke-linecap="round"/><ellipse cx="52" cy="57" rx="23" ry="7" fill="#5a4a3a"/><ellipse cx="46" cy="55" rx="14" ry="4" fill="#6d5b47"/><circle cx="76" cy="55" r="8.5" fill="#4a3a2a"/><circle cx="78.5" cy="52.5" r="3" fill="#fff"/><circle cx="79.5" cy="53.5" r="1.5" fill="#222"/></g>` },
+
+  /* --- しま4 --- */
+  usagi: { name:'ウサギ',
+    fact:'耳が 長いのは 音を よく きくため。目は 横にも よく 見える。',
+    svg:`<g><ellipse cx="42" cy="66" rx="27" ry="20" fill="#f5f0e6"/><circle cx="16" cy="62" r="11" fill="#fff"/><circle cx="68" cy="52" r="17" fill="#f8f4ea"/><ellipse cx="61" cy="26" rx="6.5" ry="19" fill="#f8f4ea" transform="rotate(-8 61 26)"/><ellipse cx="77" cy="26" rx="6.5" ry="19" fill="#f8f4ea" transform="rotate(9 77 26)"/><ellipse cx="61" cy="28" rx="3" ry="12" fill="#f7c6cf" transform="rotate(-8 61 28)"/><ellipse cx="77" cy="28" rx="3" ry="12" fill="#f7c6cf" transform="rotate(9 77 28)"/><circle cx="76" cy="50" r="3.6" fill="#3a3226"/><circle cx="62" cy="50" r="3.6" fill="#3a3226"/><path d="M69 58 l-4.5 -4 l9 0 z" fill="#f7a6b5"/><line x1="34" y1="82" x2="31" y2="88" stroke="#e0d8c8" stroke-width="4" stroke-linecap="round"/><line x1="52" y1="84" x2="53" y2="90" stroke="#e0d8c8" stroke-width="4" stroke-linecap="round"/></g>` },
+  kame: { name:'カメ',
+    fact:'ゆっくり あるくけど、100年 いじょう 生きる ことも ある。',
+    svg:`<g><ellipse cx="30" cy="80" rx="9" ry="5.5" fill="#8ec46a"/><ellipse cx="60" cy="82" rx="9" ry="5.5" fill="#8ec46a"/><ellipse cx="14" cy="66" rx="9" ry="5" fill="#8ec46a"/><ellipse cx="46" cy="62" rx="32" ry="22" fill="#6a9e4a"/><ellipse cx="46" cy="62" rx="24" ry="15" fill="#7cb35a"/><circle cx="46" cy="60" r="7" fill="#5c8c3e"/><circle cx="31" cy="59" r="5" fill="#5c8c3e"/><circle cx="61" cy="59" r="5" fill="#5c8c3e"/><circle cx="38" cy="72" r="4.5" fill="#5c8c3e"/><circle cx="55" cy="72" r="4.5" fill="#5c8c3e"/><circle cx="80" cy="58" r="12" fill="#8ec46a"/><circle cx="84" cy="55" r="4" fill="#fff"/><circle cx="85.5" cy="56" r="2" fill="#222"/><path d="M86 64 q4 1 6 -1" stroke="#5c8c3e" stroke-width="2.5" fill="none" stroke-linecap="round"/></g>` },
+  harinezumi: { name:'ハリネズミ',
+    fact:'体じゅうの はりで じぶんを まもるよ。まるくなると ボールみたい。',
+    svg:`<g><ellipse cx="44" cy="64" rx="32" ry="22" fill="#9c8264"/><path d="M20 52 l-7 -15 l15 9 z M32 44 l-3 -17 l13 13 z M46 40 l3 -17 l10 15 z M60 42 l9 -14 l6 16 z" fill="#6f5942"/><path d="M14 62 l-11 -6 l11 -4 z" fill="#6f5942"/><circle cx="76" cy="66" r="13" fill="#e8d8c0"/><ellipse cx="66" cy="58" rx="5" ry="6" fill="#d8c4a8"/><circle cx="80" cy="62" r="3.6" fill="#3a3226"/><circle cx="88" cy="68" r="3.4" fill="#3a2a22"/><path d="M78 72 q5 3 9 0" stroke="#b8a488" stroke-width="2.5" fill="none" stroke-linecap="round"/><line x1="36" y1="84" x2="34" y2="90" stroke="#7a6248" stroke-width="4" stroke-linecap="round"/><line x1="56" y1="84" x2="58" y2="90" stroke="#7a6248" stroke-width="4" stroke-linecap="round"/></g>` },
+  kitsune: { name:'キツネ',
+    fact:'耳が とても よくて、雪の 下の ねずみの 音も 聞こえる。',
+    svg:`<g><path d="M26 74 Q4 68 10 44 Q16 30 28 36 Q18 54 30 66 Z" fill="#d9812f"/><path d="M12 44 Q8 36 16 34 Q14 40 18 44 Z" fill="#f7e6cf"/><ellipse cx="48" cy="66" rx="26" ry="17" fill="#e89a4a"/><ellipse cx="50" cy="74" rx="18" ry="8" fill="#f7e6cf"/><circle cx="74" cy="52" r="15" fill="#e89a4a"/><path d="M63 40 L61 23 L75 33 Z" fill="#d9812f"/><path d="M82 37 L91 25 L91 40 Z" fill="#d9812f"/><path d="M74 54 q10 3 13 9 q-11 4 -17 -1 z" fill="#f7e6cf"/><circle cx="88" cy="60" r="3.5" fill="#3a2a1e"/><circle cx="78" cy="48" r="4" fill="#fff"/><circle cx="79.5" cy="49" r="2" fill="#222"/><circle cx="66" cy="48" r="3.4" fill="#3a2a1e"/><line x1="40" y1="82" x2="38" y2="88" stroke="#c9762a" stroke-width="4" stroke-linecap="round"/><line x1="58" y1="82" x2="60" y2="88" stroke="#c9762a" stroke-width="4" stroke-linecap="round"/></g>` },
+  penguin: { name:'ペンギン',
+    fact:'鳥だけど 空を とばずに、海を およぐよ。およぐのは とても 早い。',
+    svg:`<g><ellipse cx="46" cy="62" rx="26" ry="30" fill="#33404d"/><ellipse cx="50" cy="66" rx="17" ry="24" fill="#fdfbf6"/><circle cx="54" cy="32" r="19" fill="#33404d"/><ellipse cx="58" cy="38" rx="12" ry="11" fill="#fdfbf6"/><path d="M70 33 l15 5 l-15 5 z" fill="#f4a63a"/><circle cx="63" cy="27" r="4.5" fill="#fff"/><circle cx="64.5" cy="28" r="2.2" fill="#222"/><path d="M22 58 q-12 14 -3 23 q9 -7 9 -19 z" fill="#2a343f"/><ellipse cx="40" cy="90" rx="10" ry="5" fill="#f4a63a"/><ellipse cx="60" cy="90" rx="10" ry="5" fill="#f4a63a"/></g>` },
+};
+
+/* ---------------- 命令ノード ---------------- */
+let NID = 0;
+const cmdNode  = c => ({ t:'cmd',  c, id:++NID });
+const loopNode = n => ({ t:'loop', n, body:[], id:++NID });
+const ifNode   = k => ({ t:'if',   cond:k, body:[], id:++NID });
+const callNode = () => ({ t:'call', id:++NID });
+const P  = s => Array.from(s).map(cmdNode);                     // 'RRE' → cmdノード列
+const LP = (n, body) => Object.assign(loopNode(n), { body });
+const IF = (k, body) => Object.assign(ifNode(k), { body });
+
+function countNodes(list) {
+  let n = 0;
+  for (const nd of list) {
+    n++;
+    if (nd.body) n += countNodes(nd.body);
+  }
+  return n;
+}
+function usesCall(list) {
+  return list.some(nd => nd.t === 'call' || (nd.body && usesCall(nd.body)));
+}
+
+const CMD_LABEL = { U:'⬆', D:'⬇', L:'⬅', R:'➡' };
+const CONDS = {
+  food: { label:'たべものが あったら', short:'たべもの', icon:'🍽', likeOnly:false },
+  like: { label:'すきなのが あったら', short:'すきなの', icon:'😋', likeOnly:true },
 };
 
 /* ---------------- レベルデータ ---------------- */
-/* path方式: いける マス を stones で指定（L6）。rocks は しょうがいぶつ */
-const LEVELS = [
-  { id:'1-1', name:'まっすぐ すすもう', creature:'kabuto',
-    grid:{w:5,h:3}, start:{x:0,y:1},
-    foods:[{x:3,y:1,emoji:'🍯',name:'じゅえき'}], rocks:[], par:4,
-    goal:'カブトムシを 🍯じゅえきまで つれて行こう！さいごに「食べる」を わすれずに！',
-    hint:'➡を 3回 ならべて、さいごに「食べる」だよ',
-    speak:'カブトムシを じゅえきまで つれていこう！ さいごに たべるを わすれずに！' },
-  { id:'1-2', name:'まがり道', creature:'ari',
-    grid:{w:5,h:4}, start:{x:0,y:0},
-    foods:[{x:2,y:2,emoji:'🍬',name:'さとうがし'}], rocks:[], par:5,
-    goal:'アリさんは あまいものが 大すき。🍬まで つれて行こう！',
-    hint:'右に 2回、下に 2回で つくよ',
-    speak:'ありさんは あまいものが だいすき。おかしまで つれていこう！' },
-  { id:'1-3', name:'岩を よけて', creature:'dango',
-    grid:{w:5,h:4}, start:{x:0,y:1},
-    foods:[{x:4,y:1,emoji:'🍂',name:'おちば'}], rocks:[{x:2,y:0},{x:2,y:1}], par:7,
-    goal:'岩が とおせんぼ！ 回り道を 考えて 🍂おちばまで 行こう！',
-    hint:'岩の 下がわを 通ってみよう',
-    speak:'いわが とおせんぼ！ まわりみちを かんがえて おちばまで いこう！' },
-  { id:'1-4', name:'どっちの道が 近い？', creature:'katatsu',
-    grid:{w:6,h:5}, start:{x:0,y:2},
-    foods:[{x:5,y:2,emoji:'🥬',name:'はっぱ'}], rocks:[{x:1,y:2},{x:2,y:2},{x:3,y:2},{x:4,y:2},{x:2,y:1}], par:8,
-    goal:'上の道と 下の道、どっちが 近いかな？ くらべてから すすもう！',
-    hint:'上の道は とおまわり。下の道を 数えてみよう',
-    speak:'うえのみちと したのみち、どっちが ちかいかな？ くらべてから すすもう！' },
-  { id:'1-5', name:'どんぐりを 二つ', creature:'risu',
-    grid:{w:6,h:4}, start:{x:0,y:3},
-    foods:[{x:2,y:1,emoji:'🌰',name:'どんぐり'},{x:5,y:3,emoji:'🌰',name:'どんぐり'}], rocks:[], par:11,
-    goal:'どんぐりが 2こ！ どっちから とりに行くか、じゅんばんを 考えよう！',
-    hint:'近い どんぐりから とりに行くと いいよ。1こずつ「食べる」を おしてね',
-    speak:'どんぐりが にこ！ どっちから とりにいくか、じゅんばんを かんがえよう！' },
-  { id:'1-6', name:'池を わたろう', creature:'kaeru',
-    grid:{w:7,h:5}, start:{x:0,y:2},
-    foods:[{x:6,y:3,emoji:'🪰',name:'ハエ'}], rocks:[],
-    stones:[[0,2],[1,2],[2,2],[2,1],[3,1],[4,1],[4,2],[4,3],[5,3],[6,3]], par:10,
-    goal:'ふかい池は 石の上しか あるけないよ。とび石を たどって 🪰まで！',
-    hint:'石を ゆびで なぞってから カードを ならべてみよう',
-    speak:'ふかいいけは いしのうえしか あるけないよ。とびいしを たどって ハエのところまで いこう！' },
+const BASIC = ['U','D','L','R','E'];
+const B_LOOP = BASIC.concat(['LOOP']);
+const B_LOOP_IF = BASIC.concat(['LOOP','IF_food']);
+const B_LOOP_LIKE = BASIC.concat(['LOOP','IF_like']);
+const B_ALL = BASIC.concat(['LOOP','IF_like','CALL']);
+const B_LOOP_CALL = BASIC.concat(['LOOP','CALL']);
+const B_FREE = BASIC.concat(['LOOP','IF_food','IF_like','CALL']);
+
+const ISLANDS = [
+  {
+    id:1, icon:'🌱', name:'じゅんばんの しま', sub:'やることを じゅんばんに ならべる',
+    levels:[
+      { id:'1-1', name:'まっすぐ すすもう', creature:'kabuto', cards:BASIC,
+        grid:{w:5,h:3}, start:{x:0,y:1},
+        foods:[{x:3,y:1,emoji:'🍯',name:'じゅえき'}], rocks:[], par:4,
+        goal:'カブトムシを 🍯じゅえきまで つれて行こう！さいごに「食べる」を わすれずに！',
+        hint:'➡を 3回 ならべて、さいごに「食べる」だよ',
+        speak:'カブトムシを じゅえきまで つれていこう！ さいごに たべるを わすれずに！' },
+      { id:'1-2', name:'まがり道', creature:'ari', cards:BASIC,
+        grid:{w:5,h:4}, start:{x:0,y:0},
+        foods:[{x:2,y:2,emoji:'🍬',name:'さとうがし'}], rocks:[], par:5,
+        goal:'アリさんは あまいものが 大すき。🍬まで つれて行こう！',
+        hint:'右に 2回、下に 2回で つくよ',
+        speak:'ありさんは あまいものが だいすき。おかしまで つれていこう！' },
+      { id:'1-3', name:'岩を よけて', creature:'dango', cards:BASIC,
+        grid:{w:5,h:4}, start:{x:0,y:1},
+        foods:[{x:4,y:1,emoji:'🍂',name:'おちば'}], rocks:[{x:2,y:0},{x:2,y:1}], par:7,
+        goal:'岩が とおせんぼ！ 回り道を 考えて 🍂おちばまで 行こう！',
+        hint:'岩の 下がわを 通ってみよう',
+        speak:'いわが とおせんぼ！ まわりみちを かんがえて おちばまで いこう！' },
+      { id:'1-4', name:'どっちの道が 近い？', creature:'katatsu', cards:BASIC,
+        grid:{w:6,h:5}, start:{x:0,y:2},
+        foods:[{x:5,y:2,emoji:'🥬',name:'はっぱ'}], rocks:[{x:1,y:2},{x:2,y:2},{x:3,y:2},{x:4,y:2},{x:2,y:1}], par:8,
+        goal:'上の道と 下の道、どっちが 近いかな？ くらべてから すすもう！',
+        hint:'上の道は とおまわり。下の道を 数えてみよう',
+        speak:'うえのみちと したのみち、どっちが ちかいかな？ くらべてから すすもう！' },
+      { id:'1-5', name:'どんぐりを 二つ', creature:'risu', cards:BASIC,
+        grid:{w:6,h:4}, start:{x:0,y:3},
+        foods:[{x:2,y:1,emoji:'🌰',name:'どんぐり'},{x:5,y:3,emoji:'🌰',name:'どんぐり'}], rocks:[], par:11,
+        goal:'どんぐりが 2こ！ どっちから とりに行くか、じゅんばんを 考えよう！',
+        hint:'近い どんぐりから とりに行くと いいよ。1こずつ「食べる」を おしてね',
+        speak:'どんぐりが にこ！ どっちから とりにいくか、じゅんばんを かんがえよう！' },
+      { id:'1-6', name:'池を わたろう', creature:'kaeru', cards:BASIC,
+        grid:{w:7,h:5}, start:{x:0,y:2},
+        foods:[{x:6,y:3,emoji:'🪰',name:'ハエ'}], rocks:[],
+        stones:[[0,2],[1,2],[2,2],[2,1],[3,1],[4,1],[4,2],[4,3],[5,3],[6,3]], par:10,
+        goal:'ふかい池は 石の上しか あるけないよ。とび石を たどって 🪰まで！',
+        hint:'石を ゆびで なぞってから カードを ならべてみよう',
+        speak:'ふかいいけは いしのうえしか あるけないよ。とびいしを たどって ハエのところまで いこう！' },
+    ]
+  },
+  {
+    id:2, icon:'🔁', name:'くりかえしの しま', sub:'同じ うごきを まとめる',
+    levels:[
+      { id:'2-1', name:'ずっと 先まで', creature:'batta', cards:BASIC,
+        grid:{w:8,h:3}, start:{x:0,y:1},
+        foods:[{x:7,y:1,emoji:'🌿',name:'くさ'}], rocks:[], par:8,
+        goal:'ゴールが 遠いよ！ カードを ならべて 🌿まで 行こう。',
+        hint:'➡を 7回 ならべて、さいごに「食べる」だよ',
+        clearMsg:'たくさん タップして つかれたね…つぎの めんで <b>べんりな カード</b>を あげるよ！',
+        speak:'ゴールが とおいよ！ カードを ならべて くさまで いこう。' },
+      { id:'2-2', name:'⟳ くりかえし カード', creature:'tento', cards:B_LOOP,
+        grid:{w:8,h:3}, start:{x:0,y:1},
+        foods:[{x:7,y:1,emoji:'🐛',name:'アブラムシ'}], rocks:[], par:3, maxCards:5,
+        goal:'新しい ⟳カード！ はこの 中の うごきを 何回も くりかえせるよ。',
+        hint:'⟳を 出して、はこの 中に ➡を 1まい 入れて、7回に すると いいよ',
+        speak:'あたらしい くりかえし カード！ はこの なかの うごきを なんかいも くりかえせるよ。' },
+      { id:'2-3', name:'かいだんを のぼろう', creature:'hachi', cards:B_LOOP,
+        grid:{w:5,h:5}, start:{x:0,y:4},
+        foods:[{x:4,y:0,emoji:'🌻',name:'ひまわり'}],
+        rocks:[{x:2,y:4},{x:3,y:4},{x:4,y:4},{x:0,y:3},{x:0,y:2},{x:0,y:1},{x:0,y:0}], par:4, maxCards:6,
+        goal:'かいだんの ように のぼるよ。どんな うごきが くりかえしに なってるかな？',
+        hint:'「➡ ⬆」の 2まいを はこに 入れて 4回 くりかえすと のぼれるよ',
+        speak:'かいだんの ように のぼるよ。どんな うごきが くりかえしに なってるかな？' },
+      { id:'2-4', name:'お花を ぜんぶ', creature:'chou', cards:B_LOOP,
+        grid:{w:9,h:3}, start:{x:0,y:1},
+        foods:[{x:2,y:1,emoji:'🌸',name:'お花'},{x:4,y:1,emoji:'🌸',name:'お花'},{x:6,y:1,emoji:'🌸',name:'お花'},{x:8,y:1,emoji:'🌸',name:'お花'}],
+        rocks:[], par:4, maxCards:7,
+        goal:'お花が 4つ。「2つ すすんで 食べる」の くりかえしだね！',
+        hint:'はこの 中に ➡ ➡ 食べる の 3まいを 入れて 4回 くりかえそう',
+        speak:'おはなが よっつ。ふたつ すすんで たべる の くりかえしだね！' },
+      { id:'2-5', name:'岩を とびこえて', creature:'semi', cards:B_LOOP,
+        grid:{w:8,h:4}, start:{x:0,y:2},
+        foods:[{x:7,y:2,emoji:'🌳',name:'木のしる'}],
+        rocks:[{x:2,y:2},{x:4,y:2},{x:6,y:2}], par:7, maxCards:10,
+        goal:'岩が 3つ ならんでる。同じ よけかたを くりかえせば いいね！',
+        hint:'まず ➡ を 1まい。そのあと「⬆ ➡ ➡ ⬇」を はこに 入れて 3回だよ',
+        speak:'いわが みっつ ならんでる。おなじ よけかたを くりかえせば いいね！' },
+    ]
+  },
+  {
+    id:3, icon:'❓', name:'もしもの しま', sub:'「〜だったら〜する」を 考える',
+    levels:[
+      { id:'3-1', name:'あったら 食べる', creature:'kamakiri', cards:B_LOOP_IF,
+        grid:{w:8,h:3}, start:{x:0,y:1},
+        foods:[{x:2,y:1,emoji:'🐜',name:'エサ'},{x:3,y:1,emoji:'🐜',name:'エサ'},{x:5,y:1,emoji:'🐜',name:'エサ'},{x:7,y:1,emoji:'🐜',name:'エサ'}],
+        rocks:[], par:4, maxCards:7,
+        goal:'新しい ❓カード！ 「たべものが あったら 食べる」を 7回 くりかえそう。',
+        hint:'⟳7回の はこの 中に「➡」と「❓たべものが あったら→食べる」を 入れよう',
+        speak:'あたらしい もしもカード！ たべものが あったら たべる を ななかい くりかえそう。' },
+      { id:'3-2', name:'同じ プログラムで', creature:'tonbo', cards:B_LOOP_IF,
+        grid:{w:8,h:3}, start:{x:0,y:1},
+        foods:[{x:1,y:1,emoji:'🦟',name:'エサ'},{x:4,y:1,emoji:'🦟',name:'エサ'},{x:6,y:1,emoji:'🦟',name:'エサ'},{x:7,y:1,emoji:'🦟',name:'エサ'}],
+        rocks:[], par:4, maxCards:7,
+        goal:'エサの ばしょが かわったよ。でも 前の めんと 同じ プログラムで 行けるかな？',
+        hint:'そう、まったく 同じで いいんだ！「もし あったら」が 考えて くれるよ',
+        speak:'えさの ばしょが かわったよ。でも まえの めんと おなじ プログラムで いけるかな？' },
+      { id:'3-3', name:'すきなの だけ 食べる', creature:'kuwagata', cards:B_LOOP_LIKE,
+        grid:{w:8,h:3}, start:{x:0,y:1},
+        foods:[{x:2,y:1,emoji:'🍯',name:'じゅえき'},{x:5,y:1,emoji:'🍯',name:'じゅえき'},{x:7,y:1,emoji:'🍯',name:'じゅえき'},
+               {x:3,y:1,emoji:'🍄',name:'きのこ',bad:true},{x:6,y:1,emoji:'🍄',name:'きのこ',bad:true}],
+        rocks:[], par:4, maxCards:7,
+        goal:'🍄きのこは にがてなんだ。「すきなのが あったら」だけ 食べようね。',
+        hint:'❓は「すきなのが あったら」を つかうよ。きのこの 上では 食べないんだ',
+        speak:'きのこは にがてなんだ。すきなのが あったら だけ たべようね。' },
+      { id:'3-4', name:'かいだんで さがそう', creature:'hotaru', cards:B_LOOP_LIKE,
+        grid:{w:5,h:5}, start:{x:0,y:4},
+        foods:[{x:1,y:3,emoji:'💧',name:'つゆ'},{x:3,y:1,emoji:'💧',name:'つゆ'},{x:4,y:0,emoji:'💧',name:'つゆ'},
+               {x:2,y:2,emoji:'🍄',name:'きのこ',bad:true}],
+        rocks:[{x:2,y:4},{x:3,y:4},{x:4,y:4},{x:0,y:3},{x:0,y:2},{x:0,y:1},{x:0,y:0}], par:5, maxCards:8,
+        goal:'かいだんを のぼりながら、すきなのが あったら 食べよう！',
+        hint:'はこの 中に「➡ ⬆ ❓すきなの→食べる」を 入れて 4回 くりかえそう',
+        speak:'かいだんを のぼりながら、すきなのが あったら たべよう！' },
+      { id:'3-5', name:'池の とび石', creature:'amenbo', cards:B_LOOP_LIKE,
+        grid:{w:7,h:3}, start:{x:0,y:2},
+        foods:[{x:2,y:2,emoji:'🐛',name:'エサ'},{x:3,y:0,emoji:'🐛',name:'エサ'},{x:5,y:0,emoji:'🐛',name:'エサ'},{x:6,y:0,emoji:'🐛',name:'エサ'},
+               {x:3,y:1,emoji:'🍄',name:'きのこ',bad:true}],
+        rocks:[],
+        stones:[[0,2],[1,2],[2,2],[3,2],[3,1],[3,0],[4,0],[5,0],[6,0]], par:12, maxCards:16,
+        goal:'右へ 3回、上へ 2回、右へ 3回。それぞれ くりかえしの はこに 分けてみよう！',
+        hint:'「➡＋❓」の はこを 3回 → 「⬆＋❓」の はこを 2回 → 「➡＋❓」の はこを 3回',
+        speak:'みぎへ さんかい、うえへ にかい、みぎへ さんかい。それぞれ くりかえしの はこに わけてみよう！' },
+    ]
+  },
+  {
+    id:4, icon:'⚡', name:'名前を つける しま', sub:'うごきの かたまりに 名前を つける',
+    levels:[
+      { id:'4-1', name:'⚡わざを 作ろう', creature:'usagi', cards:B_LOOP_CALL, func:true,
+        grid:{w:10,h:4}, start:{x:0,y:2},
+        foods:[{x:9,y:2,emoji:'🥕',name:'にんじん'}],
+        rocks:[{x:1,y:2},{x:4,y:2},{x:7,y:2}], par:11, maxCards:14,
+        goal:'岩の よけかたに 名前を つけよう！ 下の「⚡わざ」に うごきを 書くと、⚡カードで よび出せるよ。',
+        hint:'⚡わざ＝「⬆ ➡ ➡ ⬇」。メインは ⚡ ➡ ⚡ ➡ ⚡ ➡ 食べる だよ',
+        speak:'いわの よけかたに なまえを つけよう！ したの わざに うごきを かくと、わざカードで よびだせるよ。' },
+      { id:'4-2', name:'すきまが ちがう', creature:'kame', cards:B_LOOP_CALL, func:true,
+        grid:{w:11,h:4}, start:{x:0,y:2},
+        foods:[{x:10,y:2,emoji:'🥬',name:'はっぱ'}],
+        rocks:[{x:1,y:2},{x:4,y:2},{x:8,y:2}], par:12, maxCards:14,
+        goal:'岩と 岩の あいだが バラバラ！ くりかえしだけでは むずかしいね。⚡わざの 出番だよ。',
+        hint:'⚡わざ＝「⬆ ➡ ➡ ⬇」。メインは ⚡ ➡ ⚡ ➡ ➡ ⚡ ➡ 食べる',
+        speak:'いわと いわの あいだが ばらばら！ くりかえしだけでは むずかしいね。わざの でばんだよ。' },
+      { id:'4-3', name:'わざの 中に くりかえし', creature:'harinezumi', cards:B_LOOP_CALL, func:true,
+        grid:{w:9,h:5}, start:{x:0,y:4},
+        foods:[{x:8,y:1,emoji:'🍎',name:'りんご'}],
+        rocks:[], par:9, maxCards:11,
+        goal:'⚡わざの 中にも くりかえしを 入れられるよ。「右に 2つ すすんで 上へ」を わざに しよう！',
+        hint:'⚡わざ＝「⟳2回[➡] ⬆」。メインは ⚡ ⚡ ➡ ➡ ⚡ 食べる',
+        speak:'わざの なかにも くりかえしを いれられるよ。みぎに ふたつ すすんで うえへ を わざに しよう！' },
+      { id:'4-4', name:'わざの 中に もしも', creature:'kitsune', cards:B_ALL, func:true,
+        grid:{w:9,h:4}, start:{x:0,y:2},
+        foods:[{x:2,y:2,emoji:'🐭',name:'ねずみ'},{x:4,y:2,emoji:'🐭',name:'ねずみ'},{x:6,y:1,emoji:'🐭',name:'ねずみ'},{x:8,y:1,emoji:'🐭',name:'ねずみ'},
+               {x:3,y:2,emoji:'🍄',name:'きのこ',bad:true},{x:7,y:1,emoji:'🍄',name:'きのこ',bad:true}],
+        rocks:[], par:8, maxCards:9,
+        goal:'「1つ すすんで、すきなのが あったら 食べる」に 名前を つけて つかい回そう！',
+        hint:'⚡わざ＝「➡ ❓すきなの→食べる」。メインは ⟳5回[⚡] ⬆ ⟳3回[⚡]',
+        speak:'ひとつ すすんで、すきなのが あったら たべる に なまえを つけて つかいまわそう！' },
+      { id:'4-5', name:'こおりの 上を', creature:'penguin', cards:B_ALL, func:true,
+        grid:{w:8,h:3}, start:{x:0,y:2},
+        foods:[{x:2,y:2,emoji:'🐟',name:'さかな'},{x:5,y:0,emoji:'🐟',name:'さかな'},{x:7,y:0,emoji:'🐟',name:'さかな'},
+               {x:1,y:2,emoji:'🐡',name:'ふぐ',bad:true},{x:6,y:0,emoji:'🐡',name:'ふぐ',bad:true}],
+        rocks:[],
+        stones:[[0,2],[1,2],[2,2],[3,2],[3,1],[3,0],[4,0],[5,0],[6,0],[7,0]], par:9, maxCards:12,
+        goal:'さいごの めん！ ⚡わざ・⟳くりかえし・❓もしも、ぜんぶ つかって みよう！',
+        hint:'⚡わざ＝「➡ ❓すきなの→食べる」。メインは ⟳3回[⚡] ⬆ ⬆ ⟳4回[⚡]',
+        speak:'さいごの めん！ わざ、くりかえし、もしも、ぜんぶ つかって みよう！' },
+    ]
+  },
+  { id:5, icon:'🎨', name:'じゆうの しま', sub:'じぶんで マップを 作って あそぶ', free:true, levels:[] },
 ];
+
+const ALL_LEVELS = [];
+ISLANDS.forEach((is, ii) => is.levels.forEach((lv, li) => { lv.island = ii; lv.index = li; ALL_LEVELS.push(lv); }));
 
 const DIRS = { U:{x:0,y:-1}, D:{x:0,y:1}, L:{x:-1,y:0}, R:{x:1,y:0} };
 
-/* ---------------- ゲームエンジン（純ロジック・selftestと共用） ---------------- */
+/* ---------------- エンジン（純ロジック・selftestと共用） ---------------- */
 function isBlocked(level, x, y) {
   if (x < 0 || y < 0 || x >= level.grid.w || y >= level.grid.h) return 'wall';
-  if (level.rocks.some(r => r.x === x && r.y === y)) return 'rock';
+  if (level.rocks && level.rocks.some(r => r.x === x && r.y === y)) return 'rock';
+  if (level.holes && level.holes.some(r => r.x === x && r.y === y)) return 'water';
   if (level.stones && !level.stones.some(s => s[0] === x && s[1] === y)) return 'water';
   return null;
 }
 function makeState(level) {
-  return { x: level.start.x, y: level.start.y, foods: level.foods.map(f => ({...f, eaten:false})) };
+  return { x: level.start.x, y: level.start.y, foods: level.foods.map(f => ({ ...f, eaten:false })) };
 }
-// 1コマンド適用 → イベントを返す（UIもselftestもこれを使う）
+function foodAt(st, likeOnly) {
+  return st.foods.find(f => !f.eaten && f.x === st.x && f.y === st.y && (!likeOnly || !f.bad));
+}
+function allGoodEaten(st) {
+  return st.foods.filter(f => !f.bad).every(f => f.eaten);
+}
+// 1コマンド適用 → イベントを返す
 function applyCmd(st, cmd, level) {
   if (cmd === 'E') {
     const f = st.foods.find(f => !f.eaten && f.x === st.x && f.y === st.y);
     if (!f) return { type:'eat-empty' };
+    if (f.bad) return { type:'eat-bad', food:f };
     f.eaten = true;
-    return { type:'eat', food:f, allEaten: st.foods.every(f => f.eaten) };
+    return { type:'eat', food:f, allEaten: allGoodEaten(st) };
   }
   const d = DIRS[cmd];
   const nx = st.x + d.x, ny = st.y + d.y;
@@ -356,22 +698,60 @@ function applyCmd(st, cmd, level) {
   st.x = nx; st.y = ny;
   return { type:'move', x:nx, y:ny };
 }
-function simulate(level, program) {
+
+const ABORT = { abort:true };
+// プログラムを実行してイベントを順に yield する（条件は実行時に判定される）
+function* execProgram(prog, st, level, funcBody) {
+  const ctx = { steps:0, reason:'' };
+  function* runBlock(block, depth) {
+    if (depth > DEPTH_LIMIT) { ctx.reason = 'toodeep'; throw ABORT; }
+    for (const node of block) {
+      if (++ctx.steps > STEP_LIMIT) { ctx.reason = 'toomany'; throw ABORT; }
+      if (node.t === 'cmd') {
+        yield { kind:'cmd', node };
+      } else if (node.t === 'loop') {
+        for (let i = 0; i < node.n; i++) {
+          yield { kind:'iter', node, i };
+          yield* runBlock(node.body, depth + 1);
+        }
+        yield { kind:'iterend', node };
+      } else if (node.t === 'if') {
+        const hit = !!foodAt(st, CONDS[node.cond].likeOnly);
+        yield { kind:'test', node, hit };
+        if (hit) yield* runBlock(node.body, depth + 1);
+      } else if (node.t === 'call') {
+        yield { kind:'call', node };
+        yield* runBlock(funcBody || [], depth + 1);
+      }
+    }
+  }
+  try {
+    yield* runBlock(prog, 0);
+  } catch (e) {
+    if (e === ABORT) { yield { kind:'error', reason: ctx.reason }; return; }
+    throw e;
+  }
+}
+function simulate(level, prog, funcBody) {
   const st = makeState(level);
   let steps = 0;
-  for (const cmd of program) {
+  for (const ev of execProgram(prog, st, level, funcBody)) {
+    if (ev.kind === 'error') return { result:'fail-' + ev.reason, steps };
+    if (ev.kind !== 'cmd') continue;
     steps++;
-    const ev = applyCmd(st, cmd, level);
-    if (ev.type === 'blocked') return { result:'fail-' + ev.reason, steps };
-    if (ev.type === 'eat-empty') return { result:'fail-eat-empty', steps };
-    if (ev.type === 'eat' && ev.allEaten) return { result:'clear', steps };
+    const r = applyCmd(st, ev.node.c, level);
+    if (r.type === 'blocked') return { result:'fail-' + r.reason, steps };
+    if (r.type === 'eat-empty') return { result:'fail-eat-empty', steps };
+    if (r.type === 'eat-bad') return { result:'fail-eat-bad', steps };
+    if (r.type === 'eat' && r.allEaten) return { result:'clear', steps };
   }
-  return { result: st.foods.every(f => f.eaten) ? 'clear' : 'fail-food-left', steps };
+  return { result: allGoodEaten(st) ? 'clear' : 'fail-food-left', steps };
 }
 
 /* ---------------- 保存 ---------------- */
 function defaultSave() {
-  return { schema: DATA_SCHEMA, version: APP_VERSION, cleared:{}, zukan:[], settings:{ mute:false } };
+  return { schema:DATA_SCHEMA, version:APP_VERSION, cleared:{}, zukan:[],
+           settings:{ mute:false, fast:false }, free:{ map:null, slots:[null,null,null] } };
 }
 function loadSave() {
   try {
@@ -380,16 +760,21 @@ function loadSave() {
     const d = JSON.parse(raw);
     if (!d || typeof d !== 'object' || !d.cleared) return defaultSave();
     d.schema = d.schema || DATA_SCHEMA;
-    d.zukan = d.zukan || [];
-    d.settings = d.settings || { mute:false };
+    d.zukan = Array.isArray(d.zukan) ? d.zukan : [];
+    d.settings = d.settings || {};
+    if (typeof d.settings.mute !== 'boolean') d.settings.mute = false;
+    if (typeof d.settings.fast !== 'boolean') d.settings.fast = false;
+    d.free = d.free || { map:null, slots:[null,null,null] };
+    if (!Array.isArray(d.free.slots)) d.free.slots = [null,null,null];
+    while (d.free.slots.length < 3) d.free.slots.push(null);
     return d;
-  } catch(e) { return defaultSave(); }
+  } catch (e) { return defaultSave(); }
 }
 function persist() {
-  try { localStorage.setItem(STORAGE_KEY, JSON.stringify(SAVE)); } catch(e) {}
+  try { SAVE.version = APP_VERSION; localStorage.setItem(STORAGE_KEY, JSON.stringify(SAVE)); } catch (e) {}
 }
 let SAVE = loadSave();
-if (navigator.storage && navigator.storage.persist) { navigator.storage.persist().catch(()=>{}); }
+if (navigator.storage && navigator.storage.persist) { navigator.storage.persist().catch(() => {}); }
 
 /* ---------------- サウンド ---------------- */
 let audioCtx = null;
@@ -406,169 +791,434 @@ function beep(freq, dur, type, vol, when) {
     g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
     o.connect(g); g.connect(audioCtx.destination);
     o.start(t); o.stop(t + dur + 0.05);
-  } catch(e) {}
+  } catch (e) {}
 }
 const SFX = {
-  tap:   () => beep(660, 0.08, 'sine', 0.08),
-  step:  () => beep(440, 0.09, 'triangle', 0.09),
-  eat:   () => { beep(520, 0.12, 'sine', 0.12); beep(780, 0.15, 'sine', 0.1, 0.08); },
-  fail:  () => beep(180, 0.3, 'sine', 0.1),
-  clear: () => { [523,659,784,1047].forEach((f,i) => beep(f, 0.22, 'sine', 0.11, i*0.13)); },
+  tap:  () => beep(660, 0.08, 'sine', 0.08),
+  step: () => beep(440, 0.09, 'triangle', 0.09),
+  eat:  () => { beep(520, 0.12, 'sine', 0.12); beep(780, 0.15, 'sine', 0.1, 0.08); },
+  loop: () => beep(880, 0.06, 'square', 0.05),
+  yes:  () => beep(700, 0.09, 'sine', 0.07),
+  no:   () => beep(300, 0.09, 'sine', 0.06),
+  fail: () => beep(180, 0.3, 'sine', 0.1),
+  clear:() => { [523,659,784,1047].forEach((f,i) => beep(f, 0.22, 'sine', 0.11, i*0.13)); },
 };
-
-/* ---------------- よみあげ ---------------- */
 function speak(text) {
+  if (SAVE.settings.mute) return;
   try {
     speechSynthesis.cancel();
     const u = new SpeechSynthesisUtterance(text);
     u.lang = 'ja-JP'; u.rate = 0.9; u.pitch = 1.1;
     speechSynthesis.speak(u);
-  } catch(e) {}
+  } catch (e) {}
 }
 
-/* ---------------- 画面管理 ---------------- */
+/* ---------------- 画面 ---------------- */
 const $ = id => document.getElementById(id);
+const sleep = ms => new Promise(r => setTimeout(r, ms));
 function showScreen(name) {
   document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
   $('screen-' + name).classList.add('active');
 }
 function creatureSVG(key, size) {
-  return `<svg viewBox="0 0 100 100" width="${size||64}" height="${size||64}" xmlns="http://www.w3.org/2000/svg">${CREATURES[key].svg}</svg>`;
+  const c = CREATURES[key] || CREATURES.kabuto;
+  return `<svg viewBox="0 0 100 100" width="${size||64}" height="${size||64}" xmlns="http://www.w3.org/2000/svg">${c.svg}</svg>`;
 }
 
 /* ---------------- タイトル ---------------- */
 function initTitle() {
-  $('title-parade').innerHTML = Object.keys(CREATURES).map(k => creatureSVG(k)).join('');
+  $('title-parade').innerHTML = ['kabuto','tento','kamakiri','chou','risu','kaeru'].map(k => creatureSVG(k)).join('');
   $('title-ver').textContent = 'v' + APP_VERSION;
   $('parent-ver').textContent = 'むしむしプログラミング v' + APP_VERSION + '（データ形式 ' + DATA_SCHEMA + '）';
 }
-$('btn-start').addEventListener('click', () => { SFX.tap(); renderMap(); showScreen('map'); });
+$('btn-start').addEventListener('click', () => { SFX.tap(); renderIslands(); showScreen('islands'); });
 
-/* ---------------- マップ ---------------- */
-function isUnlocked(idx) {
-  if (idx === 0) return true;
-  return !!(SAVE.cleared[LEVELS[idx-1].id] && SAVE.cleared[LEVELS[idx-1].id].clear);
+/* ---------------- しま えらび ---------------- */
+function levelCleared(id) { return !!(SAVE.cleared[id] && SAVE.cleared[id].clear); }
+function islandDone(ii) {
+  const is = ISLANDS[ii];
+  return is.levels.length > 0 && is.levels.every(lv => levelCleared(lv.id));
 }
-function renderMap() {
-  const wrap = $('map-levels');
+function islandUnlocked(ii) { return ii === 0 ? true : islandDone(ii - 1); }
+function levelUnlocked(lv) {
+  if (!islandUnlocked(lv.island)) return false;
+  if (lv.index === 0) return true;
+  return levelCleared(ISLANDS[lv.island].levels[lv.index - 1].id);
+}
+
+function renderIslands() {
+  const wrap = $('island-list');
   wrap.innerHTML = '';
-  LEVELS.forEach((lv, i) => {
+  ISLANDS.forEach((is, ii) => {
+    const open = islandUnlocked(ii);
     const b = document.createElement('button');
-    b.className = 'lv-btn' + (isUnlocked(i) ? '' : ' locked');
-    const rec = SAVE.cleared[lv.id] || {};
-    const badges = (rec.clear ? '⭐' : '') + (rec.perfect ? '🏅' : '');
-    b.innerHTML = `<span class="lv-num">ステージ${i+1}</span>${creatureSVG(lv.creature, 60)}<span class="lv-name">${lv.name}</span><span class="lv-badges">${badges}</span>`;
+    b.className = 'is-btn' + (open ? '' : ' locked');
+    const done = is.levels.filter(lv => levelCleared(lv.id)).length;
+    const prog = is.free
+      ? (open ? '🎨 いつでも あそべる' : '🔒 しま4まで クリアで あく')
+      : (open ? '⭐'.repeat(done) + '・'.repeat(is.levels.length - done) : '🔒');
+    b.innerHTML = `<span class="is-icon">${is.icon}</span><span class="is-name">${is.name}</span>` +
+                  `<span class="is-sub">${is.sub}</span><span class="is-prog">${prog}</span>`;
     b.addEventListener('click', () => {
-      if (!isUnlocked(i)) { SFX.fail(); return; }
-      SFX.tap(); startLevel(i);
+      if (!open) { SFX.fail(); showToast('まえの しまを クリアすると あくよ！'); return; }
+      SFX.tap();
+      if (is.free) { openFree(); } else { renderMap(ii); showScreen('map'); }
     });
     wrap.appendChild(b);
   });
 }
+function showToast(msg) {
+  const b = $('bubble');
+  b.textContent = msg;
+  b.style.position = 'fixed'; b.style.bottom = '30px';
+  b.classList.add('show');
+  clearTimeout(showToast._t);
+  showToast._t = setTimeout(() => { b.classList.remove('show'); b.style.position = ''; b.style.bottom = ''; }, 2000);
+}
 $('btn-zukan').addEventListener('click', () => { SFX.tap(); renderZukan(); showScreen('zukan'); });
-$('btn-zukan-back').addEventListener('click', () => { SFX.tap(); renderMap(); showScreen('map'); });
+$('btn-zukan-back').addEventListener('click', () => { SFX.tap(); renderIslands(); showScreen('islands'); });
 $('btn-parent').addEventListener('click', () => { SFX.tap(); showScreen('parent'); });
-$('btn-parent-back').addEventListener('click', () => { SFX.tap(); renderMap(); showScreen('map'); });
+$('btn-parent-back').addEventListener('click', () => { SFX.tap(); renderIslands(); showScreen('islands'); });
+$('btn-map-back').addEventListener('click', () => { SFX.tap(); renderIslands(); showScreen('islands'); });
+
+/* ---------------- めん えらび ---------------- */
+let CUR_ISLAND = 0;
+function renderMap(ii) {
+  CUR_ISLAND = ii;
+  const is = ISLANDS[ii];
+  $('map-title').textContent = is.icon + ' ' + is.name;
+  const wrap = $('map-levels');
+  wrap.innerHTML = '';
+  is.levels.forEach((lv, li) => {
+    const open = levelUnlocked(lv);
+    const b = document.createElement('button');
+    b.className = 'lv-btn' + (open ? '' : ' locked');
+    const rec = SAVE.cleared[lv.id] || {};
+    const badges = (rec.clear ? '⭐' : '') + (rec.perfect ? '🏅' : '');
+    b.innerHTML = `<span class="lv-num">ステージ${li+1}</span>${creatureSVG(lv.creature, 60)}` +
+                  `<span class="lv-name">${lv.name}</span><span class="lv-badges">${badges}</span>`;
+    b.addEventListener('click', () => {
+      if (!open) { SFX.fail(); return; }
+      SFX.tap(); startLevel(lv);
+    });
+    wrap.appendChild(b);
+  });
+}
 
 /* ---------------- ずかん ---------------- */
 function renderZukan() {
   const grid = $('zukan-grid');
   grid.innerHTML = '';
-  const keys = Object.keys(CREATURES);
-  const got = keys.filter(k => SAVE.zukan.includes(k)).length;
-  $('zukan-title').textContent = `📖 生きもの ずかん（${got}／${keys.length}）`;
-  keys.forEach(k => {
-    const c = CREATURES[k];
-    const known = SAVE.zukan.includes(k);
-    const div = document.createElement('div');
-    div.className = 'zk-card' + (known ? '' : ' unknown');
-    div.innerHTML = known
-      ? `${creatureSVG(k, 72)}<div class="zk-name">${c.name}</div><div class="zk-fact">${c.fact}</div>`
-      : `${creatureSVG(k, 72)}<div class="zk-name">？？？</div><div class="zk-fact">クリアすると なかま入りするよ</div>`;
-    grid.appendChild(div);
+  const all = Object.keys(CREATURES);
+  const got = all.filter(k => SAVE.zukan.includes(k)).length;
+  $('zukan-title').textContent = `📖 生きもの ずかん（${got}／${all.length}）`;
+  ISLANDS.forEach(is => {
+    if (!is.levels.length) return;
+    const sec = document.createElement('div');
+    sec.className = 'zk-sec';
+    sec.textContent = is.icon + ' ' + is.name;
+    grid.appendChild(sec);
+    const row = document.createElement('div');
+    row.className = 'zk-row';
+    is.levels.forEach(lv => {
+      const k = lv.creature, c = CREATURES[k];
+      const known = SAVE.zukan.includes(k);
+      const div = document.createElement('div');
+      div.className = 'zk-card' + (known ? '' : ' unknown');
+      div.innerHTML = known
+        ? `${creatureSVG(k, 66)}<div class="zk-name">${c.name}</div><div class="zk-fact">${c.fact}</div>`
+        : `${creatureSVG(k, 66)}<div class="zk-name">？？？</div><div class="zk-fact">クリアすると なかま入りするよ</div>`;
+      row.appendChild(div);
+    });
+    grid.appendChild(row);
   });
 }
 
-/* ---------------- ゲーム本体 ---------------- */
-let G = null; // 現在のゲーム状態
+/* =====================================================================
+   ゲーム本体
+===================================================================== */
+let G = null;
 
-function startLevel(idx) {
-  const level = LEVELS[idx];
-  G = { idx, level, program: [], state: makeState(level), running:false, failCount:0 };
-  $('lv-title').textContent = `ステージ${idx+1}：${level.name}`;
+function startLevel(level) {
+  G = { level, main:[], func:[], root:'main', path:[], state:makeState(level),
+        running:false, failCount:0, free: level.id === 'free' };
+  $('lv-title').textContent = level.id === 'free'
+    ? '🎨 じぶんの マップ'
+    : `ステージ${level.index + 1}：${level.name}`;
   $('goal-text').textContent = level.goal;
+  $('limit-tag').textContent = level.maxCards ? `カードは ${level.maxCards}まいまで` : '';
   $('btn-hint').classList.remove('show');
-  updateMuteBtn();
-  renderProgram();
+  $('btn-back').textContent = level.id === 'free' ? '← なおす' : '← もどる';
+  updateMuteBtn(); updateFastBtn();
+  buildPalette();
+  renderEditors();
   renderStage();
   showScreen('game');
 }
 
-function renderProgram() {
-  const row = $('program-row');
-  row.innerHTML = '';
-  G.program.forEach((cmd, i) => {
-    const d = document.createElement('div');
-    d.className = 'pcard ' + (cmd === 'E' ? 'eat' : 'move');
-    d.dataset.i = i;
-    d.innerHTML = `<span class="pnum">${i+1}</span>` + (cmd === 'E' ? '😋<br>食べる' : {U:'⬆',D:'⬇',L:'⬅',R:'➡'}[cmd]);
-    d.addEventListener('click', () => {
-      if (G.running) return;
-      SFX.tap();
-      G.program.splice(i, 1);
-      renderProgram();
+/* --- パレット --- */
+function buildPalette() {
+  const pal = $('palette');
+  pal.innerHTML = '';
+  const mk = (cls, html, fn) => {
+    const b = document.createElement('button');
+    b.className = cls; b.innerHTML = html;
+    b.addEventListener('click', fn);
+    pal.appendChild(b);
+    return b;
+  };
+  const cards = G.level.cards;
+  ['U','D','L','R'].forEach(c => { if (cards.includes(c)) mk('cmd-btn move', CMD_LABEL[c], () => addNode(cmdNode(c))); });
+  if (cards.includes('E')) mk('cmd-btn eat', '😋<br>食べる', () => addNode(cmdNode('E')));
+  if (cards.includes('LOOP')) mk('cmd-btn loop', '⟳<br>くり<br>かえし', () => askLoopCount(n => addNode(loopNode(n))));
+  if (cards.includes('IF_food')) mk('cmd-btn cond', '❓<br>あったら', () => addNode(ifNode('food')));
+  if (cards.includes('IF_like')) mk('cmd-btn cond', '❓<br>すきなの', () => addNode(ifNode('like')));
+  if (cards.includes('CALL')) {
+    const b = mk('cmd-btn call', '⚡<br>わざ', () => {
+      if (G.root === 'func') { showBubble('⚡の 中で ⚡は つかえないよ'); SFX.fail(); return; }
+      addNode(callNode());
     });
-    row.appendChild(d);
-  });
-  $('card-count').textContent = `${G.program.length}まい ／ 🏅は ${G.level.par}まいまで`;
+    b.id = 'btn-call';
+  }
+  const sep1 = document.createElement('div'); sep1.className = 'sep'; pal.appendChild(sep1);
+  mk('util-btn', '一つ<br>けす', undoNode);
+  mk('util-btn', 'ぜんぶ<br>けす', clearAll);
+  const close = mk('', '✅ はこを<br>とじる', closeBox);
+  close.id = 'btn-closebox';
+  const sep2 = document.createElement('div'); sep2.className = 'sep'; pal.appendChild(sep2);
+  const run = mk('', '▶ さぁ行こう！', runProgram);
+  run.id = 'btn-run';
 }
 
-function tileFill(x, y) { return (x + y) % 2 === 0 ? 'var(--grass1)' : 'var(--grass2)'; }
+/* --- カーソル（どこに カードが 入るか） --- */
+function rootList(root) { return root === 'func' ? G.func : G.main; }
+function resolveTarget() {
+  let arr = rootList(G.root);
+  for (const i of G.path) {
+    const nd = arr[i];
+    if (!nd || !nd.body) { G.path = []; return rootList(G.root); }
+    arr = nd.body;
+  }
+  return arr;
+}
+function totalCards() { return countNodes(G.main) + countNodes(G.func); }
+function addNode(node) {
+  if (G.running) return;
+  const limit = G.level.maxCards || 40;
+  if (totalCards() >= limit) {
+    SFX.fail();
+    showBubble(`カードは ${limit}まいまでだよ。もっと みじかく できないかな？`, 3000);
+    return;
+  }
+  SFX.tap();
+  const arr = resolveTarget();
+  arr.push(node);
+  if (node.body) G.path = G.path.concat([arr.length - 1]);  // はこは 自動で ひらく
+  renderEditors();
+}
+function undoNode() {
+  if (G.running) return;
+  const arr = resolveTarget();
+  if (arr.length === 0) { if (G.path.length) closeBox(); return; }
+  SFX.tap();
+  arr.pop();
+  renderEditors();
+}
+function clearAll() {
+  if (G.running) return;
+  SFX.tap();
+  G.main = []; G.func = []; G.path = []; G.root = 'main';
+  renderEditors();
+}
+function closeBox() {
+  if (G.running || !G.path.length) return;
+  SFX.tap();
+  G.path = G.path.slice(0, -1);
+  renderEditors();
+}
+function samePath(a, b) { return a.length === b.length && a.every((v, i) => v === b[i]); }
 
-function renderStage() {
-  const lv = G.level, w = lv.grid.w, h = lv.grid.h;
-  const svg = $('stage');
-  svg.setAttribute('viewBox', `0 0 ${w*CELL} ${h*CELL}`);
-  // 画面に収める
-  const isWide = w / h > 1.6;
-  svg.style.width = isWide ? '100%' : 'auto';
-  svg.style.height = isWide ? 'auto' : '100%';
+/* --- エディタ描画 --- */
+function renderEditors() {
+  const wrap = $('editors');
+  wrap.innerHTML = '';
+  wrap.appendChild(makeRow('main', 'メインの プログラム', G.main));
+  if (G.level.func) wrap.appendChild(makeRow('func', '⚡ わざ（じぶんの めいれい）', G.func));
+  const cb = $('btn-closebox');
+  if (cb) cb.classList.toggle('show', G.path.length > 0);
+  const call = $('btn-call');
+  if (call) call.disabled = (G.root === 'func');
+  updateCount();
+}
+function updateCount() {
+  const limit = G.level.maxCards;
+  const par = G.level.par;
+  const n = totalCards();
+  const el = document.querySelector('#editors .prow .count');
+  if (el) el.textContent = limit ? `${n}／${limit}まい（🏅は ${par}まいまで）` : `${n}まい`;
+}
+function makeRow(root, label, list) {
+  const row = document.createElement('div');
+  row.className = 'prow' + (G.root === root ? ' active' : '');
+  const head = document.createElement('div');
+  head.className = 'prow-label';
+  head.innerHTML = `<span class="tag">${label}</span>` +
+    (root === 'main' ? '<span class="count"></span>' : '<span>ここに 書いた うごきが ⚡カードに なるよ</span>');
+  head.addEventListener('click', () => {
+    if (G.running || G.root === root) return;
+    SFX.tap(); G.root = root; G.path = []; renderEditors();
+  });
+  row.appendChild(head);
+  const body = document.createElement('div');
+  body.className = 'prow-row';
+  renderList(list, body, root, []);
+  if (list.length === 0 && !(G.root === root && G.path.length === 0)) {
+    const h = document.createElement('span');
+    h.className = 'empty-hint';
+    h.textContent = root === 'func' ? 'ここを タップしてから カードを ならべてね' : 'カードを ならべてね';
+    body.appendChild(h);
+  }
+  row.appendChild(body);
+  return row;
+}
+function renderList(list, el, root, basePath) {
+  list.forEach((node, i) => {
+    const path = basePath.concat([i]);
+    el.appendChild(nodeEl(node, root, path));
+  });
+  if (root === G.root && samePath(basePath, G.path)) {
+    const c = document.createElement('div');
+    c.className = 'caret';
+    el.appendChild(c);
+  }
+}
+function nodeEl(node, root, path) {
+  if (node.t === 'cmd' || node.t === 'call') {
+    const d = document.createElement('div');
+    d.className = 'pcard ' + (node.t === 'call' ? 'call' : (node.c === 'E' ? 'eat' : 'move'));
+    d.dataset.nid = node.id;
+    d.innerHTML = node.t === 'call' ? '⚡<br>わざ' : (node.c === 'E' ? '😋<br>食べる' : CMD_LABEL[node.c]);
+    d.addEventListener('click', e => {
+      e.stopPropagation();
+      if (G.running) return;
+      SFX.tap();
+      removeAt(root, path);
+    });
+    return d;
+  }
+  // はこ（くりかえし／もし）
+  const box = document.createElement('div');
+  const isLoop = node.t === 'loop';
+  box.className = 'pbox ' + (isLoop ? 'loop' : 'cond');
+  box.dataset.nid = node.id;
+  if (root === G.root && pathStartsWith(G.path, path)) box.classList.add('open');
+  const head = document.createElement('div');
+  head.className = 'pbox-head';
+  const lab = document.createElement('span');
+  lab.className = 'hlabel';
+  lab.textContent = isLoop ? `⟳ ${node.n}回` : `❓ ${CONDS[node.cond].short}`;
+  lab.addEventListener('click', e => {
+    e.stopPropagation();
+    if (G.running) return;
+    if (isLoop && pathStartsWith(G.path, path) && G.root === root) { askLoopCount(n => { node.n = n; renderEditors(); }); return; }
+    SFX.tap(); G.root = root; G.path = path.slice(); renderEditors();
+  });
+  head.appendChild(lab);
+  const iter = document.createElement('span');
+  iter.className = 'iter'; iter.style.display = 'none';
+  head.appendChild(iter);
+  const x = document.createElement('button');
+  x.className = 'xbtn'; x.textContent = '✕';
+  x.addEventListener('click', e => { e.stopPropagation(); if (G.running) return; SFX.tap(); removeAt(root, path); });
+  head.appendChild(x);
+  box.appendChild(head);
+  const body = document.createElement('div');
+  body.className = 'pbox-body';
+  renderList(node.body, body, root, path);
+  body.addEventListener('click', e => {
+    if (e.target !== body || G.running) return;
+    SFX.tap(); G.root = root; G.path = path.slice(); renderEditors();
+  });
+  box.appendChild(body);
+  return box;
+}
+function pathStartsWith(p, prefix) {
+  if (p.length < prefix.length) return false;
+  for (let i = 0; i < prefix.length; i++) if (p[i] !== prefix[i]) return false;
+  return true;
+}
+function removeAt(root, path) {
+  let arr = rootList(root);
+  for (let i = 0; i < path.length - 1; i++) arr = arr[path[i]].body;
+  arr.splice(path[path.length - 1], 1);
+  // けした はこの 中に カーソルが あったら 外に 出す
+  if (root === G.root && pathStartsWith(G.path, path)) G.path = path.slice(0, -1);
+  renderEditors();
+}
+
+/* --- 回数えらび モーダル --- */
+function openModal(title, items, onPick) {
+  $('modal-title').textContent = title;
+  const body = $('modal-body');
+  body.innerHTML = '';
+  items.forEach(it => {
+    const b = document.createElement('button');
+    b.textContent = it.label;
+    if (it.sel) b.className = 'sel';
+    b.addEventListener('click', () => { SFX.tap(); $('modal').classList.remove('show'); onPick(it.value); });
+    body.appendChild(b);
+  });
+  $('modal').classList.add('show');
+}
+$('modal-cancel').addEventListener('click', () => { SFX.tap(); $('modal').classList.remove('show'); });
+function askLoopCount(cb) {
+  const items = [];
+  for (let i = 2; i <= 10; i++) items.push({ label: i + '回', value:i });
+  openModal('何回 くりかえす？', items, cb);
+}
+
+/* --- ステージ描画 --- */
+function stageMarkup(level, withActor) {
+  const w = level.grid.w, h = level.grid.h;
   let s = '';
   for (let y = 0; y < h; y++) for (let x = 0; x < w; x++) {
-    const water = lv.stones && !lv.stones.some(p => p[0] === x && p[1] === y);
-    if (water) {
+    const b = isBlocked(level, x, y);
+    if (b === 'water') {
       s += `<rect x="${x*CELL}" y="${y*CELL}" width="${CELL}" height="${CELL}" fill="#7cbfec"/>`;
       s += `<path d="M${x*CELL+18} ${y*CELL+55} q10 -8 20 0 q10 8 20 0 q10 -8 24 0" stroke="#a8d8f5" stroke-width="4" fill="none" stroke-linecap="round"/>`;
     } else {
-      s += `<rect x="${x*CELL}" y="${y*CELL}" width="${CELL}" height="${CELL}" fill="${tileFill(x,y)}"/>`;
-      if (lv.stones) s += `<ellipse cx="${x*CELL+50}" cy="${y*CELL+55}" rx="38" ry="30" fill="#d8d2c2" stroke="#b8b2a2" stroke-width="3"/>`;
+      s += `<rect x="${x*CELL}" y="${y*CELL}" width="${CELL}" height="${CELL}" fill="${(x+y)%2===0?'var(--grass1)':'var(--grass2)'}"/>`;
+      if (level.stones && b !== 'rock') s += `<ellipse cx="${x*CELL+50}" cy="${y*CELL+55}" rx="38" ry="30" fill="#d8d2c2" stroke="#b8b2a2" stroke-width="3"/>`;
     }
   }
-  // グリッド線
   s += `<g stroke="rgba(255,255,255,.35)" stroke-width="2">`;
   for (let x = 1; x < w; x++) s += `<line x1="${x*CELL}" y1="0" x2="${x*CELL}" y2="${h*CELL}"/>`;
   for (let y = 1; y < h; y++) s += `<line x1="0" y1="${y*CELL}" x2="${w*CELL}" y2="${y*CELL}"/>`;
   s += `</g>`;
-  // いわ
-  lv.rocks.forEach(r => {
+  (level.rocks || []).forEach(r => {
     s += `<g transform="translate(${r.x*CELL},${r.y*CELL})"><ellipse cx="50" cy="62" rx="36" ry="26" fill="#9a938a"/><ellipse cx="42" cy="50" rx="26" ry="20" fill="#aaa39a"/><ellipse cx="36" cy="44" rx="8" ry="5" fill="#c2bbb2"/></g>`;
   });
-  // エサ
-  lv.foods.forEach((f, i) => {
+  level.foods.forEach((f, i) => {
     s += `<text id="food-${i}" x="${f.x*CELL+50}" y="${f.y*CELL+68}" font-size="56" text-anchor="middle">${f.emoji}</text>`;
   });
-  // スタートマーク
-  s += `<rect x="${lv.start.x*CELL+6}" y="${lv.start.y*CELL+6}" width="${CELL-12}" height="${CELL-12}" rx="14" fill="none" stroke="#fff" stroke-width="3" stroke-dasharray="8 7" opacity=".7"/>`;
-  // 主人公
-  s += `<g id="actor" style="transition:transform .55s ease-in-out"><g id="actor-flip" transform-origin="50 50">${CREATURES[lv.creature].svg}</g></g>`;
-  svg.innerHTML = s;
+  s += `<rect x="${level.start.x*CELL+6}" y="${level.start.y*CELL+6}" width="${CELL-12}" height="${CELL-12}" rx="14" fill="none" stroke="#fff" stroke-width="3" stroke-dasharray="8 7" opacity=".7"/>`;
+  if (withActor) {
+    s += `<g id="actor" style="transition:transform .55s ease-in-out"><g id="actor-flip" transform-origin="50 50">${(CREATURES[level.creature]||CREATURES.kabuto).svg}</g></g>`;
+  }
+  return s;
+}
+function renderStage() {
+  const lv = G.level;
+  const svg = $('stage');
+  svg.setAttribute('viewBox', `0 0 ${lv.grid.w*CELL} ${lv.grid.h*CELL}`);
+  svg.setAttribute('preserveAspectRatio', 'xMidYMid meet');
+  svg.innerHTML = stageMarkup(lv, true);
   placeActor(lv.start.x, lv.start.y, true);
 }
-
 function placeActor(x, y, instant) {
   const actor = $('actor');
   if (!actor) return;
-  if (instant) { actor.style.transition = 'none'; }
+  if (instant) actor.style.transition = 'none';
   actor.style.transform = `translate(${x*CELL}px, ${y*CELL}px)`;
   if (instant) { void actor.getBoundingClientRect(); actor.style.transition = 'transform .55s ease-in-out'; }
 }
@@ -578,108 +1228,164 @@ function faceActor(cmd) {
   if (cmd === 'L') flip.setAttribute('transform', 'scale(-1,1) translate(-100,0)');
   if (cmd === 'R') flip.removeAttribute('transform');
 }
-
 function showBubble(text, ms) {
   const b = $('bubble');
-  b.textContent = text;
+  b.innerHTML = text;
   b.classList.remove('show'); void b.offsetWidth; b.classList.add('show');
   clearTimeout(showBubble._t);
   showBubble._t = setTimeout(() => b.classList.remove('show'), ms || 2200);
 }
 
-const sleep = ms => new Promise(r => setTimeout(r, ms));
-
 /* --- 実行 --- */
+function elOf(node) { return document.querySelector(`[data-nid="${node.id}"]`); }
+function clearMarks() {
+  document.querySelectorAll('.exec').forEach(e => e.classList.remove('exec'));
+  document.querySelectorAll('.iter').forEach(e => { e.style.display = 'none'; e.textContent = ''; });
+}
 async function runProgram() {
-  if (G.running) return;
-  if (G.program.length === 0) { showBubble('カードを ならべてね'); SFX.fail(); return; }
+  if (!G || G.running) return;
+  if (G.main.length === 0) { showBubble('カードを ならべてね'); SFX.fail(); return; }
+  if (usesCall(G.main) && G.func.length === 0) {
+    showBubble('⚡わざの 中が からっぽだよ！', 2600); SFX.fail(); return;
+  }
   G.running = true;
   document.body.classList.add('running');
-  // リセット
   G.state = makeState(G.level);
   renderStage();
-  await sleep(400);
+  clearMarks();
+  await sleep(350);
 
-  const cards = $('program-row').children;
-  let failed = false;
+  const sp = SAVE.settings.fast ? 0.5 : 1;
+  let failed = false, failMsg = '';
+  let used = 0;
 
-  for (let i = 0; i < G.program.length; i++) {
-    const cmd = G.program[i];
-    for (const c of cards) c.classList.remove('exec');
-    cards[i].classList.add('exec');
-    cards[i].scrollIntoView({ block:'nearest', inline:'center', behavior:'smooth' });
-    await sleep(150);
+  for (const ev of execProgram(G.main, G.state, G.level, G.func)) {
+    if (ev.kind === 'error') {
+      failed = true;
+      failMsg = ev.reason === 'toodeep' ? 'はこの 中の はこが 多すぎるよ' : 'ながく なりすぎたよ！ もっと みじかく してみよう';
+      SFX.fail();
+      break;
+    }
+    if (ev.kind === 'iter') {
+      const el = elOf(ev.node);
+      if (el) {
+        el.classList.add('exec');
+        const it = el.querySelector('.iter');
+        if (it) { it.style.display = ''; it.textContent = `${ev.i+1}／${ev.node.n}`; }
+      }
+      SFX.loop();
+      await sleep(180 * sp);
+      continue;
+    }
+    if (ev.kind === 'iterend') {
+      const el = elOf(ev.node);
+      if (el) { el.classList.remove('exec'); const it = el.querySelector('.iter'); if (it) it.style.display = 'none'; }
+      continue;
+    }
+    if (ev.kind === 'test') {
+      const el = elOf(ev.node);
+      if (el) el.classList.add('exec');
+      ev.hit ? SFX.yes() : SFX.no();
+      showBubble(ev.hit ? 'もしも → ○ あった！' : 'もしも → × なかった', 1100);
+      await sleep(430 * sp);
+      if (el) el.classList.remove('exec');
+      continue;
+    }
+    if (ev.kind === 'call') {
+      const el = elOf(ev.node);
+      if (el) { el.classList.add('exec'); setTimeout(() => el.classList.remove('exec'), 500); }
+      SFX.loop();
+      await sleep(200 * sp);
+      continue;
+    }
+    // cmd
+    const node = ev.node;
+    const el = elOf(node);
+    if (el) { el.classList.add('exec'); el.scrollIntoView({ block:'nearest', inline:'center', behavior:'smooth' }); }
+    await sleep(130 * sp);
+    used++;
+    const r = applyCmd(G.state, node.c, G.level);
 
-    const ev = applyCmd(G.state, cmd, G.level);
-
-    if (ev.type === 'move') {
-      faceActor(cmd);
-      SFX.step();
-      placeActor(ev.x, ev.y);
-      await sleep(620);
-    } else if (ev.type === 'blocked') {
-      // ちょっとだけ進んで戻る
-      faceActor(cmd);
-      const d = DIRS[cmd];
-      const a = $('actor');
+    if (r.type === 'move') {
+      faceActor(node.c); SFX.step();
+      placeActor(r.x, r.y);
+      await sleep(600 * sp);
+    } else if (r.type === 'blocked') {
+      faceActor(node.c);
+      const d = DIRS[node.c], a = $('actor');
       a.style.transition = 'transform .2s';
       a.style.transform = `translate(${(G.state.x + d.x*0.25)*CELL}px, ${(G.state.y + d.y*0.25)*CELL}px)`;
-      await sleep(210);
+      await sleep(200);
       a.style.transform = `translate(${G.state.x*CELL}px, ${G.state.y*CELL}px)`;
-      await sleep(210);
+      await sleep(200);
       a.style.transition = 'transform .55s ease-in-out';
       $('stage').classList.add('stage-shake');
       setTimeout(() => $('stage').classList.remove('stage-shake'), 450);
       SFX.fail();
-      const msg = ev.reason === 'rock' ? '岩で 通れないよ！' : ev.reason === 'water' ? 'そこは ふかい 水だよ！' : 'そっちは 行けないよ！';
-      showBubble('あれれ？ ' + msg, 2600);
       failed = true;
-      break;
-    } else if (ev.type === 'eat') {
+      failMsg = 'あれれ？ ' + (r.reason === 'rock' ? '岩で 通れないよ！' : r.reason === 'water' ? 'そこは ふかい 水だよ！' : 'そっちは 行けないよ！');
+    } else if (r.type === 'eat') {
       SFX.eat();
-      const fi = G.level.foods.indexOf(G.level.foods.find(f => f.x === ev.food.x && f.y === ev.food.y));
-      const el = $('food-' + fi);
-      if (el) { el.style.transition = 'opacity .4s, font-size .4s'; el.style.opacity = '0'; }
-      showBubble('ぱくっ！ ' + ev.food.name + 'を 食べたよ！', 1600);
-      await sleep(650);
-      if (ev.allEaten) { await sleep(300); onClear(i + 1); return; }
-    } else if (ev.type === 'eat-empty') {
+      const fi = G.level.foods.findIndex(f => f.x === r.food.x && f.y === r.food.y);
+      const fe = $('food-' + fi);
+      if (fe) { fe.style.transition = 'opacity .4s'; fe.style.opacity = '0'; }
+      showBubble('ぱくっ！ ' + r.food.name + 'を 食べたよ！', 1500);
+      await sleep(620 * sp);
+      if (r.allEaten) { if (el) el.classList.remove('exec'); await sleep(250); onClear(used); return; }
+    } else if (r.type === 'eat-bad') {
       SFX.fail();
-      showBubble('あれれ？ ここには 食べものが ないよ', 2600);
-      failed = true;
-      break;
+      showBubble('うえっ！ ' + r.food.name + 'は にがてだよ〜', 2600);
+      failed = true; failMsg = '';
+    } else if (r.type === 'eat-empty') {
+      SFX.fail();
+      failed = true; failMsg = 'あれれ？ ここには 食べものが ないよ';
     }
+    if (el) el.classList.remove('exec');
+    if (failed) break;
   }
-
-  for (const c of cards) c.classList.remove('exec');
+  clearMarks();
 
   if (!failed) {
-    // 全カード実行したがエサが残っている
     SFX.fail();
-    const remain = G.state.foods.filter(f => !f.eaten).length;
-    const onFood = G.state.foods.some(f => !f.eaten && f.x === G.state.x && f.y === G.state.y);
-    showBubble(onFood ? 'おしい！「食べる」カードを わすれてるよ！' : 'まだ 食べものが のこってるよ（あと' + remain + 'こ）', 3000);
+    const remain = G.state.foods.filter(f => !f.bad && !f.eaten).length;
+    const onFood = !!foodAt(G.state, true);
+    failMsg = onFood ? 'おしい！「食べる」カードを わすれてるよ！' : `まだ 食べものが のこってるよ（あと${remain}こ）`;
     failed = true;
   }
+  if (failMsg) showBubble(failMsg, 2800);
 
-  if (failed) {
-    G.failCount++;
-    if (G.failCount >= 3) $('btn-hint').classList.add('show');
-    await sleep(1400);
-    G.state = makeState(G.level);
-    placeActor(G.level.start.x, G.level.start.y, true);
-    // エサ復活
-    G.level.foods.forEach((f, i) => { const el = $('food-' + i); if (el) { el.style.opacity = '1'; } });
-    showBubble('もう一回 考えてみよう！', 2000);
-  }
+  G.failCount++;
+  if (G.failCount >= 3 && G.level.hint) $('btn-hint').classList.add('show');
+  await sleep(1500);
+  G.state = makeState(G.level);
+  placeActor(G.level.start.x, G.level.start.y, true);
+  G.level.foods.forEach((f, i) => { const e = $('food-' + i); if (e) e.style.opacity = '1'; });
+  showBubble('もう一回 考えてみよう！', 1800);
   G.running = false;
   document.body.classList.remove('running');
 }
 
-function onClear(usedCards) {
+function onClear(usedSteps) {
   SFX.clear();
+  clearMarks();
+  G.running = false;
+  document.body.classList.remove('running');
   const lv = G.level;
-  const perfect = usedCards <= lv.par;
+  const cards = totalCards();
+
+  if (G.free) {
+    $('overlay-title').textContent = '🎉 クリア！';
+    $('overlay-creature').innerHTML = creatureSVG(lv.creature, 86);
+    $('overlay-badges').textContent = '⭐';
+    $('overlay-msg').innerHTML = `じぶんで 作った マップを クリア！<br>カード${cards}まい・${usedSteps}歩 だったよ。`;
+    $('btn-next').style.display = 'none';
+    $('btn-map2').textContent = 'マップを なおす';
+    $('overlay').classList.add('show');
+    return;
+  }
+  $('btn-map2').textContent = 'マップへ';
+
+  const perfect = cards <= lv.par;
   const rec = SAVE.cleared[lv.id] || {};
   const firstClear = !rec.clear;
   rec.clear = true;
@@ -690,50 +1396,229 @@ function onClear(usedCards) {
   persist();
 
   $('overlay-title').textContent = '🎉 やったー！';
-  $('overlay-creature').innerHTML = creatureSVG(lv.creature, 90);
+  $('overlay-creature').innerHTML = creatureSVG(lv.creature, 86);
   $('overlay-badges').textContent = '⭐' + (perfect ? ' 🏅' : '');
-  let msg = `カード${usedCards}まいで クリア！`;
+  let msg = `カード${cards}まいで クリア！`;
   if (perfect) msg += '<br>🏅 ぴったりしょう！ すごい！';
   else msg += `<br>カード${lv.par}まいまでで クリアすると 🏅が もらえるよ`;
   if (newZukan) msg += `<br><b>📖 ずかんに「${CREATURES[lv.creature].name}」が なかま入り！</b>`;
-  $('overlay-msg').innerHTML = msg;
-  $('btn-next').style.display = (G.idx < LEVELS.length - 1) ? '' : 'none';
-  if (LEVELS.every(l => SAVE.cleared[l.id] && SAVE.cleared[l.id].clear)) {
-    $('overlay-msg').innerHTML += '<br><b>🏝️ じゅんばんの しま、ぜんぶ クリア！！</b>';
+  if (lv.clearMsg) msg += `<br>${lv.clearMsg}`;
+  const is = ISLANDS[lv.island];
+  const last = lv.index === is.levels.length - 1;
+  if (last && islandDone(lv.island)) {
+    msg += `<br><b>${is.icon} ${is.name}、ぜんぶ クリア！！</b>`;
+    const next = ISLANDS[lv.island + 1];
+    if (next) msg += `<br>つぎは <b>${next.icon} ${next.name}</b>だ！`;
   }
+  $('overlay-msg').innerHTML = msg;
+  $('btn-next').style.display = last ? 'none' : '';
   $('overlay').classList.add('show');
-  G.running = false;
-  document.body.classList.remove('running');
-  if (firstClear && !SAVE.settings.mute) speak('やったー！クリアだよ！');
+  if (firstClear) speak('やったー！クリアだよ！');
 }
 
-/* --- ゲーム画面のボタン --- */
-document.querySelectorAll('.cmd-btn').forEach(b => {
-  b.addEventListener('click', () => {
-    if (G.running) return;
-    if (G.program.length >= MAX_CARDS) { showBubble('カードは ' + MAX_CARDS + 'まいまでだよ'); return; }
-    SFX.tap();
-    G.program.push(b.dataset.cmd);
-    renderProgram();
-    $('program-row').scrollLeft = $('program-row').scrollWidth;
-  });
+/* --- ゲーム画面ボタン --- */
+$('btn-back').addEventListener('click', () => {
+  if (G && G.running) return;
+  SFX.tap(); speechSynthesis.cancel();
+  if (G && G.free) { openFree(); return; }
+  renderMap(G ? G.level.island : 0); showScreen('map');
 });
-$('btn-undo').addEventListener('click', () => { if (G.running) return; SFX.tap(); G.program.pop(); renderProgram(); });
-$('btn-clear').addEventListener('click', () => { if (G.running) return; SFX.tap(); G.program = []; renderProgram(); });
-$('btn-run').addEventListener('click', runProgram);
-$('btn-back').addEventListener('click', () => { if (G && G.running) return; SFX.tap(); speechSynthesis.cancel(); renderMap(); showScreen('map'); });
 $('btn-speak').addEventListener('click', () => { SFX.tap(); speak(G.level.speak || G.level.goal); });
-$('btn-hint').addEventListener('click', () => { SFX.tap(); showBubble('💡 ' + G.level.hint, 5000); speak(G.level.hint); });
+$('btn-hint').addEventListener('click', () => { SFX.tap(); showBubble('💡 ' + G.level.hint, 6000); speak(G.level.hint); });
 $('btn-mute').addEventListener('click', () => {
   SAVE.settings.mute = !SAVE.settings.mute; persist(); updateMuteBtn();
   if (SAVE.settings.mute) speechSynthesis.cancel();
 });
+$('btn-fast').addEventListener('click', () => { SFX.tap(); SAVE.settings.fast = !SAVE.settings.fast; persist(); updateFastBtn(); });
 function updateMuteBtn() { $('btn-mute').textContent = SAVE.settings.mute ? '🔇' : '🔈'; }
+function updateFastBtn() { $('btn-fast').textContent = SAVE.settings.fast ? '🐇' : '🐢'; }
 
-/* --- オーバーレイのボタン --- */
-$('btn-retry').addEventListener('click', () => { SFX.tap(); $('overlay').classList.remove('show'); startLevel(G.idx); });
-$('btn-map2').addEventListener('click', () => { SFX.tap(); $('overlay').classList.remove('show'); renderMap(); showScreen('map'); });
-$('btn-next').addEventListener('click', () => { SFX.tap(); $('overlay').classList.remove('show'); startLevel(G.idx + 1); });
+$('btn-retry').addEventListener('click', () => {
+  SFX.tap(); $('overlay').classList.remove('show');
+  if (G.free) { startLevel(G.level); } else { startLevel(G.level); }
+});
+$('btn-map2').addEventListener('click', () => {
+  SFX.tap(); $('overlay').classList.remove('show');
+  if (G.free) { openFree(); return; }
+  renderMap(G.level.island); showScreen('map');
+});
+$('btn-next').addEventListener('click', () => {
+  SFX.tap(); $('overlay').classList.remove('show');
+  const is = ISLANDS[G.level.island];
+  const nx = is.levels[G.level.index + 1];
+  if (nx) startLevel(nx); else { renderMap(G.level.island); showScreen('map'); }
+});
+
+/* =====================================================================
+   じゆうの しま（マップ作り）
+===================================================================== */
+const FREE_SIZES = { s:{w:5,h:4}, m:{w:7,h:5}, l:{w:9,h:6} };
+let FREE = null;
+let FREE_TOOL = 'rock';
+const FREE_TOOLS = [
+  { id:'rock',  label:'🪨 岩' },
+  { id:'water', label:'💧 水' },
+  { id:'floor', label:'🟩 じめん' },
+  { id:'good',  label:'🍎 たべもの' },
+  { id:'bad',   label:'🍄 にがて' },
+  { id:'start', label:'🚩 スタート' },
+];
+function defaultFree() {
+  const s = FREE_SIZES.m;
+  return { w:s.w, h:s.h, cells:makeCells(s.w, s.h), start:{x:0,y:Math.floor(s.h/2)},
+           foods:[{ x:s.w-1, y:Math.floor(s.h/2), emoji:'🍎', name:'りんご' }], creature:'kabuto' };
+}
+function makeCells(w, h) {
+  const a = [];
+  for (let y = 0; y < h; y++) { const r = []; for (let x = 0; x < w; x++) r.push('floor'); a.push(r); }
+  return a;
+}
+function openFree() {
+  if (!FREE) FREE = SAVE.free.map ? reviveFree(SAVE.free.map) : defaultFree();
+  renderFreeTools();
+  renderFreeCreatures();
+  renderFreeStage();
+  showScreen('free');
+}
+function reviveFree(o) {
+  const f = defaultFree();
+  try {
+    f.w = Math.max(3, Math.min(12, o.w|0)); f.h = Math.max(3, Math.min(8, o.h|0));
+    f.cells = makeCells(f.w, f.h);
+    if (Array.isArray(o.cells)) for (let y = 0; y < f.h; y++) for (let x = 0; x < f.w; x++) {
+      const v = o.cells[y] && o.cells[y][x];
+      if (v === 'rock' || v === 'water' || v === 'floor') f.cells[y][x] = v;
+    }
+    f.start = { x:Math.min(f.w-1, Math.max(0, (o.start&&o.start.x)|0)), y:Math.min(f.h-1, Math.max(0, (o.start&&o.start.y)|0)) };
+    f.foods = Array.isArray(o.foods) ? o.foods.filter(x => x && x.x < f.w && x.y < f.h).map(x => ({ x:x.x|0, y:x.y|0, emoji:x.emoji||'🍎', name:x.name||'たべもの', bad:!!x.bad })) : [];
+    f.creature = CREATURES[o.creature] ? o.creature : 'kabuto';
+  } catch (e) {}
+  return f;
+}
+function renderFreeTools() {
+  const el = $('free-tools');
+  el.innerHTML = '';
+  FREE_TOOLS.forEach(t => {
+    const b = document.createElement('button');
+    b.className = 'tool-btn' + (FREE_TOOL === t.id ? ' sel' : '');
+    b.textContent = t.label;
+    b.addEventListener('click', () => { SFX.tap(); FREE_TOOL = t.id; renderFreeTools(); });
+    el.appendChild(b);
+  });
+  document.querySelectorAll('#free-bottom [data-size]').forEach(b => {
+    const s = FREE_SIZES[b.dataset.size];
+    b.classList.toggle('sel', FREE.w === s.w && FREE.h === s.h);
+  });
+}
+function renderFreeCreatures() {
+  const el = $('free-creatures');
+  el.innerHTML = '';
+  const list = Object.keys(CREATURES).filter(k => SAVE.zukan.includes(k));
+  if (!list.length) list.push('kabuto');
+  if (!list.includes(FREE.creature)) FREE.creature = list[0];
+  list.forEach(k => {
+    const b = document.createElement('button');
+    b.className = 'fc-btn' + (FREE.creature === k ? ' sel' : '');
+    b.innerHTML = creatureSVG(k, 40);
+    b.addEventListener('click', () => { SFX.tap(); FREE.creature = k; renderFreeCreatures(); renderFreeStage(); });
+    el.appendChild(b);
+  });
+}
+function freeToLevel(f) {
+  const rocks = [], holes = [];
+  for (let y = 0; y < f.h; y++) for (let x = 0; x < f.w; x++) {
+    if (f.cells[y][x] === 'rock') rocks.push({ x, y });
+    else if (f.cells[y][x] === 'water') holes.push({ x, y });
+  }
+  return { id:'free', name:'じぶんの マップ', creature:f.creature, cards:B_FREE, func:true,
+           grid:{ w:f.w, h:f.h }, start:{ x:f.start.x, y:f.start.y },
+           foods:f.foods.map(x => ({ ...x })), rocks, holes, par:99, maxCards:40,
+           island:4, index:0,
+           goal:'じぶんで 作った マップで あそぼう！',
+           hint:'カードを ならべて、じぶんの マップを クリアしよう',
+           speak:'じぶんで つくった マップで あそぼう！' };
+}
+function renderFreeStage() {
+  const lv = freeToLevel(FREE);
+  const svg = $('free-stage');
+  svg.setAttribute('viewBox', `0 0 ${FREE.w*CELL} ${FREE.h*CELL}`);
+  svg.setAttribute('preserveAspectRatio', 'xMidYMid meet');
+  let s = stageMarkup(lv, false);
+  s += `<g transform="translate(${FREE.start.x*CELL},${FREE.start.y*CELL}) scale(0.62) translate(30,30)">${CREATURES[FREE.creature].svg}</g>`;
+  for (let y = 0; y < FREE.h; y++) for (let x = 0; x < FREE.w; x++) {
+    s += `<rect class="fcell" data-x="${x}" data-y="${y}" x="${x*CELL}" y="${y*CELL}" width="${CELL}" height="${CELL}" fill="transparent"/>`;
+  }
+  svg.innerHTML = s;
+  svg.querySelectorAll('.fcell').forEach(r => {
+    r.addEventListener('click', () => paintCell(+r.dataset.x, +r.dataset.y));
+  });
+}
+function paintCell(x, y) {
+  SFX.tap();
+  const rmFood = () => { FREE.foods = FREE.foods.filter(f => !(f.x === x && f.y === y)); };
+  if (FREE_TOOL === 'start') {
+    FREE.cells[y][x] = 'floor'; rmFood(); FREE.start = { x, y };
+  } else if (FREE_TOOL === 'good' || FREE_TOOL === 'bad') {
+    const bad = FREE_TOOL === 'bad';
+    const ex = FREE.foods.find(f => f.x === x && f.y === y);
+    if (ex && !!ex.bad === bad) { rmFood(); }
+    else { rmFood(); FREE.cells[y][x] = 'floor';
+           FREE.foods.push(bad ? { x, y, emoji:'🍄', name:'きのこ', bad:true } : { x, y, emoji:'🍎', name:'りんご' }); }
+  } else {
+    if (FREE.start.x === x && FREE.start.y === y && FREE_TOOL !== 'floor') { showToast('スタートの ところには おけないよ'); return; }
+    FREE.cells[y][x] = (FREE.cells[y][x] === FREE_TOOL) ? 'floor' : FREE_TOOL;
+    if (FREE.cells[y][x] !== 'floor') rmFood();
+  }
+  SAVE.free.map = FREE; persist();
+  renderFreeStage();
+}
+document.querySelectorAll('#free-bottom [data-size]').forEach(b => {
+  b.addEventListener('click', () => {
+    SFX.tap();
+    const s = FREE_SIZES[b.dataset.size];
+    const old = FREE.cells;
+    FREE.w = s.w; FREE.h = s.h;
+    FREE.cells = makeCells(s.w, s.h);
+    for (let y = 0; y < s.h; y++) for (let x = 0; x < s.w; x++) if (old[y] && old[y][x]) FREE.cells[y][x] = old[y][x];
+    FREE.start = { x:Math.min(FREE.start.x, s.w-1), y:Math.min(FREE.start.y, s.h-1) };
+    FREE.cells[FREE.start.y][FREE.start.x] = 'floor';
+    FREE.foods = FREE.foods.filter(f => f.x < s.w && f.y < s.h);
+    SAVE.free.map = FREE; persist();
+    renderFreeTools(); renderFreeStage();
+  });
+});
+$('btn-free-clear').addEventListener('click', () => {
+  SFX.tap();
+  FREE.cells = makeCells(FREE.w, FREE.h); FREE.foods = [];
+  SAVE.free.map = FREE; persist(); renderFreeStage();
+});
+$('btn-free-back').addEventListener('click', () => { SFX.tap(); renderIslands(); showScreen('islands'); });
+$('btn-free-play').addEventListener('click', () => {
+  const good = FREE.foods.filter(f => !f.bad);
+  if (!good.length) { SFX.fail(); showToast('たべものを 1つ いじょう おいてね'); return; }
+  const lv = freeToLevel(FREE);
+  if (isBlocked(lv, FREE.start.x, FREE.start.y)) { SFX.fail(); showToast('スタートが 岩や 水の 上だよ'); return; }
+  SAVE.free.map = FREE; persist();
+  SFX.tap();
+  startLevel(lv);
+});
+$('btn-free-save').addEventListener('click', () => {
+  const items = SAVE.free.slots.map((s, i) => ({ label:`${i+1}ばん\n${s ? 'ほぞん ずみ' : 'から'}`, value:i }));
+  openModal('どこに ほぞんする？', items, i => {
+    SAVE.free.slots[i] = JSON.parse(JSON.stringify(FREE));
+    persist(); showToast(`${i+1}ばんに ほぞんしたよ！`);
+  });
+});
+$('btn-free-load').addEventListener('click', () => {
+  const items = SAVE.free.slots.map((s, i) => ({ label:`${i+1}ばん\n${s ? 'よみこむ' : 'から'}`, value:i }));
+  openModal('どれを よみこむ？', items, i => {
+    if (!SAVE.free.slots[i]) { showToast('そこは からっぽだよ'); return; }
+    FREE = reviveFree(SAVE.free.slots[i]);
+    SAVE.free.map = FREE; persist();
+    renderFreeTools(); renderFreeCreatures(); renderFreeStage();
+    showToast(`${i+1}ばんを よみこんだよ！`);
+  });
+});
 
 /* ---------------- バックアップ ---------------- */
 $('btn-export').addEventListener('click', () => {
@@ -754,83 +1639,270 @@ $('import-file').addEventListener('change', e => {
     try {
       const d = JSON.parse(reader.result);
       if (!d || typeof d !== 'object' || !d.cleared) throw new Error('形式が違います');
-      SAVE = d;
-      SAVE.schema = SAVE.schema || DATA_SCHEMA;
-      SAVE.zukan = SAVE.zukan || [];
-      SAVE.settings = SAVE.settings || { mute:false };
-      persist();
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(d));
+      SAVE = loadSave();
+      FREE = null;
       alert('復元しました');
-    } catch(err) { alert('読み込めませんでした：バックアップファイルを確認してください'); }
+    } catch (err) { alert('読み込めませんでした：バックアップファイルを確認してください'); }
     e.target.value = '';
   };
   reader.readAsText(file);
 });
 $('btn-reset').addEventListener('click', () => {
-  if (!confirm('クリア状況・ずかんを全て消去します。よろしいですか？')) return;
+  if (!confirm('クリア状況・ずかん・作ったマップを全て消去します。よろしいですか？')) return;
   if (!confirm('本当に消去しますか？（元に戻せません）')) return;
-  SAVE = defaultSave();
+  SAVE = defaultSave(); FREE = null;
   persist();
   alert('消去しました');
 });
 
-/* ---------------- セルフテスト（?selftest=1） ---------------- */
+/* =====================================================================
+   セルフテスト（?selftest=1）
+===================================================================== */
 const SOLUTIONS = {
-  '1-1': ['R','R','R','E'],
-  '1-2': ['R','R','D','D','E'],
-  '1-3': ['R','D','R','R','U','R','E'],
-  '1-4': ['D','R','R','R','R','R','U','E'],
-  '1-5': ['U','U','R','R','E','D','D','R','R','R','E'],
-  '1-6': ['R','R','U','R','R','D','D','R','R','E'],
+  '1-1': () => ({ main:P('RRRE') }),
+  '1-2': () => ({ main:P('RRDDE') }),
+  '1-3': () => ({ main:P('RDRRURE') }),
+  '1-4': () => ({ main:P('DRRRRRUE') }),
+  '1-5': () => ({ main:P('UURREDDRRRE') }),
+  '1-6': () => ({ main:P('RRURRDDRRE') }),
+  '2-1': () => ({ main:P('RRRRRRRE') }),
+  '2-2': () => ({ main:[LP(7, P('R'))].concat(P('E')) }),
+  '2-3': () => ({ main:[LP(4, P('RU'))].concat(P('E')) }),
+  '2-4': () => ({ main:[LP(4, P('RRE'))] }),
+  '2-5': () => ({ main:P('R').concat([LP(3, P('URRD'))]).concat(P('E')) }),
+  '3-1': () => ({ main:[LP(7, P('R').concat([IF('food', P('E'))]))] }),
+  '3-2': () => ({ main:[LP(7, P('R').concat([IF('food', P('E'))]))] }),
+  '3-3': () => ({ main:[LP(7, P('R').concat([IF('like', P('E'))]))] }),
+  '3-4': () => ({ main:[LP(4, P('RU').concat([IF('like', P('E'))]))] }),
+  '3-5': () => ({ main:[LP(3, P('R').concat([IF('like', P('E'))])),
+                        LP(2, P('U').concat([IF('like', P('E'))])),
+                        LP(3, P('R').concat([IF('like', P('E'))]))] }),
+  '4-1': () => ({ func:P('URRD'), main:[callNode()].concat(P('R'), [callNode()], P('R'), [callNode()], P('RE')) }),
+  '4-2': () => ({ func:P('URRD'), main:[callNode()].concat(P('R'), [callNode()], P('RR'), [callNode()], P('RE')) }),
+  '4-3': () => ({ func:[LP(2, P('R'))].concat(P('U')),
+                  main:[callNode(), callNode()].concat(P('RR'), [callNode()], P('E')) }),
+  '4-4': () => ({ func:P('R').concat([IF('like', P('E'))]),
+                  main:[LP(5, [callNode()])].concat(P('U'), [LP(3, [callNode()])]) }),
+  '4-5': () => ({ func:P('R').concat([IF('like', P('E'))]),
+                  main:[LP(3, [callNode()])].concat(P('UU'), [LP(4, [callNode()])]) }),
 };
 function runSelftest() {
   const out = [];
   const T = (name, cond) => out.push({ name, ok: !!cond });
 
-  // 1-6: 各面の想定解がクリアでき、手数がparと一致（=🏅がとれる）
-  LEVELS.forEach(lv => {
-    const r = simulate(lv, SOLUTIONS[lv.id]);
+  // --- 各レベルの 想定解 ---
+  ALL_LEVELS.forEach(lv => {
+    const sol = SOLUTIONS[lv.id]();
+    const r = simulate(lv, sol.main, sol.func || []);
+    const n = countNodes(sol.main) + countNodes(sol.func || []);
     T(`${lv.id} 想定解でクリア`, r.result === 'clear');
-    T(`${lv.id} 想定解の手数(${SOLUTIONS[lv.id].length}) == par(${lv.par})`, SOLUTIONS[lv.id].length === lv.par && r.result === 'clear');
+    T(`${lv.id} 想定解の枚数(${n}) == par(${lv.par})`, n === lv.par);
+    if (lv.maxCards) T(`${lv.id} par(${lv.par}) <= maxCards(${lv.maxCards})`, lv.par <= lv.maxCards);
   });
-  // 失敗パターン
-  T('画面外に出ると fail-wall', simulate(LEVELS[0], ['L']).result === 'fail-wall');
-  T('岩に当たると fail-rock', simulate(LEVELS[2], ['R','R']).result === 'fail-rock');
-  T('水に入ると fail-water', simulate(LEVELS[5], ['D']).result === 'fail-water');
-  T('何もない所で「たべる」は fail-eat-empty', simulate(LEVELS[0], ['E']).result === 'fail-eat-empty');
-  T('エサを食べずに終了は fail-food-left', simulate(LEVELS[0], ['R','R','R']).result === 'fail-food-left');
-  T('どんぐり1個だけでは fail-food-left', simulate(LEVELS[4], ['U','U','R','R','E']).result === 'fail-food-left');
-  // 1-4: 上回り（遠回り）はクリアできるがparを超える
-  const longRoute = ['U','R','U','R','R','D','R','R','D','E'];
-  const lr = simulate(LEVELS[3], longRoute);
-  T('1-4 遠回りルートもクリア可', lr.result === 'clear');
-  T('1-4 遠回りは par 超え（🏅なし）', longRoute.length > LEVELS[3].par);
-  // レベル整合性
-  T('全レベル par <= MAX_CARDS', LEVELS.every(lv => lv.par <= MAX_CARDS));
-  T('全レベル スタート地点が通行可', LEVELS.every(lv => !isBlocked(lv, lv.start.x, lv.start.y)));
-  T('全レベル エサが通行可能マス上', LEVELS.every(lv => lv.foods.every(f => !isBlocked(lv, f.x, f.y))));
-  T('全レベル 主人公が図鑑に定義済み', LEVELS.every(lv => !!CREATURES[lv.creature]));
-  // 保存
+
+  // --- レベル定義の整合性 ---
+  T('全レベル スタートが通行可', ALL_LEVELS.every(lv => !isBlocked(lv, lv.start.x, lv.start.y)));
+  T('全レベル 食べものが通行可マス上', ALL_LEVELS.every(lv => lv.foods.every(f => !isBlocked(lv, f.x, f.y))));
+  T('全レベル 主人公が図鑑に定義済み', ALL_LEVELS.every(lv => !!CREATURES[lv.creature]));
+  T('全レベル 良い食べものが1つ以上', ALL_LEVELS.every(lv => lv.foods.some(f => !f.bad)));
+  T('全レベル ヒントがある', ALL_LEVELS.every(lv => !!lv.hint));
+  T('レベルID重複なし', new Set(ALL_LEVELS.map(l => l.id)).size === ALL_LEVELS.length);
+  T('生きもの重複なし（1レベル1匹）', new Set(ALL_LEVELS.map(l => l.creature)).size === ALL_LEVELS.length);
+  T('ずかん定義=レベル数', Object.keys(CREATURES).length === ALL_LEVELS.length);
+  T('想定解に使う条件カードが パレットにある', ALL_LEVELS.every(lv => {
+    const need = new Set();
+    (function walk(list) {
+      list.forEach(nd => {
+        if (nd.t === 'if') need.add('IF_' + nd.cond);
+        if (nd.t === 'loop') need.add('LOOP');
+        if (nd.t === 'call') need.add('CALL');
+        if (nd.t === 'cmd') need.add(nd.c);
+        if (nd.body) walk(nd.body);
+      });
+    })(SOLUTIONS[lv.id]().main.concat(SOLUTIONS[lv.id]().func || []));
+    return Array.from(need).every(k => lv.cards.includes(k));
+  }));
+  T('しま4はfunc:true', ISLANDS[3].levels.every(lv => lv.func === true));
+  T('しま4以外はfuncなし', ISLANDS.slice(0,3).every(is => is.levels.every(lv => !lv.func)));
+
+  // --- 失敗パターン ---
+  const L = id => ALL_LEVELS.find(l => l.id === id);
+  T('画面外に出ると fail-wall', simulate(L('1-1'), P('L')).result === 'fail-wall');
+  T('岩に当たると fail-rock', simulate(L('1-3'), P('RR')).result === 'fail-rock');
+  T('水に入ると fail-water', simulate(L('1-6'), P('D')).result === 'fail-water');
+  T('何もない所で食べると fail-eat-empty', simulate(L('1-1'), P('E')).result === 'fail-eat-empty');
+  T('食べずに終了は fail-food-left', simulate(L('1-1'), P('RRR')).result === 'fail-food-left');
+  T('どんぐり1個だけでは fail-food-left', simulate(L('1-5'), P('UURRE')).result === 'fail-food-left');
+  T('にがてな物を食べると fail-eat-bad', simulate(L('3-3'), P('RRRE')).result === 'fail-eat-bad');
+  T('にがてを残してもクリアできる', simulate(L('3-3'), SOLUTIONS['3-3']().main).result === 'clear');
+
+  // --- ループの意味 ---
+  T('ループ3回で3マス進む', (() => {
+    const st = makeState(L('2-1')); let n = 0;
+    for (const ev of execProgram([LP(3, P('R'))], st, L('2-1'), [])) if (ev.kind === 'cmd') { applyCmd(st, ev.node.c, L('2-1')); n++; }
+    return n === 3 && st.x === 3;
+  })());
+  T('入れ子ループ 2×3=6マス', (() => {
+    const st = makeState(L('2-1'));
+    for (const ev of execProgram([LP(2, [LP(3, P('R'))])], st, L('2-1'), [])) if (ev.kind === 'cmd') applyCmd(st, ev.node.c, L('2-1'));
+    return st.x === 6;
+  })());
+  T('ループ0体は何もしない', (() => {
+    const st = makeState(L('2-1'));
+    for (const ev of execProgram([LP(5, [])], st, L('2-1'), [])) if (ev.kind === 'cmd') applyCmd(st, ev.node.c, L('2-1'));
+    return st.x === 0;
+  })());
+  T('ステップ上限で fail-toomany（止まらない プログラムの 保険）',
+    simulate(L('2-1'), [LP(10, [LP(10, [LP(10, P('RL'))])])]).result === 'fail-toomany');
+  T('入れ子が 深すぎると fail-toodeep',
+    simulate(L('2-1'), [LP(2,[LP(2,[LP(2,[LP(2,[LP(2,[LP(2,[LP(2,P('R'))])])])])])])]).result === 'fail-toodeep');
+
+  // --- もしもの意味 ---
+  T('もし: 食べものが無ければ中を実行しない', (() => {
+    const lv = L('3-1'), st = makeState(lv);
+    let ate = 0;
+    for (const ev of execProgram([IF('food', P('E'))], st, lv, [])) if (ev.kind === 'cmd') { if (applyCmd(st, ev.node.c, lv).type === 'eat') ate++; }
+    return ate === 0;
+  })());
+  T('もし: 食べものが有れば中を実行する', (() => {
+    const lv = L('3-1'), st = makeState(lv);
+    st.x = 2; st.y = 1;
+    let ate = 0;
+    for (const ev of execProgram([IF('food', P('E'))], st, lv, [])) if (ev.kind === 'cmd') { if (applyCmd(st, ev.node.c, lv).type === 'eat') ate++; }
+    return ate === 1;
+  })());
+  T('もし(すきなの): にがての上では実行しない', (() => {
+    const lv = L('3-3'), st = makeState(lv);
+    st.x = 3; st.y = 1;   // きのこの上
+    let ran = 0;
+    for (const ev of execProgram([IF('like', P('E'))], st, lv, [])) if (ev.kind === 'cmd') ran++;
+    return ran === 0;
+  })());
+  T('もし(たべもの)はにがてにも反応する', (() => {
+    const lv = L('3-3'), st = makeState(lv);
+    st.x = 3; st.y = 1;
+    let ran = 0;
+    for (const ev of execProgram([IF('food', P('E'))], st, lv, [])) if (ev.kind === 'cmd') ran++;
+    return ran === 1;
+  })());
+  T('条件は実行中の状態で判定される（食べた後は偽）', (() => {
+    const lv = L('3-1'), st = makeState(lv); st.x = 2; st.y = 1;
+    let eats = 0;
+    for (const ev of execProgram([IF('food', P('E')), IF('food', P('E'))], st, lv, [])) {
+      if (ev.kind === 'cmd') { if (applyCmd(st, ev.node.c, lv).type === 'eat') eats++; }
+    }
+    return eats === 1;
+  })());
+
+  // --- わざ（関数） ---
+  T('わざは中身を実行する', (() => {
+    const lv = L('4-1'), st = makeState(lv);
+    for (const ev of execProgram([callNode()], st, lv, P('U'))) if (ev.kind === 'cmd') applyCmd(st, ev.node.c, lv);
+    return st.y === 1;
+  })());
+  T('わざが空なら何もしない', (() => {
+    const lv = L('4-1'), st = makeState(lv);
+    let n = 0;
+    for (const ev of execProgram([callNode()], st, lv, [])) if (ev.kind === 'cmd') n++;
+    return n === 0;
+  })());
+  T('わざ＋ループの合わせ技（4-1別解）も クリア', (() => {
+    const lv = L('4-1');
+    const sol = { func:P('URRD'), main:[LP(3, [callNode()].concat(P('R')))].concat(P('E')) };
+    const r = simulate(lv, sol.main, sol.func);
+    return r.result === 'clear' && countNodes(sol.main) + countNodes(sol.func) <= lv.par;
+  })());
+  T('4-2は くりかえしだけでは 解けない（すきま不ぞろい）', (() => {
+    const lv = L('4-2');
+    return simulate(lv, [LP(3, P('URRDR'))].concat(P('E'))).result !== 'clear';
+  })());
+  T('4-4は わざ無しだと maxCardsを超える', (() => {
+    const lv = L('4-4');
+    const noFunc = [LP(5, P('R').concat([IF('like', P('E'))]))].concat(P('U'), [LP(3, P('R').concat([IF('like', P('E'))]))]);
+    return simulate(lv, noFunc, []).result === 'clear' && countNodes(noFunc) > lv.par;
+  })());
+
+  // --- 枚数カウント ---
+  T('countNodes: 平坦', countNodes(P('RRE')) === 3);
+  T('countNodes: はこは中身も数える', countNodes([LP(3, P('RR'))]) === 3);
+  T('countNodes: 二重の入れ子', countNodes([LP(2, [IF('food', P('E'))])]) === 3);
+  T('usesCall 判定', usesCall([LP(2, [callNode()])]) === true && usesCall(P('RR')) === false);
+
+  // --- しま/めん の 解放ロジック ---
+  (() => {
+    const bak = JSON.parse(JSON.stringify(SAVE));
+    SAVE.cleared = {};
+    T('最初は しま1だけ 解放', islandUnlocked(0) && !islandUnlocked(1) && !islandUnlocked(4));
+    T('最初は 1-1だけ 遊べる', levelUnlocked(L('1-1')) && !levelUnlocked(L('1-2')));
+    SAVE.cleared['1-1'] = { clear:true };
+    T('1-1クリアで 1-2が 解放', levelUnlocked(L('1-2')));
+    ISLANDS[0].levels.forEach(lv => SAVE.cleared[lv.id] = { clear:true });
+    T('しま1全クリアで しま2が 解放', islandUnlocked(1) && !islandUnlocked(2));
+    ISLANDS[1].levels.forEach(lv => SAVE.cleared[lv.id] = { clear:true });
+    ISLANDS[2].levels.forEach(lv => SAVE.cleared[lv.id] = { clear:true });
+    ISLANDS[3].levels.forEach(lv => SAVE.cleared[lv.id] = { clear:true });
+    T('しま4全クリアで じゆうの しまが 解放', islandUnlocked(4));
+    SAVE.cleared = bak.cleared; SAVE.zukan = bak.zukan; SAVE.free = bak.free; SAVE.settings = bak.settings;
+  })();
+
+  // --- 保存 ---
   const bak = localStorage.getItem(STORAGE_KEY);
   try {
-    const test = defaultSave();
-    test.cleared['1-1'] = { clear:true, perfect:true };
-    test.zukan.push('kabuto');
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(test));
+    const t = defaultSave();
+    t.cleared['1-1'] = { clear:true, perfect:true };
+    t.zukan.push('kabuto');
+    t.free.slots[1] = { w:5, h:4 };
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(t));
     const re = loadSave();
-    T('保存→読込 roundtrip', re.cleared['1-1'].perfect === true && re.zukan.includes('kabuto'));
+    T('保存→読込 roundtrip', re.cleared['1-1'].perfect === true && re.zukan.includes('kabuto') && re.free.slots[1].w === 5);
     localStorage.setItem(STORAGE_KEY, '{"broken":');
-    T('壊れたデータでもデフォルトで起動', loadSave().cleared && Object.keys(loadSave().cleared).length === 0);
+    T('壊れたデータでもデフォルトで起動', Object.keys(loadSave().cleared).length === 0);
+    // v1.0.0（しま1だけ・free無し）のデータが読めるか
+    localStorage.setItem(STORAGE_KEY, JSON.stringify({
+      schema:1, version:'1.0.0',
+      cleared:{ '1-1':{clear:true,perfect:true}, '1-2':{clear:true}, '1-3':{clear:true}, '1-4':{clear:true}, '1-5':{clear:true}, '1-6':{clear:true} },
+      zukan:['kabuto','ari','dango','katatsu','risu','kaeru'], settings:{ mute:false }
+    }));
+    const old = loadSave();
+    T('v1.0.0の保存データが そのまま読める', old.cleared['1-6'].clear === true && old.zukan.length === 6);
+    T('v1.0.0データに free枠が 補われる', !!old.free && old.free.slots.length === 3);
+    T('v1.0.0データで しま2が 解放される', (() => {
+      const b2 = SAVE; SAVE = old;
+      const r = islandUnlocked(1) && !islandUnlocked(2);
+      SAVE = b2; return r;
+    })());
   } finally {
     if (bak === null) localStorage.removeItem(STORAGE_KEY); else localStorage.setItem(STORAGE_KEY, bak);
   }
 
+  // --- じゆうの しま ---
+  T('じゆう: 初期マップは 遊べる形', (() => {
+    const f = defaultFree(), lv = freeToLevel(f);
+    return !isBlocked(lv, f.start.x, f.start.y) && lv.foods.some(x => !x.bad);
+  })());
+  T('じゆう: 岩と水が レベルに 反映される', (() => {
+    const f = defaultFree();
+    f.cells[0][1] = 'rock'; f.cells[0][2] = 'water';
+    const lv = freeToLevel(f);
+    return isBlocked(lv, 1, 0) === 'rock' && isBlocked(lv, 2, 0) === 'water';
+  })());
+  T('じゆう: 作ったマップを 解ける', (() => {
+    const f = defaultFree();   // 5x4? m=7x5 start(0,2) food(6,2)
+    const lv = freeToLevel(f);
+    return simulate(lv, [LP(6, P('R'))].concat(P('E')), []).result === 'clear';
+  })());
+  T('じゆう: 壊れたデータを 直して読む', (() => {
+    const f = reviveFree({ w:999, h:-3, cells:'x', start:{x:99,y:99}, foods:'x', creature:'ないよ' });
+    return f.w <= 12 && f.h >= 3 && f.start.x < f.w && f.creature === 'kabuto';
+  })());
+
   const okCount = out.filter(t => t.ok).length;
-  const el = $('selftest-out');
-  el.innerHTML = out.map(t => `<div class="${t.ok?'ok':'ng'}">${t.ok?'✅':'❌'} ${t.name}</div>`).join('')
+  $('selftest-out').innerHTML = out.map(t => `<div class="${t.ok?'ok':'ng'}">${t.ok?'✅':'❌'} ${t.name}</div>`).join('')
     + `<h2 style="margin-top:14px">${okCount} / ${out.length} 件 合格</h2>`;
   $('selftest-overlay').classList.add('show');
   document.title = `selftest ${okCount}/${out.length}`;
-  return { ok: okCount, total: out.length };
+  return { ok:okCount, total:out.length };
 }
 
 /* ---------------- 起動 ---------------- */
