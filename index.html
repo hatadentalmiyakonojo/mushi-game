@@ -90,7 +90,24 @@
   #lv-title { flex:1; text-align:center; font-size:clamp(15px,2.6vw,20px); font-weight:bold; color:#3f7a1f; }
   #goal-bar { margin:0 12px; padding:7px 14px; background:#fff8e6; border:2px solid #f0d9a0; border-radius:12px; font-size:clamp(13px,2.2vw,16px); line-height:1.45; display:flex; align-items:center; gap:8px; }
   #goal-bar .goal-text { flex:1; }
-  #limit-tag { font-size:12px; font-weight:bold; color:#b06a1a; background:#ffeccc; border-radius:8px; padding:3px 8px; white-space:nowrap; }
+  /* カードメーター：🏅が 何まいまでかを 目で 見て わかるように */
+  #meter { margin:7px 12px 0; padding:5px 14px 7px; background:#fff; border-radius:12px; box-shadow:var(--shadow);
+           display:flex; align-items:center; gap:12px; flex-wrap:wrap; font-size:clamp(12px,2vw,15px); font-weight:bold; }
+  #meter.hide { display:none; }
+  #meter-goal b { color:#c58a12; }
+  .meter-slots { display:flex; gap:3px; align-items:flex-end; padding-top:16px; }
+  .mslot { width:17px; height:24px; border-radius:4px; background:#f0ece2; border:2px solid #dcd6c6; position:relative; transition:background .15s; }
+  .mslot.afterpar { margin-left:11px; }   /* 🏅ゾーンの 切れ目を 目で わかるように */
+  .mslot.gold { background:#fff4d0; border-color:#eac25a; }
+  .mslot.used { background:#7ec95c; border-color:#5aa83a; }
+  .mslot.used.gold { background:#f5c542; border-color:#d9a520; }
+  .mslot.over { background:#f3b077; border-color:#dd8b3c; }
+  .mslot .flag { position:absolute; top:-17px; left:50%; transform:translateX(-50%); font-size:14px; }
+  .mslot.wall { border-right-width:5px; border-right-color:#b8afa0; }
+  #meter-msg { margin-left:auto; padding:3px 10px; border-radius:9px; background:#f4f1e8; white-space:nowrap; }
+  #meter-msg.par  { background:#fff0b8; color:#a5760a; }
+  #meter-msg.over { background:#ffe2cc; color:#b06a1a; }
+  #meter-msg.full { background:#ffd9d9; color:#b23a3a; }
   #btn-hint { font-size:13px; padding:7px 11px; display:none; background:#fff3b8; }
   #btn-hint.show { display:block; }
 
@@ -262,8 +279,12 @@
   </div>
   <div id="goal-bar">
     <span>🎯</span><span class="goal-text" id="goal-text"></span>
-    <span id="limit-tag"></span>
     <button id="btn-hint">💡ヒント</button>
+  </div>
+  <div id="meter">
+    <span id="meter-goal"></span>
+    <div class="meter-slots" id="meter-slots"></div>
+    <span id="meter-msg"></span>
   </div>
   <div id="editors"></div>
   <div id="stage-wrap">
@@ -946,7 +967,6 @@ function startLevel(level) {
     ? '🎨 じぶんの マップ'
     : `ステージ${level.index + 1}：${level.name}`;
   $('goal-text').textContent = level.goal;
-  $('limit-tag').textContent = level.maxCards ? `カードは ${level.maxCards}まいまで` : '';
   $('btn-hint').classList.remove('show');
   $('btn-back').textContent = level.id === 'free' ? '← なおす' : '← もどる';
   updateMuteBtn(); updateFastBtn();
@@ -1048,14 +1068,43 @@ function renderEditors() {
   if (cb) cb.classList.toggle('show', G.path.length > 0);
   const call = $('btn-call');
   if (call) call.disabled = (G.root === 'func');
-  updateCount();
+  renderMeter();
 }
-function updateCount() {
-  const limit = G.level.maxCards;
-  const par = G.level.par;
+/* カードメーター（表示ロジックは純関数にして selftestで検証する） */
+function meterInfo(level, n) {
+  const par = level.par, max = level.maxCards || 0;
+  const goal = level.island === 0 ? 'いちばん 近い道' : 'いちばん みじかい プログラム';
+  let state, msg;
+  if (n === 0)        { state = 'start'; msg = `カードを ${par}まいで クリアできるかな？`; }
+  else if (n < par)   { state = 'under'; msg = `🏅まで あと ${par - n}まい つかえるよ`; }
+  else if (n === par) { state = 'par';   msg = '🏅 ぴったり！ うごかしてみよう'; }
+  else                { state = 'over';  msg = `⭐クリアは できるよ！🏅は ${par}まいまで`; }
+  if (max && n >= max) { state = 'full'; msg = 'カードは これで いっぱい！'; }
+  return { par, max, goal, state, msg, slots: Math.max(max, par, n) };
+}
+function renderMeter() {
+  const meter = $('meter');
+  if (G.free) { meter.classList.add('hide'); return; }
+  meter.classList.remove('hide');
   const n = totalCards();
-  const el = document.querySelector('#editors .prow .count');
-  if (el) el.textContent = limit ? `${n}／${limit}まい（🏅は ${par}まいまで）` : `${n}まい`;
+  const info = meterInfo(G.level, n);
+  $('meter-goal').innerHTML = `🏅 <b>${info.goal}</b>＝カード<b>${info.par}まい</b>　いま <b>${n}まい</b>`;
+  const wrap = $('meter-slots');
+  wrap.innerHTML = '';
+  for (let i = 0; i < info.slots; i++) {
+    const d = document.createElement('span');
+    let cls = 'mslot';
+    if (i < info.par) cls += ' gold';
+    if (i < n) cls += (i < info.par ? ' used' : ' over');
+    if (i === info.par) cls += ' afterpar';
+    if (info.max && i === info.max - 1) cls += ' wall';
+    d.className = cls;
+    if (i === info.par - 1) d.innerHTML = '<span class="flag">🏅</span>';
+    wrap.appendChild(d);
+  }
+  const m = $('meter-msg');
+  m.textContent = info.msg;
+  m.className = info.state;
 }
 function makeRow(root, label, list) {
   const row = document.createElement('div');
@@ -1063,7 +1112,7 @@ function makeRow(root, label, list) {
   const head = document.createElement('div');
   head.className = 'prow-label';
   head.innerHTML = `<span class="tag">${label}</span>` +
-    (root === 'main' ? '<span class="count"></span>' : '<span>ここに 書いた うごきが ⚡カードに なるよ</span>');
+    (root === 'main' ? '' : '<span>ここに 書いた うごきが ⚡カードに なるよ</span>');
   head.addEventListener('click', () => {
     if (G.running || G.root === root) return;
     SFX.tap(); G.root = root; G.path = []; renderEditors();
@@ -1398,7 +1447,8 @@ function onClear(usedSteps) {
   $('overlay-title').textContent = '🎉 やったー！';
   $('overlay-creature').innerHTML = creatureSVG(lv.creature, 86);
   $('overlay-badges').textContent = '⭐' + (perfect ? ' 🏅' : '');
-  let msg = `カード${cards}まいで クリア！`;
+  let msg = `カード${cards}まいで ${usedSteps}歩 うごいて クリア！`;
+  if (usedSteps > cards) msg += `<br>カードは たった${cards}まいなのに ${usedSteps}歩！ まとめると つよいね！`;
   if (perfect) msg += '<br>🏅 ぴったりしょう！ すごい！';
   else msg += `<br>カード${lv.par}まいまでで クリアすると 🏅が もらえるよ`;
   if (newZukan) msg += `<br><b>📖 ずかんに「${CREATURES[lv.creature].name}」が なかま入り！</b>`;
@@ -1822,6 +1872,22 @@ function runSelftest() {
     const noFunc = [LP(5, P('R').concat([IF('like', P('E'))]))].concat(P('U'), [LP(3, P('R').concat([IF('like', P('E'))]))]);
     return simulate(lv, noFunc, []).result === 'clear' && countNodes(noFunc) > lv.par;
   })());
+
+  // --- カードメーターの 表示ロジック ---
+  T('メーター: しま1は「近い道」・しま2以降は「みじかい プログラム」',
+    meterInfo(L('1-1'), 0).goal === 'いちばん 近い道' &&
+    meterInfo(L('2-2'), 0).goal === 'いちばん みじかい プログラム' &&
+    meterInfo(L('4-5'), 0).goal === 'いちばん みじかい プログラム');
+  T('メーター: par未満は のこり枚数', meterInfo(L('2-2'), 1).msg.includes('あと 2まい'));
+  T('メーター: parちょうどは par状態', meterInfo(L('2-2'), 3).state === 'par');
+  T('メーター: par超過でも クリアできると 伝える',
+    meterInfo(L('2-2'), 4).state === 'over' && meterInfo(L('2-2'), 4).msg.includes('クリアは できる'));
+  T('メーター: 上限に とどくと full', meterInfo(L('2-2'), 5).state === 'full');
+  T('メーター: マスの数は 上限ぶん（超過時は 現在数）',
+    meterInfo(L('2-2'), 0).slots === 5 && meterInfo(L('2-1'), 12).slots === 12);
+  T('メーター: 上限なしの面でも par分は 出る', meterInfo(L('1-1'), 0).slots === 4 && meterInfo(L('1-1'), 0).max === 0);
+  T('メーター: 全レベルで メッセージが 出る', ALL_LEVELS.every(lv =>
+    [0, 1, lv.par, lv.par + 1, lv.maxCards || lv.par + 2].every(n => !!meterInfo(lv, n).msg)));
 
   // --- 枚数カウント ---
   T('countNodes: 平坦', countNodes(P('RRE')) === 3);
