@@ -130,6 +130,8 @@
   .pbox { flex:0 0 auto; max-width:100%; border-radius:14px; padding:4px 5px 5px; display:flex; flex-direction:column; gap:3px; box-shadow:var(--shadow); }
   .pbox.loop { background:#cfe3ff; border:3px solid var(--card-loop); }
   .pbox.cond { background:#ffe2cc; border:3px solid var(--card-if); }
+  /* ❓は ワンセット: 中の カードは さわれない（けすのは ✕で はこごと） */
+  .pbox.cond .pbox-body { pointer-events:none; min-height:0; }
   .pbox.open { border-style:dashed; box-shadow:0 0 0 3px #ffe066, var(--shadow); }
   .pbox-head { display:flex; align-items:center; gap:5px; font-size:12px; font-weight:bold; color:#3a3226; padding:1px 3px; white-space:nowrap; }
   .pbox-head .hlabel { padding:2px 4px; border-radius:6px; }
@@ -447,7 +449,7 @@
    単一HTML / 外部依存なし / iPad Safari 対応 / localStorage 保存
    しま1 じゅんばん / しま2 くりかえし / しま3 もしも / しま4 名前をつける / しま5 じゆう
 ===================================================================== */
-const APP_VERSION = '2.3.0';
+const APP_VERSION = '2.4.0';
 const DATA_SCHEMA = 1;
 const STORAGE_KEY = 'mushimushi-programming';
 const CELL = 100;          // SVG内セルサイズ
@@ -562,6 +564,9 @@ const loopNode = n => ({ t:'loop', n, body:[], id:++NID });
 const ifNode   = k => ({ t:'if',   cond:k, body:[], id:++NID });
 const callNode = () => ({ t:'call', id:++NID });
 const P  = s => Array.from(s).map(cmdNode);                     // 'RRE' → cmdノード列
+// ❓カードは「しらべて→食べる」の ワンセット（はこの 中に ほかの カードは 入れない。
+// ❓を 先に 出すと ➡が 中に 入って 一歩も うごかなくなる 事故が 起きたため）
+const ifUnit = k => Object.assign(ifNode(k), { body:[cmdNode('E')] });
 const LP = (n, body) => Object.assign(loopNode(n), { body });
 const IF = (k, body) => Object.assign(ifNode(k), { body });
 
@@ -1076,8 +1081,8 @@ function buildPalette() {
   ['U','D','L','R'].forEach(c => { if (cards.includes(c)) mk('cmd-btn move', CMD_LABEL[c], () => addNode(cmdNode(c))); });
   if (cards.includes('E')) mk('cmd-btn eat', '😋<br>食べる', () => addNode(cmdNode('E')));
   if (cards.includes('LOOP')) mk('cmd-btn loop', '⟳<br>くり<br>かえし', () => askLoopCount(n => addNode(loopNode(n))));
-  if (cards.includes('IF_food')) mk('cmd-btn cond', '❓<br>あったら', () => addNode(ifNode('food')));
-  if (cards.includes('IF_like')) mk('cmd-btn cond', '❓<br>すきなの', () => addNode(ifNode('like')));
+  if (cards.includes('IF_food')) mk('cmd-btn cond', '❓<br>あったら', () => addNode(ifUnit('food')));
+  if (cards.includes('IF_like')) mk('cmd-btn cond', '❓<br>すきなの', () => addNode(ifUnit('like')));
   if (cards.includes('CALL')) {
     const b = mk('cmd-btn call', '⚡<br>わざ', () => {
       if (G.root === 'func') { showBubble('⚡の 中で ⚡は つかえないよ'); SFX.fail(); return; }
@@ -1118,7 +1123,8 @@ function addNode(node) {
   SFX.tap();
   const arr = resolveTarget();
   arr.push(node);
-  if (node.body) G.path = G.path.concat([arr.length - 1]);  // はこは 自動で ひらく
+  // ⟳の はこだけ 自動で ひらく（❓は ワンセットなので ひらかない）
+  if (node.body && node.t !== 'if') G.path = G.path.concat([arr.length - 1]);
   renderEditors();
 }
 function undoNode() {
@@ -1258,10 +1264,10 @@ function nodeEl(node, root, path) {
   const lab = document.createElement('span');
   lab.className = 'hlabel';
   lab.textContent = isLoop ? `⟳ ${node.n}回` : `❓ ${CONDS[node.cond].short}`;
-  lab.addEventListener('click', e => {
+  if (isLoop) lab.addEventListener('click', e => {
     e.stopPropagation();
     if (G.running) return;
-    if (isLoop && pathStartsWith(G.path, path) && G.root === root) { askLoopCount(n => { node.n = n; renderEditors(); }); return; }
+    if (pathStartsWith(G.path, path) && G.root === root) { askLoopCount(n => { node.n = n; renderEditors(); }); return; }
     SFX.tap(); G.root = root; G.path = path.slice(); renderEditors();
   });
   head.appendChild(lab);
@@ -1276,7 +1282,7 @@ function nodeEl(node, root, path) {
   const body = document.createElement('div');
   body.className = 'pbox-body';
   renderList(node.body, body, root, path);
-  body.addEventListener('click', e => {
+  if (isLoop) body.addEventListener('click', e => {
     if (e.target !== body || G.running) return;
     SFX.tap(); G.root = root; G.path = path.slice(); renderEditors();
   });
@@ -1378,6 +1384,19 @@ function showBubble(text, ms) {
 }
 
 /* --- 実行 --- */
+function progHasIf(list) { return list.some(nd => nd.t === 'if' || (nd.body && progHasIf(nd.body))); }
+// 「クリアも しっぱいも しないで おわった」ときの 助言（純ロジック・selftest対象）
+function failAdvice(st, prog, used) {
+  if (used === 0) return 'あれれ？ 一歩も うごかなかったよ。カードの ならべかたを 見なおして みよう';
+  const onFood = !!foodAt(st, true);
+  if (onFood) {
+    return progHasIf(prog)
+      ? '食べものの 上に いるのに 食べて いないよ。➡の あとに ❓が 来るように してみよう'
+      : 'おしい！「食べる」カードを わすれてるよ！';
+  }
+  const remain = st.foods.filter(f => !f.bad && !f.eaten).length;
+  return `まだ 食べものが のこってるよ（あと${remain}こ）`;
+}
 function elOf(node) { return document.querySelector(`[data-nid="${node.id}"]`); }
 function clearMarks() {
   document.querySelectorAll('.exec').forEach(e => e.classList.remove('exec'));
@@ -1488,9 +1507,7 @@ async function runProgram() {
 
   if (!failed) {
     SFX.fail();
-    const remain = G.state.foods.filter(f => !f.bad && !f.eaten).length;
-    const onFood = !!foodAt(G.state, true);
-    failMsg = onFood ? 'おしい！「食べる」カードを わすれてるよ！' : `まだ 食べものが のこってるよ（あと${remain}こ）`;
+    failMsg = failAdvice(G.state, G.main, used);
     failed = true;
   }
   if (failMsg) showBubble(failMsg, 2800);
@@ -1997,6 +2014,51 @@ function runSelftest() {
     G = bak; $('editors').innerHTML = ''; $('meter').classList.add('hide');
     return ok;
   })());
+
+  // --- ❓ワンセット化（➡が ❓の 中に 入って 一歩も うごかなくなる 事故の 対さく） ---
+  T('❓ユニットの 中身は「食べる」1まい', (() => {
+    const u = ifUnit('food');
+    return u.t === 'if' && u.body.length === 1 && u.body[0].c === 'E';
+  })());
+  T('❓を たしても はこは ひらかない（⟳→❓→➡ でも ➡は ⟳の 中）', (() => {
+    const bak = G;
+    G = { level:L('3-1'), main:[], func:[], root:'main', path:[], running:false, free:false, failCount:0 };
+    addNode(loopNode(7));
+    addNode(ifUnit('food'));
+    addNode(cmdNode('R'));
+    const lp = G.main[0];
+    const ok = G.path.length === 1 && lp.body.length === 2 &&
+               lp.body[0].t === 'if' && lp.body[0].body.length === 1 && lp.body[0].body[0].c === 'E' &&
+               lp.body[1].c === 'R';
+    G = bak; $('editors').innerHTML = ''; $('meter').classList.add('hide');
+    const cb = $('btn-closebox'); if (cb) cb.classList.remove('show');
+    return ok;
+  })());
+  T('⟳→➡→❓ の じゅんで 3-1が par枚数で クリアできる', (() => {
+    const bak = G;
+    G = { level:L('3-1'), main:[], func:[], root:'main', path:[], running:false, free:false, failCount:0 };
+    addNode(loopNode(7)); addNode(cmdNode('R')); addNode(ifUnit('food'));
+    const r = simulate(L('3-1'), G.main, []);
+    const n = countNodes(G.main);
+    G = bak; $('editors').innerHTML = ''; $('meter').classList.add('hide');
+    const cb = $('btn-closebox'); if (cb) cb.classList.remove('show');
+    return r.result === 'clear' && n === L('3-1').par;
+  })());
+  T('⟳→❓→➡ の じゅんでも 一歩ずつ うごく（とまる 事故に ならない）',
+    simulate(L('3-1'), [LP(7, [ifUnit('food'), cmdNode('R')])], []).steps >= 7);
+  T('しっぱい助言: ❓の じゅんばんミスには「➡の あとに ❓」', (() => {
+    const st = makeState(L('3-1'));
+    st.x = 7; st.y = 1;
+    st.foods.forEach(f => { if (f.x !== 7) f.eaten = true; });
+    return failAdvice(st, [LP(7, [ifUnit('food'), cmdNode('R')])], 10).includes('➡の あとに ❓');
+  })());
+  T('しっぱい助言: 一歩も うごかない とき 専用メッセージ', failAdvice(makeState(L('3-1')), [], 0).includes('一歩も'));
+  T('しっぱい助言: ❓なしで エサの 上なら「わすれてるよ」', (() => {
+    const st = makeState(L('1-1'));
+    st.x = 3; st.y = 1;
+    return failAdvice(st, P('RRR'), 3).includes('わすれてるよ');
+  })());
+  T('しっぱい助言: のこり数を 出す', failAdvice(makeState(L('1-1')), P('R'), 1).includes('あと1こ'));
 
   // --- まめちしき ---
   T('全21匹に とっておきの まめちしきが ある',
