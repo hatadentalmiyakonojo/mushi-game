@@ -117,7 +117,8 @@
   .prow-label { font-size:12px; color:#6a7a5a; font-weight:bold; margin-bottom:4px; display:flex; justify-content:space-between; align-items:center; gap:8px; }
   .prow-label .tag { background:#dbe6cb; border-radius:8px; padding:3px 9px; font-size:12px; }
   .prow.active .tag { background:#ffcf5a; }
-  .prow-row { display:flex; gap:6px; overflow-x:auto; min-height:56px; align-items:flex-start; -webkit-overflow-scrolling:touch; padding-bottom:2px; }
+  /* カードが ふえても 見えなく ならないよう 折り返す（スマホ対応。横スクロールにすると 画面外に かくれる） */
+  .prow-row { display:flex; flex-wrap:wrap; gap:6px; min-height:56px; align-items:flex-start; padding-bottom:2px; }
 
   .pcard { flex:0 0 auto; width:52px; height:52px; border-radius:12px; display:flex; flex-direction:column; align-items:center; justify-content:center; font-weight:bold; color:#fff; box-shadow:var(--shadow); position:relative; font-size:24px; transition:transform .15s; line-height:1.1; }
   .pcard.move { background:var(--card-move); }
@@ -126,7 +127,7 @@
   .pcard.exec, .pbox.exec > .pbox-head { animation:none; }
   .pcard.exec { transform:scale(1.18); box-shadow:0 0 0 4px #ffe066, 0 3px 0 rgba(0,0,0,.12); z-index:2; }
 
-  .pbox { flex:0 0 auto; border-radius:14px; padding:4px 5px 5px; display:flex; flex-direction:column; gap:3px; box-shadow:var(--shadow); }
+  .pbox { flex:0 0 auto; max-width:100%; border-radius:14px; padding:4px 5px 5px; display:flex; flex-direction:column; gap:3px; box-shadow:var(--shadow); }
   .pbox.loop { background:#cfe3ff; border:3px solid var(--card-loop); }
   .pbox.cond { background:#ffe2cc; border:3px solid var(--card-if); }
   .pbox.open { border-style:dashed; box-shadow:0 0 0 3px #ffe066, var(--shadow); }
@@ -135,7 +136,7 @@
   .pbox.exec > .pbox-head .hlabel { background:#ffe066; }
   .pbox-head .xbtn { width:20px; height:20px; border-radius:10px; background:rgba(255,255,255,.85); font-size:12px; line-height:20px; text-align:center; box-shadow:none; padding:0; }
   .pbox-head .iter { background:#fff; border-radius:8px; padding:1px 6px; font-size:11px; min-width:16px; text-align:center; }
-  .pbox-body { display:flex; gap:5px; min-height:56px; align-items:flex-start; padding:3px 5px; background:rgba(255,255,255,.55); border-radius:10px; }
+  .pbox-body { display:flex; flex-wrap:wrap; gap:5px; min-height:56px; align-items:flex-start; padding:3px 5px; background:rgba(255,255,255,.55); border-radius:10px; }
   .caret { flex:0 0 auto; width:12px; height:52px; border-radius:6px; background:#ffb300; animation:blink 1s ease-in-out infinite; }
   @keyframes blink { 0%,100%{opacity:1} 50%{opacity:.25} }
   .empty-hint { font-size:13px; color:#9aa88a; padding:16px 4px 0; white-space:nowrap; }
@@ -240,6 +241,33 @@
   #selftest-overlay div { font-size:13px; line-height:1.65; }
   #selftest-overlay .ok { color:#1a8a3a; } #selftest-overlay .ng { color:#c0392b; font-weight:bold; }
   #selftest-overlay h2 { font-family:inherit; margin-bottom:10px; }
+
+  /* ===== スマホ（せまい画面）: カードと ボタンを 小さくして 1行に 多く 入れる ===== */
+  @media (max-width: 700px), (max-height: 520px) {
+    #goal-bar, #meter, #editors { margin-left:8px; margin-right:8px; }
+    #editors { max-height:34vh; }
+    #stage-wrap { min-height:150px; }
+    .prow { padding:5px 7px 6px; }
+    .prow-row, .pbox-body { min-height:46px; }
+    .pcard { width:44px; height:44px; font-size:21px; border-radius:10px; }
+    .pcard.eat, .pcard.call { font-size:11px; }
+    .caret { width:9px; height:44px; }
+    .cmd-btn { width:46px; height:46px; font-size:21px; }
+    .cmd-btn.eat, .cmd-btn.loop, .cmd-btn.call { font-size:11px; }
+    .cmd-btn.cond { font-size:10px; }
+    .util-btn { font-size:12px; padding:0 9px; height:42px; }
+    #btn-closebox { font-size:13px; padding:0 11px; height:46px; }
+    #btn-run { font-size:16px; padding:0 16px; height:46px; }
+    #palette { gap:5px; padding:6px 8px calc(8px + env(safe-area-inset-bottom)); }
+    .sep { width:0; }
+    #meter { padding:4px 10px 6px; gap:6px; font-size:11px; }
+    #meter-msg { margin-left:0; font-size:11px; padding:2px 8px; }
+    .mslot { width:14px; height:20px; }
+    .meter-slots { padding-top:15px; }
+    #game-header { gap:5px; padding-left:8px; padding-right:8px; }
+    #game-header button { font-size:12px; padding:7px 9px; }
+    #stage-wrap { padding:4px 8px; }
+  }
 
   .stage-shake { animation:shake .4s; }
   @keyframes shake { 0%,100%{transform:translateX(0)} 25%{transform:translateX(-6px)} 75%{transform:translateX(6px)} }
@@ -402,7 +430,7 @@
    単一HTML / 外部依存なし / iPad Safari 対応 / localStorage 保存
    しま1 じゅんばん / しま2 くりかえし / しま3 もしも / しま4 名前をつける / しま5 じゆう
 ===================================================================== */
-const APP_VERSION = '2.2.0';
+const APP_VERSION = '2.2.1';
 const DATA_SCHEMA = 1;
 const STORAGE_KEY = 'mushimushi-programming';
 const CELL = 100;          // SVG内セルサイズ
@@ -1109,6 +1137,9 @@ function renderEditors() {
   const call = $('btn-call');
   if (call) call.disabled = (G.root === 'func');
   renderMeter();
+  // カードが ふえて 下に かくれたとき、入れる ばしょが 見えるように する
+  const caret = document.querySelector('#editors .caret');
+  if (caret) caret.scrollIntoView({ block:'nearest', inline:'nearest' });
 }
 /* カードメーター（表示ロジックは純関数にして selftestで検証する） */
 function meterInfo(level, n) {
