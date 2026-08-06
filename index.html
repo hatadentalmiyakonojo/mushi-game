@@ -269,6 +269,23 @@
     #stage-wrap { padding:4px 8px; }
   }
 
+  /* ===== 生きものの「いきてる感」（まちアニメ） ===== */
+  .idle { animation:idle-bob 2.2s ease-in-out infinite; transform-box:fill-box; transform-origin:50% 88%; }
+  @keyframes idle-bob { 0%,100%{ transform:scaleY(1) } 50%{ transform:scaleY(.95) translateY(1.5px) } }
+  .food-emoji { animation:food-bob 2.6s ease-in-out infinite; transform-box:fill-box; transform-origin:center; }
+  @keyframes food-bob { 0%,100%{ transform:translateY(0) rotate(0deg) } 50%{ transform:translateY(-3px) rotate(3deg) } }
+  #overlay-creature svg { animation:hop 1.4s ease-in-out infinite; }
+  .lv-btn svg, .fc-btn svg { animation:sway 3.2s ease-in-out infinite; }
+  @keyframes sway { 0%,100%{ transform:rotate(-2deg) } 50%{ transform:rotate(2deg) } }
+
+  /* ===== はこを ひらいている あいだは 外を うすくする（今 どこに 入るかを 見せる） ===== */
+  .prow.dim .prow-row > :not(.open):not(.caret) { opacity:.35; filter:saturate(.5); }
+  .pbox.open > .pbox-body > :not(.open):not(.caret) { opacity:.35; filter:saturate(.5); }
+  .pbox.cursor > .pbox-body > * { opacity:1 !important; filter:none !important; }
+  body.running .prow-row > *, body.running .pbox-body > * { opacity:1 !important; filter:none !important; }
+  #btn-closebox.show { animation:closepulse 1.3s ease-in-out infinite; }
+  @keyframes closepulse { 0%,100%{ box-shadow:var(--shadow) } 50%{ box-shadow:0 0 0 5px #ffe066, 0 3px 0 rgba(0,0,0,.12) } }
+
   .stage-shake { animation:shake .4s; }
   @keyframes shake { 0%,100%{transform:translateX(0)} 25%{transform:translateX(-6px)} 75%{transform:translateX(6px)} }
 </style>
@@ -430,7 +447,7 @@
    単一HTML / 外部依存なし / iPad Safari 対応 / localStorage 保存
    しま1 じゅんばん / しま2 くりかえし / しま3 もしも / しま4 名前をつける / しま5 じゆう
 ===================================================================== */
-const APP_VERSION = '2.2.1';
+const APP_VERSION = '2.3.0';
 const DATA_SCHEMA = 1;
 const STORAGE_KEY = 'mushimushi-programming';
 const CELL = 100;          // SVG内セルサイズ
@@ -1180,10 +1197,13 @@ function renderMeter() {
 function makeRow(root, label, list) {
   const row = document.createElement('div');
   row.className = 'prow' + (G.root === root ? ' active' : '');
+  const boxing = G.root === root && G.path.length > 0;
+  if (boxing) row.classList.add('dim');
   const head = document.createElement('div');
   head.className = 'prow-label';
   head.innerHTML = `<span class="tag">${label}</span>` +
-    (root === 'main' ? '' : '<span>ここに 書いた うごきが ⚡カードに なるよ</span>');
+    (boxing ? '<span>カードは 明るい はこの 中に 入るよ</span>'
+            : (root === 'main' ? '' : '<span>ここに 書いた うごきが ⚡カードに なるよ</span>'));
   head.addEventListener('click', () => {
     if (G.running || G.root === root) return;
     SFX.tap(); G.root = root; G.path = []; renderEditors();
@@ -1232,6 +1252,7 @@ function nodeEl(node, root, path) {
   box.className = 'pbox ' + (isLoop ? 'loop' : 'cond');
   box.dataset.nid = node.id;
   if (root === G.root && pathStartsWith(G.path, path)) box.classList.add('open');
+  if (root === G.root && samePath(path, G.path)) box.classList.add('cursor');   // いちばん 内がわの ひらいた はこ
   const head = document.createElement('div');
   head.className = 'pbox-head';
   const lab = document.createElement('span');
@@ -1319,11 +1340,11 @@ function stageMarkup(level, withActor) {
     s += `<g transform="translate(${r.x*CELL},${r.y*CELL})"><ellipse cx="50" cy="62" rx="36" ry="26" fill="#9a938a"/><ellipse cx="42" cy="50" rx="26" ry="20" fill="#aaa39a"/><ellipse cx="36" cy="44" rx="8" ry="5" fill="#c2bbb2"/></g>`;
   });
   level.foods.forEach((f, i) => {
-    s += `<text id="food-${i}" x="${f.x*CELL+50}" y="${f.y*CELL+68}" font-size="56" text-anchor="middle">${f.emoji}</text>`;
+    s += `<text id="food-${i}" class="food-emoji" style="animation-delay:${(i*0.4).toFixed(1)}s" x="${f.x*CELL+50}" y="${f.y*CELL+68}" font-size="56" text-anchor="middle">${f.emoji}</text>`;
   });
   s += `<rect x="${level.start.x*CELL+6}" y="${level.start.y*CELL+6}" width="${CELL-12}" height="${CELL-12}" rx="14" fill="none" stroke="#fff" stroke-width="3" stroke-dasharray="8 7" opacity=".7"/>`;
   if (withActor) {
-    s += `<g id="actor" style="transition:transform .55s ease-in-out"><g id="actor-flip" transform-origin="50 50">${(CREATURES[level.creature]||CREATURES.kabuto).svg}</g></g>`;
+    s += `<g id="actor" style="transition:transform .55s ease-in-out"><g id="actor-flip" transform-origin="50 50"><g class="idle">${(CREATURES[level.creature]||CREATURES.kabuto).svg}</g></g></g>`;
   }
   return s;
 }
@@ -1677,7 +1698,7 @@ function renderFreeStage() {
   svg.setAttribute('viewBox', `0 0 ${FREE.w*CELL} ${FREE.h*CELL}`);
   svg.setAttribute('preserveAspectRatio', 'xMidYMid meet');
   let s = stageMarkup(lv, false);
-  s += `<g transform="translate(${FREE.start.x*CELL},${FREE.start.y*CELL}) scale(0.62) translate(30,30)">${CREATURES[FREE.creature].svg}</g>`;
+  s += `<g transform="translate(${FREE.start.x*CELL},${FREE.start.y*CELL}) scale(0.62) translate(30,30)"><g class="idle">${CREATURES[FREE.creature].svg}</g></g>`;
   for (let y = 0; y < FREE.h; y++) for (let x = 0; x < FREE.w; x++) {
     s += `<rect class="fcell" data-x="${x}" data-y="${y}" x="${x*CELL}" y="${y*CELL}" width="${CELL}" height="${CELL}" fill="transparent"/>`;
   }
@@ -1954,6 +1975,27 @@ function runSelftest() {
     const lv = L('4-4');
     const noFunc = [LP(5, P('R').concat([IF('like', P('E'))]))].concat(P('U'), [LP(3, P('R').concat([IF('like', P('E'))]))]);
     return simulate(lv, noFunc, []).result === 'clear' && countNodes(noFunc) > lv.par;
+  })());
+
+  // --- まちアニメ と はこの 見える化 ---
+  T('主人公に idleアニメの わくが ある', stageMarkup(L('1-1'), true).includes('class="idle"'));
+  T('食べものに ゆれアニメの クラスが ある', stageMarkup(L('1-1'), true).includes('food-emoji'));
+  T('はこを ひらくと 外が うすく なる（dim/cursor）', (() => {
+    const bak = G;
+    G = { level:L('2-2'), main:[LP(3, [])], func:[], root:'main', path:[0], running:false, free:false };
+    renderEditors();
+    const ok = !!document.querySelector('#editors .prow.dim') && !!document.querySelector('#editors .pbox.cursor');
+    G = bak; $('editors').innerHTML = ''; $('meter').classList.add('hide');
+    const cb = $('btn-closebox'); if (cb) cb.classList.remove('show');
+    return ok;
+  })());
+  T('はこを とじると dimが 外れる', (() => {
+    const bak = G;
+    G = { level:L('2-2'), main:[LP(3, [])], func:[], root:'main', path:[], running:false, free:false };
+    renderEditors();
+    const ok = !document.querySelector('#editors .prow.dim') && !document.querySelector('#editors .pbox.cursor');
+    G = bak; $('editors').innerHTML = ''; $('meter').classList.add('hide');
+    return ok;
   })());
 
   // --- まめちしき ---
