@@ -305,7 +305,7 @@
 <!-- ============ しま えらび ============ -->
 <div id="screen-islands" class="screen">
   <div class="map-header">
-    <h2>🗺️ しまを えらぼう</h2>
+    <h2>🗺️ しまを えらぼう <span id="island-total" style="font-size:.7em;color:#6a7a5a;margin-left:8px;white-space:nowrap"></span></h2>
     <div class="hbtns">
       <button id="btn-zukan">📖 ずかん</button>
       <button id="btn-parent" title="おうちのかたへ">⚙</button>
@@ -449,7 +449,7 @@
    単一HTML / 外部依存なし / iPad Safari 対応 / localStorage 保存
    しま1 じゅんばん / しま2 くりかえし / しま3 もしも / しま4 名前をつける / しま5 じゆう
 ===================================================================== */
-const APP_VERSION = '2.4.0';
+const APP_VERSION = '2.5.0';
 const DATA_SCHEMA = 1;
 const STORAGE_KEY = 'mushimushi-programming';
 const CELL = 100;          // SVG内セルサイズ
@@ -528,6 +528,26 @@ const CREATURES = {
   penguin: { name:'ペンギン',
     fact:'鳥だけど 空を とばずに、海を およぐよ。およぐのは とても 早い。',
     svg:`<g><ellipse cx="46" cy="62" rx="26" ry="30" fill="#33404d"/><ellipse cx="50" cy="66" rx="17" ry="24" fill="#fdfbf6"/><circle cx="54" cy="32" r="19" fill="#33404d"/><ellipse cx="58" cy="38" rx="12" ry="11" fill="#fdfbf6"/><path d="M70 33 l15 5 l-15 5 z" fill="#f4a63a"/><circle cx="63" cy="27" r="4.5" fill="#fff"/><circle cx="64.5" cy="28" r="2.2" fill="#222"/><path d="M22 58 q-12 14 -3 23 q9 -7 9 -19 z" fill="#2a343f"/><ellipse cx="40" cy="90" rx="10" ry="5" fill="#f4a63a"/><ellipse cx="60" cy="90" rx="10" ry="5" fill="#f4a63a"/></g>` },
+
+  /* --- しま5（ちょうせん） --- */
+  koorogi: { name:'コオロギ',
+    fact:'はねを こすり合わせて 鳴くよ。鳴くのは オスだけ。',
+    svg:`<g><path d="M40 60 L28 38 L36 36 L48 58 Z" fill="#4e3a2a"/><path d="M28 38 L20 78" stroke="#3d2d20" stroke-width="4.5" stroke-linecap="round"/><line x1="52" y1="70" x2="48" y2="84" stroke="#3d2d20" stroke-width="3.5" stroke-linecap="round"/><line x1="62" y1="70" x2="64" y2="84" stroke="#3d2d20" stroke-width="3.5" stroke-linecap="round"/><ellipse cx="48" cy="58" rx="30" ry="14" fill="#5b4535"/><ellipse cx="44" cy="53" rx="25" ry="8" fill="#6e5544"/><path d="M18 58 L6 70 M18 60 L8 76" stroke="#5b4535" stroke-width="2.5" fill="none" stroke-linecap="round"/><circle cx="76" cy="52" r="12" fill="#5b4535"/><path d="M82 44 Q96 28 98 12 M76 42 Q80 26 70 12" stroke="#5b4535" stroke-width="2.5" fill="none" stroke-linecap="round"/><circle cx="80" cy="50" r="4.5" fill="#fff"/><circle cx="81.5" cy="51" r="2.2" fill="#222"/></g>` },
+  yamori: { name:'ヤモリ',
+    fact:'かべや 天じょうを あるけるよ。足の うらに 小さな 毛が たくさん ある。',
+    svg:`<g><path d="M30 66 Q8 62 6 80 Q4 90 14 88" fill="none" stroke="#a89f88" stroke-width="7" stroke-linecap="round"/><path d="M34 70 L24 80 M24 80 l-5 -3 M24 80 l1 5 M24 80 l5 2" stroke="#a89f88" stroke-width="3.5" fill="none" stroke-linecap="round"/><path d="M62 70 L72 80 M72 80 l-3 4 M72 80 l5 2 M72 80 l3 -4" stroke="#a89f88" stroke-width="3.5" fill="none" stroke-linecap="round"/><path d="M34 50 L26 40 M26 40 l-4 3 M26 40 l1 -5 M26 40 l5 -1" stroke="#a89f88" stroke-width="3.5" fill="none" stroke-linecap="round"/><ellipse cx="48" cy="60" rx="24" ry="12" fill="#b8b09a"/><ellipse cx="48" cy="58" rx="17" ry="7" fill="#c9c2ac"/><circle cx="36" cy="54" r="2.5" fill="#8d8570"/><circle cx="52" cy="55" r="2.5" fill="#8d8570"/><circle cx="60" cy="51" r="2" fill="#8d8570"/><ellipse cx="76" cy="56" rx="12" ry="9" fill="#b8b09a"/><circle cx="78" cy="51" r="5" fill="#fff"/><circle cx="79.5" cy="51.5" r="2.6" fill="#222"/><path d="M84 60 q4 1 6 -1" stroke="#8d8570" stroke-width="2" fill="none" stroke-linecap="round"/></g>` },
+  zarigani: { name:'ザリガニ',
+    fact:'大きな はさみで じぶんを まもるよ。日本の 川に 多いのは アメリカから 来た ザリガニ。',
+    svg:`<g><path d="M18 60 L4 52 L8 68 L20 68 Z" fill="#c0392b"/><rect x="16" y="52" width="24" height="16" rx="6" fill="#d24a3a"/><path d="M22 52 v16 M30 52 v16" stroke="#c0392b" stroke-width="2"/><line x1="44" y1="70" x2="38" y2="84" stroke="#c0392b" stroke-width="3.5" stroke-linecap="round"/><line x1="54" y1="72" x2="52" y2="86" stroke="#c0392b" stroke-width="3.5" stroke-linecap="round"/><line x1="62" y1="70" x2="68" y2="84" stroke="#c0392b" stroke-width="3.5" stroke-linecap="round"/><ellipse cx="52" cy="58" rx="20" ry="14" fill="#e0533f"/><path d="M66 50 L82 36 L94 30 L88 42 L96 46 L82 52 Z" fill="#d24a3a"/><path d="M68 64 L84 66 L96 62 L90 72 L96 78 L82 76 Z" fill="#d24a3a"/><path d="M70 44 Q84 30 98 22 M72 46 Q88 42 100 44" stroke="#c0392b" stroke-width="2" fill="none" stroke-linecap="round"/><circle cx="68" cy="52" r="4" fill="#fff"/><circle cx="69.5" cy="52.5" r="2" fill="#222"/></g>` },
+  fukurou: { name:'フクロウ',
+    fact:'夜に かりを する 鳥。首が ぐるっと 回るよ。',
+    svg:`<g><ellipse cx="50" cy="62" rx="26" ry="28" fill="#8a6a45"/><ellipse cx="50" cy="68" rx="17" ry="18" fill="#d9c2a0"/><path d="M40 60 q5 3 10 0 M40 68 q5 3 10 0 M40 76 q5 3 10 0 M50 64 q5 3 10 0 M50 72 q5 3 10 0" stroke="#b39a75" stroke-width="2" fill="none"/><path d="M26 40 L32 22 L44 34 Z M74 40 L68 22 L56 34 Z" fill="#8a6a45"/><circle cx="38" cy="42" r="11" fill="#f3e6c8"/><circle cx="62" cy="42" r="11" fill="#f3e6c8"/><circle cx="38" cy="42" r="6" fill="#222"/><circle cx="62" cy="42" r="6" fill="#222"/><circle cx="40" cy="40" r="2" fill="#fff"/><circle cx="64" cy="40" r="2" fill="#fff"/><path d="M50 48 l-5 4 l5 6 l5 -6 z" fill="#f4a63a"/><path d="M40 90 l-3 4 M40 90 l0 5 M40 90 l3 4 M60 90 l-3 4 M60 90 l0 5 M60 90 l3 4" stroke="#f4a63a" stroke-width="3" stroke-linecap="round"/></g>` },
+  panda: { name:'パンダ',
+    fact:'たけを 一日に 10kg いじょう 食べるよ。',
+    svg:`<g><ellipse cx="50" cy="66" rx="28" ry="24" fill="#f5f5f2"/><ellipse cx="30" cy="80" rx="11" ry="9" fill="#2b2b2b"/><ellipse cx="70" cy="80" rx="11" ry="9" fill="#2b2b2b"/><path d="M24 58 q-6 10 4 22 M76 58 q6 10 -4 22" stroke="#2b2b2b" stroke-width="10" fill="none" stroke-linecap="round"/><circle cx="50" cy="40" r="22" fill="#f5f5f2"/><circle cx="32" cy="24" r="8" fill="#2b2b2b"/><circle cx="68" cy="24" r="8" fill="#2b2b2b"/><ellipse cx="40" cy="40" rx="7" ry="8" fill="#2b2b2b" transform="rotate(-15 40 40)"/><ellipse cx="60" cy="40" rx="7" ry="8" fill="#2b2b2b" transform="rotate(15 60 40)"/><circle cx="41" cy="40" r="2.6" fill="#fff"/><circle cx="59" cy="40" r="2.6" fill="#fff"/><ellipse cx="50" cy="50" rx="4" ry="3" fill="#2b2b2b"/><path d="M46 54 q4 3 8 0" stroke="#2b2b2b" stroke-width="2" fill="none" stroke-linecap="round"/></g>` },
+  neko: { name:'ネコ',
+    fact:'ひげで せまい ところを 通れるか たしかめるよ。',
+    svg:`<g><path d="M26 70 Q6 66 10 46 Q14 36 22 42" fill="none" stroke="#e59a4a" stroke-width="8" stroke-linecap="round"/><ellipse cx="48" cy="66" rx="26" ry="17" fill="#f0a852"/><path d="M34 56 q6 -6 4 4 M46 52 q6 -6 4 4 M58 54 q6 -6 4 4" stroke="#d68a3a" stroke-width="3" fill="none"/><circle cx="72" cy="50" r="16" fill="#f0a852"/><path d="M60 40 L58 22 L72 32 Z M84 40 L88 22 L76 32 Z" fill="#f0a852"/><path d="M62 38 L61 28 L69 34 Z M82 38 L84 28 L76 34 Z" fill="#f7c9d3"/><ellipse cx="66" cy="50" rx="3.5" ry="4.5" fill="#3a2a1e"/><ellipse cx="78" cy="50" rx="3.5" ry="4.5" fill="#3a2a1e"/><circle cx="67" cy="48" r="1.4" fill="#fff"/><circle cx="79" cy="48" r="1.4" fill="#fff"/><path d="M72 56 l-3 -3 l6 0 z" fill="#f7a6b5"/><path d="M68 60 q4 3 8 0" stroke="#3a2a1e" stroke-width="2" fill="none"/><path d="M56 56 l-12 -2 M56 58 l-12 2 M88 56 l12 -2 M88 58 l12 2" stroke="#3a2a1e" stroke-width="1.5"/><line x1="36" y1="82" x2="34" y2="90" stroke="#d68a3a" stroke-width="4" stroke-linecap="round"/><line x1="58" y1="82" x2="60" y2="90" stroke="#d68a3a" stroke-width="4" stroke-linecap="round"/></g>` },
 };
 
 /* とっておきの まめちしき（クリアした ときに 出る・ずかんにも のこる）
@@ -554,6 +574,12 @@ const WOW = {
   harinezumi:'はりは かたく なった 毛。ネズミでは なく、モグラに 近い なかまだよ。',
   kitsune: '雪の 下を 走る ねずみの 音を 聞きわけて、まっすぐ 頭から とびこむよ。',
   penguin: 'コウテイペンギンは 海の 500m 下まで もぐれるよ。ビルより ずっと ふかい ところだ。',
+  koorogi: '耳は 前足の ひざの ところに あるよ。人と ぜんぜん ちがう ばしょだね。',
+  yamori:  'つかまると しっぽを 切って にげるよ。しっぽは また 生えて くるんだ。',
+  zarigani:'にげる ときは しっぽで 水を けって、うしろに びゅんと とぶよ。',
+  fukurou: 'はねの ふちが ギザギザで、とんでも ほとんど 音が しないんだ。ねずみに 気づかれないよ。',
+  panda:   'パンダは クマの なかま。生まれた ときは 100gくらいで、白くて とても 小さいんだ。',
+  neko:    '高い ところから おちても、空中で 体を 回して 足から おりるよ。',
 };
 Object.keys(WOW).forEach(k => { if (CREATURES[k]) CREATURES[k].wow = WOW[k]; });
 
@@ -766,7 +792,60 @@ const ISLANDS = [
         speak:'さいごの めん！ わざ、くりかえし、もしも、ぜんぶ つかって みよう！' },
     ]
   },
-  { id:5, icon:'🎨', name:'じゆうの しま', sub:'じぶんで マップを 作って あそぶ', free:true, levels:[] },
+  {
+    id:5, icon:'🏆', name:'ちょうせんの しま', sub:'ぜんぶ つかって とく むずかしい めん', requires:3,
+    levels:[
+      { id:'5-1', name:'かいだんで えらんで', creature:'koorogi', cards:B_LOOP_LIKE,
+        grid:{w:6,h:6}, start:{x:0,y:0},
+        foods:[{x:2,y:2,emoji:'🌿',name:'くさ'},{x:4,y:4,emoji:'🌿',name:'くさ'},{x:5,y:5,emoji:'🌿',name:'くさ'},
+               {x:3,y:3,emoji:'🍄',name:'きのこ',bad:true}],
+        rocks:[{x:2,y:0},{x:3,y:0},{x:4,y:0},{x:5,y:0},{x:0,y:2},{x:0,y:3},{x:0,y:4},{x:0,y:5}], par:5, maxCards:8,
+        goal:'岩の かいだんを おりながら、すきなのだけ 食べよう！',
+        hint:'⟳5回の 中に「➡ ⬇ ❓すきなの」を 入れよう',
+        speak:'いわの かいだんを おりながら、すきなのだけ たべよう！' },
+      { id:'5-2', name:'岩の 上の ごちそう', creature:'yamori', cards:B_ALL, func:true,
+        grid:{w:10,h:4}, start:{x:0,y:2},
+        foods:[{x:1,y:1,emoji:'🦟',name:'エサ'},{x:4,y:1,emoji:'🦟',name:'エサ'},{x:8,y:1,emoji:'🦟',name:'エサ'}],
+        rocks:[{x:1,y:2},{x:4,y:2},{x:8,y:2}], par:12, maxCards:15,
+        goal:'岩の 上に エサが ある！ 岩を のりこえる ときに ❓で しらべる ⚡わざを 作ろう。',
+        hint:'⚡わざ＝「⬆ ➡ ❓すきなの ➡ ⬇」。メインは ⚡ ➡ ⚡ ➡ ➡ ⚡',
+        speak:'いわの うえに えさが ある！ いわを のりこえる ときに しらべる わざを つくろう。' },
+      { id:'5-3', name:'4つの はこ', creature:'zarigani', cards:B_LOOP_LIKE,
+        grid:{w:6,h:5}, start:{x:0,y:4},
+        foods:[{x:2,y:4,emoji:'🐟',name:'さかな'},{x:3,y:2,emoji:'🐟',name:'さかな'},{x:5,y:0,emoji:'🐟',name:'さかな'},
+               {x:1,y:4,emoji:'🐡',name:'ふぐ',bad:true},{x:5,y:1,emoji:'🐡',name:'ふぐ',bad:true}],
+        rocks:[],
+        stones:[[0,4],[1,4],[2,4],[3,4],[3,3],[3,2],[4,2],[5,2],[5,1],[5,0]], par:16, maxCards:20,
+        goal:'池の 道が 4回 まがるよ。同じ かたちの はこを 4つ ならべよう！',
+        hint:'「➡＋❓」を 3回、「⬆＋❓」を 2回、「➡＋❓」を 2回、「⬆＋❓」を 2回',
+        speak:'いけの みちが よんかい まがるよ。おなじ かたちの はこを よっつ ならべよう！' },
+      { id:'5-4', name:'森の かいだん', creature:'fukurou', cards:B_LOOP_CALL, func:true,
+        grid:{w:10,h:6}, start:{x:0,y:5},
+        foods:[{x:9,y:2,emoji:'🐭',name:'ねずみ'}],
+        rocks:[{x:3,y:5},{x:0,y:4},{x:1,y:4},{x:6,y:4},{x:2,y:3},{x:3,y:3},{x:4,y:3},{x:5,y:2},{x:6,y:2},{x:7,y:2},{x:8,y:2}],
+        par:10, maxCards:12,
+        goal:'かいだんの 一だんが 長いよ。⚡わざの 中に ⟳を 入れて みよう！',
+        hint:'⚡わざ＝「⟳2回[➡] ⬆」。メインは ⚡ ➡ ⚡ ➡ ➡ ⚡ 食べる',
+        speak:'かいだんの いちだんが ながいよ。わざの なかに くりかえしを いれて みよう！' },
+      { id:'5-5', name:'たけの 道', creature:'panda', cards:B_ALL, func:true,
+        grid:{w:9,h:4}, start:{x:0,y:3},
+        foods:[{x:2,y:3,emoji:'🎋',name:'たけ'},{x:5,y:2,emoji:'🎋',name:'たけ'},{x:6,y:2,emoji:'🎋',name:'たけ'},{x:8,y:1,emoji:'🎋',name:'たけ'},
+               {x:1,y:3,emoji:'🍄',name:'きのこ',bad:true},{x:4,y:2,emoji:'🍄',name:'きのこ',bad:true},{x:7,y:1,emoji:'🍄',name:'きのこ',bad:true}],
+        rocks:[], par:11, maxCards:13,
+        goal:'たけの 林を 3だん のぼるよ。⚡わざを くりかえして、すきなのだけ 食べよう！',
+        hint:'⚡わざ＝「➡ ❓すきなの」。メインは ⟳3回[⚡] ⬆ ⟳3回[⚡] ⬆ ⟳2回[⚡]',
+        speak:'たけの はやしを さんだん のぼるよ。わざを くりかえして、すきなのだけ たべよう！' },
+      { id:'5-6', name:'さいごの さんぽ道', creature:'neko', cards:B_ALL, func:true,
+        grid:{w:10,h:4}, start:{x:0,y:2},
+        foods:[{x:1,y:1,emoji:'🐟',name:'さかな'},{x:7,y:1,emoji:'🐟',name:'さかな'},{x:9,y:2,emoji:'🐟',name:'さかな'},
+               {x:4,y:1,emoji:'🍄',name:'きのこ',bad:true}],
+        rocks:[{x:1,y:2},{x:4,y:2},{x:7,y:2}], par:9, maxCards:11,
+        goal:'さいごの ちょうせん！ 岩の 上の エサを 食べながら すすもう。きのこは 食べないでね。',
+        hint:'⟳3回の 中に「⬆ ➡ ❓すきなの ➡ ⬇ ➡」。さいごに 食べる',
+        speak:'さいごの ちょうせん！ いわの うえの えさを たべながら すすもう。きのこは たべないでね。' },
+    ]
+  },
+  { id:6, icon:'🎨', name:'じゆうの しま', sub:'じぶんで マップを 作って あそぶ', free:true, requires:3, levels:[] },
 ];
 
 const ALL_LEVELS = [];
@@ -940,7 +1019,24 @@ function initTitle() {
   $('title-ver').textContent = 'v' + APP_VERSION;
   $('parent-ver').textContent = 'むしむしプログラミング v' + APP_VERSION + '（データ形式 ' + DATA_SCHEMA + '）';
 }
-$('btn-start').addEventListener('click', () => { SFX.tap(); renderIslands(); showScreen('islands'); });
+$('btn-start').addEventListener('click', () => {
+  SFX.tap();
+  unlockMedia();
+  renderIslands(); showScreen('islands');
+});
+// iPad(Safari)は「ゆびで さわった 直後」でないと 音・読み上げが 出ない。
+// 最初の タップで 無音を 一度 ならして、あとの クリア読み上げが 出るように する
+function unlockMedia() {
+  try {
+    if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    if (audioCtx.state === 'suspended') audioCtx.resume();
+  } catch (e) {}
+  try {
+    const u = new SpeechSynthesisUtterance(' ');
+    u.volume = 0; u.lang = 'ja-JP';
+    speechSynthesis.speak(u);
+  } catch (e) {}
+}
 
 /* ---------------- しま えらび ---------------- */
 function levelCleared(id) { return !!(SAVE.cleared[id] && SAVE.cleared[id].clear); }
@@ -948,7 +1044,14 @@ function islandDone(ii) {
   const is = ISLANDS[ii];
   return is.levels.length > 0 && is.levels.every(lv => levelCleared(lv.id));
 }
-function islandUnlocked(ii) { return ii === 0 ? true : islandDone(ii - 1); }
+// requires が ある しまは「その しまを 全クリア」で あく（ちょうせん／じゆうは どちらも しま4まで）。
+// しまを 足しても 前に あいた しまが 閉じないように するため
+function islandUnlocked(ii) {
+  if (ii === 0) return true;
+  const req = ISLANDS[ii].requires;
+  return islandDone(typeof req === 'number' ? req : ii - 1);
+}
+const FREE_IDX = ISLANDS.findIndex(is => is.free);
 function levelUnlocked(lv) {
   if (!islandUnlocked(lv.island)) return false;
   if (lv.index === 0) return true;
@@ -958,14 +1061,19 @@ function levelUnlocked(lv) {
 function renderIslands() {
   const wrap = $('island-list');
   wrap.innerHTML = '';
+  const allDone = ALL_LEVELS.filter(lv => levelCleared(lv.id)).length;
+  const allPerf = ALL_LEVELS.filter(lv => SAVE.cleared[lv.id] && SAVE.cleared[lv.id].perfect).length;
+  $('island-total').textContent = `⭐${allDone}／${ALL_LEVELS.length}　🏅${allPerf}`;
   ISLANDS.forEach((is, ii) => {
     const open = islandUnlocked(ii);
     const b = document.createElement('button');
     b.className = 'is-btn' + (open ? '' : ' locked');
     const done = is.levels.filter(lv => levelCleared(lv.id)).length;
+    const perf = is.levels.filter(lv => SAVE.cleared[lv.id] && SAVE.cleared[lv.id].perfect).length;
+    const lockMsg = is.requires === 3 ? '🔒 しま4まで クリアで あく' : '🔒';
     const prog = is.free
-      ? (open ? '🎨 いつでも あそべる' : '🔒 しま4まで クリアで あく')
-      : (open ? '⭐'.repeat(done) + '・'.repeat(is.levels.length - done) : '🔒');
+      ? (open ? '🎨 いつでも あそべる' : lockMsg)
+      : (open ? '⭐'.repeat(done) + '・'.repeat(is.levels.length - done) + (perf ? `　🏅${perf}` : '') : lockMsg);
     b.innerHTML = `<span class="is-icon">${is.icon}</span><span class="is-name">${is.name}</span>` +
                   `<span class="is-sub">${is.sub}</span><span class="is-prog">${prog}</span>`;
     b.addEventListener('click', () => {
@@ -1138,8 +1246,10 @@ function undoNode() {
 function clearAll() {
   if (G.running) return;
   SFX.tap();
-  G.main = []; G.func = []; G.path = []; G.root = 'main';
-  renderEditors();
+  const doClear = () => { G.main = []; G.func = []; G.path = []; G.root = 'main'; renderEditors(); };
+  // 3まい いじょう ならべて いたら、まちがえて おした ときの ために たしかめる
+  if (totalCards() >= 3) { openModal('ぜんぶ けす？', [{ label:'けす', value:true }], doClear); return; }
+  doClear();
 }
 function closeBox() {
   if (G.running || !G.path.length) return;
@@ -1704,7 +1814,7 @@ function freeToLevel(f) {
   return { id:'free', name:'じぶんの マップ', creature:f.creature, cards:B_FREE, func:true,
            grid:{ w:f.w, h:f.h }, start:{ x:f.start.x, y:f.start.y },
            foods:f.foods.map(x => ({ ...x })), rocks, holes, par:99, maxCards:40,
-           island:4, index:0,
+           island:FREE_IDX, index:0,
            goal:'じぶんで 作った マップで あそぼう！',
            hint:'カードを ならべて、じぶんの マップを クリアしよう',
            speak:'じぶんで つくった マップで あそぼう！' };
@@ -1857,6 +1967,18 @@ const SOLUTIONS = {
                   main:[LP(5, [callNode()])].concat(P('U'), [LP(3, [callNode()])]) }),
   '4-5': () => ({ func:P('R').concat([IF('like', P('E'))]),
                   main:[LP(3, [callNode()])].concat(P('UU'), [LP(4, [callNode()])]) }),
+  '5-1': () => ({ main:[LP(5, P('RD').concat([IF('like', P('E'))]))] }),
+  '5-2': () => ({ func:P('UR').concat([IF('like', P('E'))], P('RD')),
+                  main:[callNode()].concat(P('R'), [callNode()], P('RR'), [callNode()]) }),
+  '5-3': () => ({ main:[LP(3, P('R').concat([IF('like', P('E'))])),
+                        LP(2, P('U').concat([IF('like', P('E'))])),
+                        LP(2, P('R').concat([IF('like', P('E'))])),
+                        LP(2, P('U').concat([IF('like', P('E'))]))] }),
+  '5-4': () => ({ func:[LP(2, P('R'))].concat(P('U')),
+                  main:[callNode()].concat(P('R'), [callNode()], P('RR'), [callNode()], P('E')) }),
+  '5-5': () => ({ func:P('R').concat([IF('like', P('E'))]),
+                  main:[LP(3, [callNode()])].concat(P('U'), [LP(3, [callNode()])], P('U'), [LP(2, [callNode()])]) }),
+  '5-6': () => ({ main:[LP(3, P('UR').concat([IF('like', P('E'))], P('RDR')))].concat(P('E')) }),
 };
 function runSelftest() {
   const out = [];
@@ -2109,7 +2231,7 @@ function runSelftest() {
   (() => {
     const bak = JSON.parse(JSON.stringify(SAVE));
     SAVE.cleared = {};
-    T('最初は しま1だけ 解放', islandUnlocked(0) && !islandUnlocked(1) && !islandUnlocked(4));
+    T('最初は しま1だけ 解放', islandUnlocked(0) && !islandUnlocked(1) && !islandUnlocked(4) && !islandUnlocked(FREE_IDX));
     T('最初は 1-1だけ 遊べる', levelUnlocked(L('1-1')) && !levelUnlocked(L('1-2')));
     SAVE.cleared['1-1'] = { clear:true };
     T('1-1クリアで 1-2が 解放', levelUnlocked(L('1-2')));
@@ -2118,7 +2240,10 @@ function runSelftest() {
     ISLANDS[1].levels.forEach(lv => SAVE.cleared[lv.id] = { clear:true });
     ISLANDS[2].levels.forEach(lv => SAVE.cleared[lv.id] = { clear:true });
     ISLANDS[3].levels.forEach(lv => SAVE.cleared[lv.id] = { clear:true });
-    T('しま4全クリアで じゆうの しまが 解放', islandUnlocked(4));
+    T('しま4全クリアで じゆうの しまが 解放', islandUnlocked(FREE_IDX));
+    T('しま4全クリアで ちょうせんの しまも 解放', islandUnlocked(4) && ISLANDS[4].id === 5 && !ISLANDS[4].free);
+    T('ちょうせんを とかなくても じゆうの しまは 閉じない（進みが 消えない）', !islandDone(4) && islandUnlocked(FREE_IDX));
+    T('ちょうせんの 面も 前の 面クリアで 順に あく', levelUnlocked(L('5-1')) && !levelUnlocked(L('5-2')));
     SAVE.cleared = bak.cleared; SAVE.zukan = bak.zukan; SAVE.free = bak.free; SAVE.settings = bak.settings;
   })();
 
