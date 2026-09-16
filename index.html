@@ -108,8 +108,7 @@
   #meter-msg.par  { background:#fff0b8; color:#a5760a; }
   #meter-msg.over { background:#ffe2cc; color:#b06a1a; }
   #meter-msg.full { background:#ffd9d9; color:#b23a3a; }
-  #btn-hint { font-size:13px; padding:7px 11px; display:none; background:#fff3b8; }
-  #btn-hint.show { display:block; }
+  #btn-hint { font-size:13px; padding:7px 11px; background:#fff3b8; white-space:nowrap; flex-shrink:0; }
 
   #editors { margin:8px 12px 0; display:flex; flex-direction:column; gap:6px; max-height:36vh; overflow-y:auto; }
   .prow { background:#eef3e2; border-radius:12px; padding:6px 10px 8px; border:3px solid transparent; }
@@ -142,12 +141,23 @@
   .caret { flex:0 0 auto; width:12px; height:52px; border-radius:6px; background:#ffb300; animation:blink 1s ease-in-out infinite; }
   @keyframes blink { 0%,100%{opacity:1} 50%{opacity:.25} }
   .empty-hint { font-size:13px; color:#9aa88a; padding:16px 4px 0; white-space:nowrap; }
+  /* えらんだ カード／はこ（「ここに 入る」「ここを けす」が 目で わかるように） */
+  .pcard.sel, .pbox.sel { outline:4px solid #ffb300; outline-offset:2px; }
+  .pcard.sel { transform:scale(1.06); }
 
   #stage-wrap { flex:1; display:flex; align-items:center; justify-content:center; padding:6px 12px; position:relative; min-height:0; }
   #stage { width:100%; height:100%; }
   #bubble { position:absolute; left:50%; bottom:10px; transform:translateX(-50%); background:#fff; border:3px solid var(--accent); border-radius:16px; padding:10px 20px; font-size:clamp(15px,2.6vw,19px); font-weight:bold; display:none; z-index:5; white-space:nowrap; box-shadow:0 4px 10px rgba(0,0,0,.15); }
   #bubble.show { display:block; animation:pop .25s; }
   @keyframes pop { 0%{transform:translateX(-50%) scale(.6)} 100%{transform:translateX(-50%) scale(1)} }
+
+  /* カードを えらんだ ときの そうさバー。
+     高さは いつも 取っておく（visibility で 出し入れ）＝下の パレットの ボタンが 1pxも 動かない */
+  #selbar { flex:0 0 auto; height:48px; display:flex; align-items:center; gap:7px; padding:0 12px; overflow:hidden; visibility:hidden; }
+  #selbar.show { visibility:visible; }
+  #sel-msg { flex:0 1 auto; min-width:0; margin-right:auto; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; font-size:13px; font-weight:bold; color:#7a5f14; background:#fff6da; border-radius:9px; padding:5px 10px; }
+  #sel-msg:empty { background:none; padding:0; }
+  #selbar .util-btn { flex:0 0 auto; height:38px; font-size:13px; padding:0 10px; }
 
   #palette { display:flex; align-items:center; gap:7px; padding:8px 12px calc(10px + env(safe-area-inset-bottom)); flex-wrap:wrap; justify-content:center; }
   .cmd-btn { width:clamp(50px,6.4vw,62px); height:clamp(50px,6.4vw,62px); font-size:26px; font-weight:bold; color:#fff; border-radius:14px; padding:0; line-height:1.1; }
@@ -162,8 +172,10 @@
   #btn-closebox.show { visibility:visible; }
   #btn-run { font-size:clamp(17px,2.7vw,22px); padding:0 22px; height:clamp(50px,6.4vw,62px); background:var(--accent); color:#fff; font-weight:bold; }
   .sep { width:5px; }
-  body.running .cmd-btn, body.running .util-btn, body.running #btn-run, body.running #btn-closebox,
+  body.running .cmd-btn, body.running .util-btn, body.running #btn-closebox,
   body.running .pbox-head .xbtn { opacity:.45; pointer-events:none; }
+  /* 実行中は 同じ ばしょ・同じ 大きさの まま「■ とめる」に なる（おし まちがい ぼうし） */
+  body.running #btn-run { background:#e0604a; }
 
   /* ===== オーバーレイ ===== */
   #overlay { position:fixed; inset:0; background:rgba(60,80,30,.45); display:none; align-items:center; justify-content:center; z-index:20; }
@@ -174,6 +186,12 @@
   #overlay-card svg { width:86px; height:auto; }
   #overlay-badges { font-size:28px; min-height:34px; }
   #overlay-msg { font-size:clamp(14px,2.4vw,17px); line-height:1.55; }
+  /* 「くわしく」＝ まず よろこんで、知りたい子だけ おす */
+  #btn-more { font-size:clamp(12px,2vw,14px); padding:7px 16px; font-weight:bold; background:#f1eee2; display:none; }
+  #btn-more.show { display:block; }
+  #overlay-more { display:none; font-size:clamp(13px,2.2vw,16px); line-height:1.6;
+                  background:#f7f5ea; border-radius:14px; padding:9px 15px; text-align:left; }
+  #overlay-more.show { display:block; }
   /* とっておきの まめちしき */
   #overlay-fact { display:none; background:#fff8e0; border:3px dashed #f0c860; border-radius:16px;
                   padding:11px 16px 13px; text-align:left; animation:pop2 .5s .25s backwards; }
@@ -261,6 +279,10 @@
     #btn-closebox { font-size:13px; padding:0 11px; height:46px; }
     #btn-run { font-size:16px; padding:0 16px; height:46px; }
     #palette { gap:5px; padding:6px 8px calc(8px + env(safe-area-inset-bottom)); }
+    #selbar { height:42px; gap:4px; padding:0 8px; }
+    #sel-msg { font-size:11px; padding:4px 7px; }
+    #sel-msg .long { display:none; }     /* せまい 画面では 光る しるしと わくで つたわるので みじかく */
+    #selbar .util-btn { height:34px; font-size:11px; padding:0 7px; }
     .sep { width:0; }
     #meter { padding:4px 10px 6px; gap:6px; font-size:11px; }
     #meter-msg { margin-left:0; font-size:11px; padding:2px 8px; }
@@ -281,8 +303,8 @@
   @keyframes sway { 0%,100%{ transform:rotate(-2deg) } 50%{ transform:rotate(2deg) } }
 
   /* ===== はこを ひらいている あいだは 外を うすくする（今 どこに 入るかを 見せる） ===== */
-  .prow.dim .prow-row > :not(.open):not(.caret) { opacity:.35; filter:saturate(.5); }
-  .pbox.open > .pbox-body > :not(.open):not(.caret) { opacity:.35; filter:saturate(.5); }
+  .prow.dim .prow-row > :not(.open):not(.caret):not(.sel) { opacity:.35; filter:saturate(.5); }
+  .pbox.open > .pbox-body > :not(.open):not(.caret):not(.sel) { opacity:.35; filter:saturate(.5); }
   .pbox.cursor > .pbox-body > * { opacity:1 !important; filter:none !important; }
   body.running .prow-row > *, body.running .pbox-body > * { opacity:1 !important; filter:none !important; }
   #btn-closebox.show { animation:closepulse 1.3s ease-in-out infinite; }
@@ -348,6 +370,13 @@
     <svg id="stage" xmlns="http://www.w3.org/2000/svg"></svg>
     <div id="bubble"></div>
   </div>
+  <div id="selbar">
+    <span id="sel-msg"></span>
+    <button id="btn-sel-del" class="util-btn">けす</button>
+    <button id="btn-sel-into" class="util-btn">はこの 中へ</button>
+    <button id="btn-sel-count" class="util-btn">回数を かえる</button>
+    <button id="btn-sel-none" class="util-btn">やめる</button>
+  </div>
   <div id="palette"></div>
 </div>
 
@@ -358,6 +387,8 @@
     <div id="overlay-creature"></div>
     <div id="overlay-badges"></div>
     <div id="overlay-msg"></div>
+    <button id="btn-more">くわしく</button>
+    <div id="overlay-more"></div>
     <div id="overlay-fact"></div>
     <div id="overlay-btns">
       <button id="btn-retry">もう一回</button>
@@ -433,8 +464,10 @@
     <div class="btnrow">
       <button id="btn-reset" class="danger">データを全て消去してやり直す</button>
     </div>
+    <h3>プログラムの直し方</h3>
+    <p>並べたカードをタップすると、そのカードが<b>えらばれた状態</b>（オレンジの枠）になり、下に操作バーが出ます。「けす」でその1枚だけ消せ、えらんだ直後（黄色い印のところ）に次のカードが入ります。途中を直すのに、後ろを全部消す必要はありません。⟳のはこは見出しをタップして「はこの 中へ」「回数を かえる」が選べます。</p>
     <h3>ヒント機能</h3>
-    <p>同じ面で3回失敗すると「💡ヒント」ボタンが現れます。まずは自分で考えさせて、詰まったときだけ使わせるのがおすすめです。</p>
+    <p>「💡ヒント」はいつでも押せます。1回目は「どこを見ればいいか」という考えどころだけ、2回目以降で答えに近いヒントが出る2段階です。まずは自分で考えさせて、詰まったときだけ使わせるのがおすすめです。</p>
     <div class="btnrow"><button id="btn-parent-back">← ゲームにもどる</button></div>
     <p style="color:#8a929a; font-size:12px; margin-top:10px;" id="parent-ver"></p>
   </div>
@@ -449,7 +482,7 @@
    単一HTML / 外部依存なし / iPad Safari 対応 / localStorage 保存
    しま1 じゅんばん / しま2 くりかえし / しま3 もしも / しま4 名前をつける / しま5 じゆう
 ===================================================================== */
-const APP_VERSION = '2.5.0';
+const APP_VERSION = '2.7.0';
 const DATA_SCHEMA = 1;
 const STORAGE_KEY = 'mushimushi-programming';
 const CELL = 100;          // SVG内セルサイズ
@@ -697,12 +730,13 @@ const ISLANDS = [
         hint:'はこの 中に ➡ ➡ 食べる の 3まいを 入れて 4回 くりかえそう',
         speak:'おはなが よっつ。ふたつ すすんで たべる の くりかえしだね！' },
       { id:'2-5', name:'岩を とびこえて', creature:'semi', cards:B_LOOP,
-        grid:{w:8,h:4}, start:{x:0,y:2},
-        foods:[{x:7,y:2,emoji:'🌳',name:'木のしる'}],
-        rocks:[{x:2,y:2},{x:4,y:2},{x:6,y:2}], par:7, maxCards:10,
-        goal:'岩が 3つ ならんでる。同じ よけかたを くりかえせば いいね！',
-        hint:'まず ➡ を 1まい。そのあと「⬆ ➡ ➡ ⬇」を はこに 入れて 3回だよ',
-        speak:'いわが みっつ ならんでる。おなじ よけかたを くりかえせば いいね！' },
+        grid:{w:9,h:3}, start:{x:0,y:2},
+        foods:[{x:8,y:2,emoji:'🌳',name:'木のしる'}],
+        rocks:[{x:2,y:2},{x:6,y:2},{x:4,y:1},{x:8,y:1}],
+        holes:Array.from({length:9},(_,x)=>({x,y:0})), par:8, maxCards:11,
+        goal:'岩が 2つ。上は 川で 通れないよ。同じ よけかたを くりかえそう！',
+        hint:'「➡ ⬆ ➡ ➡ ⬇ ➡」を はこに 入れて 2回だよ。さいごに 食べる',
+        speak:'いわが ふたつ。うえは かわで とおれないよ。おなじ よけかたを くりかえそう！' },
     ]
   },
   {
@@ -753,23 +787,26 @@ const ISLANDS = [
     id:4, icon:'⚡', name:'名前を つける しま', sub:'うごきの かたまりに 名前を つける',
     levels:[
       { id:'4-1', name:'⚡わざを 作ろう', creature:'usagi', cards:B_LOOP_CALL, func:true,
-        grid:{w:10,h:4}, start:{x:0,y:2},
-        foods:[{x:9,y:2,emoji:'🥕',name:'にんじん'}],
-        rocks:[{x:1,y:2},{x:4,y:2},{x:7,y:2}], par:11, maxCards:14,
+        grid:{w:9,h:3}, start:{x:0,y:2},
+        foods:[{x:8,y:2,emoji:'🥕',name:'にんじん'}],
+        rocks:[{x:1,y:2},{x:5,y:2},{x:3,y:1},{x:7,y:1},{x:8,y:1}],
+        holes:Array.from({length:9},(_,x)=>({x,y:0})), par:11, maxCards:14,
         goal:'岩の よけかたに 名前を つけよう！ 下の「⚡わざ」に うごきを 書くと、⚡カードで よび出せるよ。',
-        hint:'⚡わざ＝「⬆ ➡ ➡ ⬇」。メインは ⚡ ➡ ⚡ ➡ ⚡ ➡ 食べる だよ',
+        hint:'⚡わざ＝「⬆ ➡ ➡ ⬇」。メインは ⚡ ➡ ➡ ⚡ ➡ ➡ 食べる',
         speak:'いわの よけかたに なまえを つけよう！ したの わざに うごきを かくと、わざカードで よびだせるよ。' },
       { id:'4-2', name:'すきまが ちがう', creature:'kame', cards:B_LOOP_CALL, func:true,
-        grid:{w:11,h:4}, start:{x:0,y:2},
-        foods:[{x:10,y:2,emoji:'🥬',name:'はっぱ'}],
-        rocks:[{x:1,y:2},{x:4,y:2},{x:8,y:2}], par:12, maxCards:14,
+        grid:{w:13,h:3}, start:{x:0,y:2},
+        foods:[{x:12,y:2,emoji:'🥬',name:'はっぱ'}],
+        rocks:[{x:1,y:2},{x:5,y:2},{x:10,y:2},{x:3,y:1},{x:7,y:1},{x:8,y:1},{x:12,y:1}],
+        holes:Array.from({length:13},(_,x)=>({x,y:0})), par:14, maxCards:16,
         goal:'岩と 岩の あいだが バラバラ！ くりかえしだけでは むずかしいね。⚡わざの 出番だよ。',
-        hint:'⚡わざ＝「⬆ ➡ ➡ ⬇」。メインは ⚡ ➡ ⚡ ➡ ➡ ⚡ ➡ 食べる',
+        hint:'⚡わざ＝「⬆ ➡ ➡ ⬇」。メインは ⚡ ➡ ➡ ⚡ ➡ ➡ ➡ ⚡ ➡ 食べる',
         speak:'いわと いわの あいだが ばらばら！ くりかえしだけでは むずかしいね。わざの でばんだよ。' },
       { id:'4-3', name:'わざの 中に くりかえし', creature:'harinezumi', cards:B_LOOP_CALL, func:true,
         grid:{w:9,h:5}, start:{x:0,y:4},
         foods:[{x:8,y:1,emoji:'🍎',name:'りんご'}],
-        rocks:[], par:9, maxCards:11,
+        rocks:[{x:3,y:4},{x:0,y:3},{x:1,y:3},{x:5,y:3},{x:2,y:2},{x:3,y:2},{x:4,y:1},{x:5,y:1},{x:6,y:1},{x:7,y:1}],
+        par:9, maxCards:11,
         goal:'⚡わざの 中にも くりかえしを 入れられるよ。「右に 2つ すすんで 上へ」を わざに しよう！',
         hint:'⚡わざ＝「⟳2回[➡] ⬆」。メインは ⚡ ⚡ ➡ ➡ ⚡ 食べる',
         speak:'わざの なかにも くりかえしを いれられるよ。みぎに ふたつ すすんで うえへ を わざに しよう！' },
@@ -804,11 +841,12 @@ const ISLANDS = [
         hint:'⟳5回の 中に「➡ ⬇ ❓すきなの」を 入れよう',
         speak:'いわの かいだんを おりながら、すきなのだけ たべよう！' },
       { id:'5-2', name:'岩の 上の ごちそう', creature:'yamori', cards:B_ALL, func:true,
-        grid:{w:10,h:4}, start:{x:0,y:2},
-        foods:[{x:1,y:1,emoji:'🦟',name:'エサ'},{x:4,y:1,emoji:'🦟',name:'エサ'},{x:8,y:1,emoji:'🦟',name:'エサ'}],
-        rocks:[{x:1,y:2},{x:4,y:2},{x:8,y:2}], par:12, maxCards:15,
+        grid:{w:13,h:3}, start:{x:0,y:2},
+        foods:[{x:1,y:1,emoji:'🦟',name:'エサ'},{x:5,y:1,emoji:'🦟',name:'エサ'},{x:10,y:1,emoji:'🦟',name:'エサ'}],
+        rocks:[{x:1,y:2},{x:5,y:2},{x:10,y:2},{x:3,y:1},{x:7,y:1},{x:8,y:1},{x:12,y:1}],
+        holes:Array.from({length:13},(_,x)=>({x,y:0})), par:14, maxCards:17,
         goal:'岩の 上に エサが ある！ 岩を のりこえる ときに ❓で しらべる ⚡わざを 作ろう。',
-        hint:'⚡わざ＝「⬆ ➡ ❓すきなの ➡ ⬇」。メインは ⚡ ➡ ⚡ ➡ ➡ ⚡',
+        hint:'⚡わざ＝「⬆ ➡ ❓すきなの ➡ ⬇」。メインは ⚡ ➡ ➡ ⚡ ➡ ➡ ➡ ⚡',
         speak:'いわの うえに えさが ある！ いわを のりこえる ときに しらべる わざを つくろう。' },
       { id:'5-3', name:'4つの はこ', creature:'zarigani', cards:B_LOOP_LIKE,
         grid:{w:6,h:5}, start:{x:0,y:4},
@@ -836,12 +874,13 @@ const ISLANDS = [
         hint:'⚡わざ＝「➡ ❓すきなの」。メインは ⟳3回[⚡] ⬆ ⟳3回[⚡] ⬆ ⟳2回[⚡]',
         speak:'たけの はやしを さんだん のぼるよ。わざを くりかえして、すきなのだけ たべよう！' },
       { id:'5-6', name:'さいごの さんぽ道', creature:'neko', cards:B_ALL, func:true,
-        grid:{w:10,h:4}, start:{x:0,y:2},
-        foods:[{x:1,y:1,emoji:'🐟',name:'さかな'},{x:7,y:1,emoji:'🐟',name:'さかな'},{x:9,y:2,emoji:'🐟',name:'さかな'},
-               {x:4,y:1,emoji:'🍄',name:'きのこ',bad:true}],
-        rocks:[{x:1,y:2},{x:4,y:2},{x:7,y:2}], par:9, maxCards:11,
+        grid:{w:13,h:3}, start:{x:0,y:2},
+        foods:[{x:1,y:1,emoji:'🐟',name:'さかな'},{x:9,y:1,emoji:'🐟',name:'さかな'},{x:12,y:2,emoji:'🐟',name:'さかな'},
+               {x:5,y:1,emoji:'🍄',name:'きのこ',bad:true}],
+        rocks:[{x:1,y:2},{x:5,y:2},{x:9,y:2},{x:3,y:1},{x:7,y:1},{x:11,y:1},{x:12,y:1}],
+        holes:Array.from({length:13},(_,x)=>({x,y:0})), par:10, maxCards:12,
         goal:'さいごの ちょうせん！ 岩の 上の エサを 食べながら すすもう。きのこは 食べないでね。',
-        hint:'⟳3回の 中に「⬆ ➡ ❓すきなの ➡ ⬇ ➡」。さいごに 食べる',
+        hint:'⟳3回の 中に「⬆ ➡ ❓すきなの ➡ ⬇ ➡ ➡」。さいごに 食べる',
         speak:'さいごの ちょうせん！ いわの うえの えさを たべながら すすもう。きのこは たべないでね。' },
     ]
   },
@@ -1158,14 +1197,28 @@ function renderZukan() {
 ===================================================================== */
 let G = null;
 
-function startLevel(level) {
-  G = { level, main:[], func:[], root:'main', path:[], state:makeState(level),
-        running:false, failCount:0, free: level.id === 'free' };
+/* ヒント1だんめ＝しまごとの「考えるところ」（答えは まだ 言わない） */
+const ISLAND_HINT1 = [
+  'まず 生きものの 道を ゆびで なぞって みよう。岩や 池は どこ？',
+  '同じ うごきが 何回 つづく？ そこを はこに 入れよう',
+  'エサが ある マスと ない マスを くらべて みよう',
+  '同じ かたまりが 何回 出てくる？ それが ⚡わざだよ',
+  'くりかえし・もしも・わざ、どれが つかえそう？',
+];
+function hint1Text(lv) { return lv.hint1 || ISLAND_HINT1[lv.island] || ISLAND_HINT1[ISLAND_HINT1.length - 1]; }
+
+// keep が 真なら さっきの プログラムを のこす（「もう一回」で 作り直さなくて いいように）
+function startLevel(level, keep) {
+  const keptMain = (keep && G) ? G.main : [];
+  const keptFunc = (keep && G) ? G.func : [];
+  G = { level, main:keptMain, func:keptFunc, root:'main', path:[], sel:null, ins:null, state:makeState(level),
+        running:false, stopReq:false, failCount:0, hintStep:0, free: level.id === 'free' };
   $('lv-title').textContent = level.id === 'free'
     ? '🎨 じぶんの マップ'
     : `ステージ${level.index + 1}：${level.name}`;
   $('goal-text').textContent = level.goal;
-  $('btn-hint').classList.remove('show');
+  $('btn-hint').textContent = '💡ヒント';
+  $('btn-hint').style.display = level.id === 'free' ? 'none' : '';
   $('btn-back').textContent = level.id === 'free' ? '← なおす' : '← もどる';
   updateMuteBtn(); updateFastBtn();
   buildPalette();
@@ -1220,6 +1273,10 @@ function resolveTarget() {
   return arr;
 }
 function totalCards() { return countNodes(G.main) + countNodes(G.func); }
+// G.ins ＝ いま えらんでいる 入れ先の 中の「この ばんごうの 前に 入れる」。null なら いちばん うしろ。
+function insAt(arr) {
+  return (typeof G.ins === 'number') ? Math.max(0, Math.min(G.ins, arr.length)) : arr.length;
+}
 function addNode(node) {
   if (G.running) return;
   const limit = G.level.maxCards || 40;
@@ -1230,23 +1287,36 @@ function addNode(node) {
   }
   SFX.tap();
   const arr = resolveTarget();
-  arr.push(node);
+  const hasIns = typeof G.ins === 'number' && G.ins >= 0 && G.ins <= arr.length;
+  const at = hasIns ? G.ins : arr.length;
+  arr.splice(at, 0, node);
+  G.sel = null;                                   // 入れたら えらびは 外す（ばんごうが ずれるため）
   // ⟳の はこだけ 自動で ひらく（❓は ワンセットなので ひらかない）
-  if (node.body && node.t !== 'if') G.path = G.path.concat([arr.length - 1]);
+  if (node.body && node.t !== 'if') { G.path = G.path.concat([at]); G.ins = null; }
+  else G.ins = hasIns ? at + 1 : null;            // つづけて タップすると じゅんばんに ならぶ
   renderEditors();
 }
 function undoNode() {
   if (G.running) return;
   const arr = resolveTarget();
   if (arr.length === 0) { if (G.path.length) closeBox(); return; }
-  SFX.tap();
-  arr.pop();
+  G.sel = null;
+  if (typeof G.ins === 'number') {
+    const at = insAt(arr);
+    if (at === 0) { SFX.fail(); showBubble('ここより 前に カードは ないよ'); return; }
+    SFX.tap();
+    arr.splice(at - 1, 1);                        // 光っている ばしょの 前の 1まいを けす
+    G.ins = at - 1;
+  } else {
+    SFX.tap();
+    arr.pop();
+  }
   renderEditors();
 }
 function clearAll() {
   if (G.running) return;
   SFX.tap();
-  const doClear = () => { G.main = []; G.func = []; G.path = []; G.root = 'main'; renderEditors(); };
+  const doClear = () => { G.main = []; G.func = []; G.path = []; G.root = 'main'; G.sel = null; G.ins = null; renderEditors(); };
   // 3まい いじょう ならべて いたら、まちがえて おした ときの ために たしかめる
   if (totalCards() >= 3) { openModal('ぜんぶ けす？', [{ label:'けす', value:true }], doClear); return; }
   doClear();
@@ -1254,7 +1324,36 @@ function clearAll() {
 function closeBox() {
   if (G.running || !G.path.length) return;
   SFX.tap();
+  const idx = G.path[G.path.length - 1];
   G.path = G.path.slice(0, -1);
+  G.ins = idx + 1;                                // とじた はこの すぐ うしろから つづけられる
+  G.sel = null;
+  renderEditors();
+}
+/* --- カードを えらぶ（タップしても けさない。けすのは そうさバーの「けす」） --- */
+function nodeAt(root, path) {
+  if (!path || !path.length) return null;
+  let arr = rootList(root);
+  for (let i = 0; i < path.length - 1; i++) {
+    const nd = arr[path[i]];
+    if (!nd || !nd.body) return null;
+    arr = nd.body;
+  }
+  return arr[path[path.length - 1]] || null;
+}
+function selectNode(root, path) {
+  if (G.running) return;
+  SFX.tap();
+  if (G.sel && G.sel.root === root && samePath(G.sel.path, path)) { G.sel = null; renderEditors(); return; }
+  G.sel = { root, path: path.slice() };
+  G.root = root;
+  G.path = path.slice(0, -1);                     // えらんだ カードが 入って いる ところ
+  G.ins = path[path.length - 1] + 1;              // その カードの すぐ うしろに 入る
+  renderEditors();
+}
+function clearSel() {
+  if (!G) return;
+  G.sel = null;
   renderEditors();
 }
 function samePath(a, b) { return a.length === b.length && a.every((v, i) => v === b[i]); }
@@ -1269,15 +1368,63 @@ function renderEditors() {
   if (cb) cb.classList.toggle('show', G.path.length > 0);
   const call = $('btn-call');
   if (call) call.disabled = (G.root === 'func');
+  renderSelbar();
   renderMeter();
   // カードが ふえて 下に かくれたとき、入れる ばしょが 見えるように する
   const caret = document.querySelector('#editors .caret');
   if (caret) caret.scrollIntoView({ block:'nearest', inline:'nearest' });
 }
+/* えらんだ ときの そうさバー（何も えらんで いない ときも 高さは 残す） */
+function renderSelbar() {
+  const bar = $('selbar');
+  if (!bar) return;
+  const node = (G && G.sel) ? nodeAt(G.sel.root, G.sel.path) : null;
+  if (G && G.sel && !node) G.sel = null;          // けした あとの 古い えらび は すてる
+  const isLoop = !!node && node.t === 'loop';
+  bar.classList.toggle('show', !!node);
+  $('sel-msg').innerHTML = !node ? ''
+    : (isLoop ? 'はこを えらんだよ' : 'ここに 入るよ<span class="long"> ▸ パレットの カードを タップ</span>');
+  $('btn-sel-del').disabled = !node;
+  $('btn-sel-into').disabled = !isLoop;
+  $('btn-sel-count').disabled = !isLoop;
+  $('btn-sel-none').disabled = !node;
+}
+$('btn-sel-del').addEventListener('click', () => {
+  if (!G || G.running || !G.sel) return;
+  const s = G.sel;
+  SFX.tap();
+  G.sel = null;
+  removeAt(s.root, s.path);                       // けした ばしょに 光る しるしが 残る
+});
+$('btn-sel-into').addEventListener('click', () => {
+  if (!G || G.running || !G.sel) return;
+  const node = nodeAt(G.sel.root, G.sel.path);
+  if (!node || node.t !== 'loop') return;
+  SFX.tap();
+  G.root = G.sel.root;
+  G.path = G.sel.path.slice();
+  G.ins = null;                                   // はこの 中の いちばん うしろ
+  G.sel = null;
+  renderEditors();
+});
+$('btn-sel-count').addEventListener('click', () => {
+  if (!G || G.running || !G.sel) return;
+  const node = nodeAt(G.sel.root, G.sel.path);
+  if (!node || node.t !== 'loop') return;
+  SFX.tap();
+  askLoopCount(n => { node.n = n; renderEditors(); });
+});
+$('btn-sel-none').addEventListener('click', () => {
+  if (!G || G.running || !G.sel) return;
+  SFX.tap();
+  clearSel();
+});
+
 /* カードメーター（表示ロジックは純関数にして selftestで検証する） */
 function meterInfo(level, n) {
   const par = level.par, max = level.maxCards || 0;
-  const goal = level.island === 0 ? 'いちばん 近い道' : 'いちばん みじかい プログラム';
+  // 「いちばん みじかい」とは かぎらないので めあて として つたえる
+  const goal = level.island === 0 ? 'めあて（近い道）' : 'めあて';
   let state, msg;
   if (n === 0)        { state = 'start'; msg = `カードを ${par}まいで クリアできるかな？`; }
   else if (n < par)   { state = 'under'; msg = `🏅まで あと ${par - n}まい つかえるよ`; }
@@ -1322,11 +1469,17 @@ function makeRow(root, label, list) {
             : (root === 'main' ? '' : '<span>ここに 書いた うごきが ⚡カードに なるよ</span>'));
   head.addEventListener('click', () => {
     if (G.running || G.root === root) return;
-    SFX.tap(); G.root = root; G.path = []; renderEditors();
+    SFX.tap(); G.root = root; G.path = []; G.ins = null; G.sel = null; renderEditors();
   });
   row.appendChild(head);
   const body = document.createElement('div');
   body.className = 'prow-row';
+  // 行の 空いて いる ところを タップ＝この 行の いちばん うしろへ
+  body.addEventListener('click', e => {
+    if (G.running) return;
+    if (e.target !== body && !e.target.classList.contains('empty-hint')) return;
+    SFX.tap(); G.root = root; G.path = []; G.ins = null; G.sel = null; renderEditors();
+  });
   renderList(list, body, root, []);
   if (list.length === 0 && !(G.root === root && G.path.length === 0)) {
     const h = document.createElement('span');
@@ -1337,16 +1490,20 @@ function makeRow(root, label, list) {
   row.appendChild(body);
   return row;
 }
+function caretEl() {
+  const c = document.createElement('div');
+  c.className = 'caret';
+  return c;
+}
 function renderList(list, el, root, basePath) {
+  const target = root === G.root && samePath(basePath, G.path);
+  // カーソルは ins の ばんごうの「前」。ins が null なら いちばん うしろ。
+  const at = target ? ((typeof G.ins === 'number') ? Math.max(0, Math.min(G.ins, list.length)) : list.length) : -1;
   list.forEach((node, i) => {
-    const path = basePath.concat([i]);
-    el.appendChild(nodeEl(node, root, path));
+    if (i === at) el.appendChild(caretEl());
+    el.appendChild(nodeEl(node, root, basePath.concat([i])));
   });
-  if (root === G.root && samePath(basePath, G.path)) {
-    const c = document.createElement('div');
-    c.className = 'caret';
-    el.appendChild(c);
-  }
+  if (target && at >= list.length) el.appendChild(caretEl());
 }
 function nodeEl(node, root, path) {
   if (node.t === 'cmd' || node.t === 'call') {
@@ -1354,11 +1511,11 @@ function nodeEl(node, root, path) {
     d.className = 'pcard ' + (node.t === 'call' ? 'call' : (node.c === 'E' ? 'eat' : 'move'));
     d.dataset.nid = node.id;
     d.innerHTML = node.t === 'call' ? '⚡<br>わざ' : (node.c === 'E' ? '😋<br>食べる' : CMD_LABEL[node.c]);
+    if (G.sel && G.sel.root === root && samePath(G.sel.path, path)) d.classList.add('sel');
+    // タップ＝えらぶ（けさない）。けすのは そうさバーの「けす」
     d.addEventListener('click', e => {
       e.stopPropagation();
-      if (G.running) return;
-      SFX.tap();
-      removeAt(root, path);
+      selectNode(root, path);
     });
     return d;
   }
@@ -1369,17 +1526,17 @@ function nodeEl(node, root, path) {
   box.dataset.nid = node.id;
   if (root === G.root && pathStartsWith(G.path, path)) box.classList.add('open');
   if (root === G.root && samePath(path, G.path)) box.classList.add('cursor');   // いちばん 内がわの ひらいた はこ
+  if (G.sel && G.sel.root === root && samePath(G.sel.path, path)) box.classList.add('sel');
   const head = document.createElement('div');
   head.className = 'pbox-head';
+  // ヘッダを タップ＝この はこを えらぶ（中へ 入る／回数を かえる／けす は そうさバーから）
+  head.addEventListener('click', e => {
+    e.stopPropagation();
+    selectNode(root, path);
+  });
   const lab = document.createElement('span');
   lab.className = 'hlabel';
   lab.textContent = isLoop ? `⟳ ${node.n}回` : `❓ ${CONDS[node.cond].short}`;
-  if (isLoop) lab.addEventListener('click', e => {
-    e.stopPropagation();
-    if (G.running) return;
-    if (pathStartsWith(G.path, path) && G.root === root) { askLoopCount(n => { node.n = n; renderEditors(); }); return; }
-    SFX.tap(); G.root = root; G.path = path.slice(); renderEditors();
-  });
   head.appendChild(lab);
   const iter = document.createElement('span');
   iter.className = 'iter'; iter.style.display = 'none';
@@ -1394,7 +1551,7 @@ function nodeEl(node, root, path) {
   renderList(node.body, body, root, path);
   if (isLoop) body.addEventListener('click', e => {
     if (e.target !== body || G.running) return;
-    SFX.tap(); G.root = root; G.path = path.slice(); renderEditors();
+    SFX.tap(); G.root = root; G.path = path.slice(); G.ins = null; G.sel = null; renderEditors();
   });
   box.appendChild(body);
   return box;
@@ -1407,9 +1564,19 @@ function pathStartsWith(p, prefix) {
 function removeAt(root, path) {
   let arr = rootList(root);
   for (let i = 0; i < path.length - 1; i++) arr = arr[path[i]].body;
-  arr.splice(path[path.length - 1], 1);
-  // けした はこの 中に カーソルが あったら 外に 出す
-  if (root === G.root && pathStartsWith(G.path, path)) G.path = path.slice(0, -1);
+  const idx = path[path.length - 1];
+  arr.splice(idx, 1);
+  G.sel = null;                                   // ばんごうが ずれるので えらびは 外す
+  const d = path.length - 1;
+  if (root === G.root && pathStartsWith(G.path, path)) {
+    G.path = path.slice(0, -1);                   // けした はこの 中に カーソルが あったら 外に 出す
+  } else if (root === G.root && G.path.length > d &&
+             samePath(G.path.slice(0, d), path.slice(0, d)) && G.path[d] > idx) {
+    // 同じ ならびの 前を けすと、ひらいて いる はこの ばんごうが 1つ ずれる
+    G.path = G.path.slice(); G.path[d] -= 1;
+  }
+  // けした ばしょに カーソルを 残す（すぐ 入れなおせる ように）
+  if (root === G.root && samePath(G.path, path.slice(0, -1))) G.ins = Math.max(0, Math.min(idx, arr.length));
   renderEditors();
 }
 
@@ -1512,24 +1679,47 @@ function clearMarks() {
   document.querySelectorAll('.exec').forEach(e => e.classList.remove('exec'));
   document.querySelectorAll('.iter').forEach(e => { e.style.display = 'none'; e.textContent = ''; });
 }
+// ▶ボタンは 実行中 ■とめる に なる（ばしょ・大きさは そのまま）
+function setRunBtn(running) {
+  const b = $('btn-run');
+  if (b) b.innerHTML = running ? '■ とめる' : '▶ さぁ行こう！';
+}
+function resetStage() {
+  G.state = makeState(G.level);
+  placeActor(G.level.start.x, G.level.start.y, true);
+  G.level.foods.forEach((f, i) => { const e = $('food-' + i); if (e) e.style.opacity = '1'; });
+}
+function endRun() {
+  G.running = false;
+  G.stopReq = false;
+  document.body.classList.remove('running');
+  setRunBtn(false);
+}
 async function runProgram() {
-  if (!G || G.running) return;
+  if (!G) return;
+  if (G.running) { SFX.tap(); G.stopReq = true; return; }   // 2回目の タップ＝とめる
   if (G.main.length === 0) { showBubble('カードを ならべてね'); SFX.fail(); return; }
   if (usesCall(G.main) && G.func.length === 0) {
     showBubble('⚡わざの 中が からっぽだよ！', 2600); SFX.fail(); return;
   }
   G.running = true;
+  G.stopReq = false;
+  G.sel = null; G.ins = null;                     // うごかす ときは えらびを 外して おく
+  renderEditors();                                // そうさバーも いっしょに しまう
   document.body.classList.add('running');
+  setRunBtn(true);
   G.state = makeState(G.level);
   renderStage();
   clearMarks();
-  await sleep(350);
+  // 待ち時間は まいかい 速さ設定を 見る（とちゅうで 🐇を おしても すぐ きく）
+  const sl = ms => sleep(ms * (SAVE.settings.fast ? 0.5 : 1));
+  await sl(350);
 
-  const sp = SAVE.settings.fast ? 0.5 : 1;
   let failed = false, failMsg = '';
   let used = 0;
 
   for (const ev of execProgram(G.main, G.state, G.level, G.func)) {
+    if (G.stopReq) break;
     if (ev.kind === 'error') {
       failed = true;
       failMsg = ev.reason === 'toodeep' ? 'はこの 中の はこが 多すぎるよ' : 'ながく なりすぎたよ！ もっと みじかく してみよう';
@@ -1544,7 +1734,8 @@ async function runProgram() {
         if (it) { it.style.display = ''; it.textContent = `${ev.i+1}／${ev.node.n}`; }
       }
       SFX.loop();
-      await sleep(180 * sp);
+      await sl(120);
+      if (G.stopReq) break;
       continue;
     }
     if (ev.kind === 'iterend') {
@@ -1556,30 +1747,33 @@ async function runProgram() {
       const el = elOf(ev.node);
       if (el) el.classList.add('exec');
       ev.hit ? SFX.yes() : SFX.no();
-      showBubble(ev.hit ? 'もしも → ○ あった！' : 'もしも → × なかった', 1100);
-      await sleep(430 * sp);
+      showBubble(ev.hit ? 'もしも → ○ あった！' : 'もしも → × なかった', 900);
+      await sl(280);
       if (el) el.classList.remove('exec');
+      if (G.stopReq) break;
       continue;
     }
     if (ev.kind === 'call') {
       const el = elOf(ev.node);
       if (el) { el.classList.add('exec'); setTimeout(() => el.classList.remove('exec'), 500); }
       SFX.loop();
-      await sleep(200 * sp);
+      await sl(120);
+      if (G.stopReq) break;
       continue;
     }
     // cmd
     const node = ev.node;
     const el = elOf(node);
     if (el) { el.classList.add('exec'); el.scrollIntoView({ block:'nearest', inline:'center', behavior:'smooth' }); }
-    await sleep(130 * sp);
+    await sl(80);
+    if (G.stopReq) { if (el) el.classList.remove('exec'); break; }
     used++;
     const r = applyCmd(G.state, node.c, G.level);
 
     if (r.type === 'move') {
       faceActor(node.c); SFX.step();
       placeActor(r.x, r.y);
-      await sleep(600 * sp);
+      await sl(450);
     } else if (r.type === 'blocked') {
       faceActor(node.c);
       const d = DIRS[node.c], a = $('actor');
@@ -1600,8 +1794,8 @@ async function runProgram() {
       const fe = $('food-' + fi);
       if (fe) { fe.style.transition = 'opacity .4s'; fe.style.opacity = '0'; }
       showBubble('ぱくっ！ ' + r.food.name + 'を 食べたよ！', 1500);
-      await sleep(620 * sp);
-      if (r.allEaten) { if (el) el.classList.remove('exec'); await sleep(250); onClear(used); return; }
+      await sl(620);
+      if (r.allEaten) { if (el) el.classList.remove('exec'); await sl(250); onClear(used); return; }
     } else if (r.type === 'eat-bad') {
       SFX.fail();
       showBubble('うえっ！ ' + r.food.name + 'は にがてだよ〜', 2600);
@@ -1611,9 +1805,17 @@ async function runProgram() {
       failed = true; failMsg = 'あれれ？ ここには 食べものが ないよ';
     }
     if (el) el.classList.remove('exec');
-    if (failed) break;
+    if (failed || G.stopReq) break;
   }
   clearMarks();
+
+  // ■とめる で 止めた ときは しっぱい あつかいに しない
+  if (G.stopReq) {
+    resetStage();
+    showBubble('とめたよ', 1600);
+    endRun();
+    return;
+  }
 
   if (!failed) {
     SFX.fail();
@@ -1623,21 +1825,34 @@ async function runProgram() {
   if (failMsg) showBubble(failMsg, 2800);
 
   G.failCount++;
-  if (G.failCount >= 3 && G.level.hint) $('btn-hint').classList.add('show');
   await sleep(1500);
-  G.state = makeState(G.level);
-  placeActor(G.level.start.x, G.level.start.y, true);
-  G.level.foods.forEach((f, i) => { const e = $('food-' + i); if (e) e.style.opacity = '1'; });
+  resetStage();
   showBubble('もう一回 考えてみよう！', 1800);
-  G.running = false;
-  document.body.classList.remove('running');
+  endRun();
 }
+
+/* 「くわしく」の 中みを セットする（からっぽなら ボタンごと 出さない） */
+function setMore(html) {
+  const box = $('overlay-more'), btn = $('btn-more');
+  box.innerHTML = html || '';
+  box.classList.remove('show');
+  btn.textContent = 'くわしく';
+  btn.classList.toggle('show', !!html);
+}
+$('btn-more').addEventListener('click', () => {
+  SFX.tap();
+  const box = $('overlay-more');
+  const open = box.classList.toggle('show');
+  $('btn-more').textContent = open ? 'とじる' : 'くわしく';
+});
 
 function onClear(usedSteps) {
   SFX.clear();
   clearMarks();
   G.running = false;
+  G.stopReq = false;
   document.body.classList.remove('running');
+  setRunBtn(false);
   const lv = G.level;
   const cards = totalCards();
 
@@ -1646,6 +1861,7 @@ function onClear(usedSteps) {
     $('overlay-creature').innerHTML = creatureSVG(lv.creature, 86);
     $('overlay-badges').textContent = '⭐';
     $('overlay-msg').innerHTML = `じぶんで 作った マップを クリア！<br>カード${cards}まい・${usedSteps}歩 だったよ。`;
+    setMore('');
     $('btn-next').style.display = 'none';
     $('btn-map2').textContent = 'マップを なおす';
     $('overlay-fact').classList.remove('show');
@@ -1667,10 +1883,9 @@ function onClear(usedSteps) {
   $('overlay-title').textContent = '🎉 やったー！';
   $('overlay-creature').innerHTML = creatureSVG(lv.creature, 86);
   $('overlay-badges').textContent = '⭐' + (perfect ? ' 🏅' : '');
-  let msg = `カード${cards}まいで ${usedSteps}歩 うごいて クリア！`;
-  if (usedSteps > cards) msg += `<br>カードは たった${cards}まいなのに ${usedSteps}歩！ まとめると つよいね！`;
-  if (perfect) msg += '<br>🏅 ぴったりしょう！ すごい！';
-  else msg += `<br>カード${lv.par}まいまでで クリアすると 🏅が もらえるよ`;
+  // まず 見せるのは よろこびだけ。数の 話は 「くわしく」に まとめる
+  let msg = `カード${cards}まい・${usedSteps}歩で クリア！`;
+  if (perfect) msg += '<br>🏅 ぴったりしょう！';
   if (newZukan) msg += `<br><b>📖 ずかんに「${CREATURES[lv.creature].name}」が なかま入り！</b>`;
   if (lv.clearMsg) msg += `<br>${lv.clearMsg}`;
   const is = ISLANDS[lv.island];
@@ -1681,6 +1896,10 @@ function onClear(usedSteps) {
     if (next) msg += `<br>つぎは <b>${next.icon} ${next.name}</b>だ！`;
   }
   $('overlay-msg').innerHTML = msg;
+  let more = '';
+  if (usedSteps > cards) more += `カードは たった${cards}まいなのに ${usedSteps}歩！ まとめると つよいね！`;
+  if (!perfect) more += (more ? '<br>' : '') + `🏅の めあては カード${lv.par}まい`;
+  setMore(more);
   showWowFact(lv.creature);
   $('btn-next').style.display = last ? 'none' : '';
   $('overlay').classList.add('show');
@@ -1705,7 +1924,15 @@ $('btn-back').addEventListener('click', () => {
   renderMap(G ? G.level.island : 0); showScreen('map');
 });
 $('btn-speak').addEventListener('click', () => { SFX.tap(); speak(G.level.speak || G.level.goal); });
-$('btn-hint').addEventListener('click', () => { SFX.tap(); showBubble('💡 ' + G.level.hint, 6000); speak(G.level.hint); });
+$('btn-hint').addEventListener('click', () => {
+  SFX.tap();
+  G.hintStep = (G.hintStep || 0) + 1;
+  // 1回目＝考えるところ、2回目から＝答えに 近い ヒント
+  const t = G.hintStep === 1 ? hint1Text(G.level) : (G.level.hint || hint1Text(G.level));
+  if (G.hintStep === 1) $('btn-hint').textContent = '💡 もっと ヒント';
+  showBubble('💡 ' + t, 6000);
+  speak(t);
+});
 $('btn-mute').addEventListener('click', () => {
   SAVE.settings.mute = !SAVE.settings.mute; persist(); updateMuteBtn();
   if (SAVE.settings.mute) speechSynthesis.cancel();
@@ -1716,7 +1943,7 @@ function updateFastBtn() { $('btn-fast').textContent = SAVE.settings.fast ? '�
 
 $('btn-retry').addEventListener('click', () => {
   SFX.tap(); $('overlay').classList.remove('show');
-  if (G.free) { startLevel(G.level); } else { startLevel(G.level); }
+  startLevel(G.level, true);   // ならべた カードは のこす
 });
 $('btn-map2').addEventListener('click', () => {
   SFX.tap(); $('overlay').classList.remove('show');
@@ -1951,7 +2178,7 @@ const SOLUTIONS = {
   '2-2': () => ({ main:[LP(7, P('R'))].concat(P('E')) }),
   '2-3': () => ({ main:[LP(4, P('RU'))].concat(P('E')) }),
   '2-4': () => ({ main:[LP(4, P('RRE'))] }),
-  '2-5': () => ({ main:P('R').concat([LP(3, P('URRD'))]).concat(P('E')) }),
+  '2-5': () => ({ main:[LP(2, P('RURRDR'))].concat(P('E')) }),
   '3-1': () => ({ main:[LP(7, P('R').concat([IF('food', P('E'))]))] }),
   '3-2': () => ({ main:[LP(7, P('R').concat([IF('food', P('E'))]))] }),
   '3-3': () => ({ main:[LP(7, P('R').concat([IF('like', P('E'))]))] }),
@@ -1959,8 +2186,8 @@ const SOLUTIONS = {
   '3-5': () => ({ main:[LP(3, P('R').concat([IF('like', P('E'))])),
                         LP(2, P('U').concat([IF('like', P('E'))])),
                         LP(3, P('R').concat([IF('like', P('E'))]))] }),
-  '4-1': () => ({ func:P('URRD'), main:[callNode()].concat(P('R'), [callNode()], P('R'), [callNode()], P('RE')) }),
-  '4-2': () => ({ func:P('URRD'), main:[callNode()].concat(P('R'), [callNode()], P('RR'), [callNode()], P('RE')) }),
+  '4-1': () => ({ func:P('URRD'), main:[callNode()].concat(P('RR'), [callNode()], P('RRE')) }),
+  '4-2': () => ({ func:P('URRD'), main:[callNode()].concat(P('RR'), [callNode()], P('RRR'), [callNode()], P('RE')) }),
   '4-3': () => ({ func:[LP(2, P('R'))].concat(P('U')),
                   main:[callNode(), callNode()].concat(P('RR'), [callNode()], P('E')) }),
   '4-4': () => ({ func:P('R').concat([IF('like', P('E'))]),
@@ -1969,7 +2196,7 @@ const SOLUTIONS = {
                   main:[LP(3, [callNode()])].concat(P('UU'), [LP(4, [callNode()])]) }),
   '5-1': () => ({ main:[LP(5, P('RD').concat([IF('like', P('E'))]))] }),
   '5-2': () => ({ func:P('UR').concat([IF('like', P('E'))], P('RD')),
-                  main:[callNode()].concat(P('R'), [callNode()], P('RR'), [callNode()]) }),
+                  main:[callNode()].concat(P('RR'), [callNode()], P('RRR'), [callNode()]) }),
   '5-3': () => ({ main:[LP(3, P('R').concat([IF('like', P('E'))])),
                         LP(2, P('U').concat([IF('like', P('E'))])),
                         LP(2, P('R').concat([IF('like', P('E'))])),
@@ -1978,7 +2205,7 @@ const SOLUTIONS = {
                   main:[callNode()].concat(P('R'), [callNode()], P('RR'), [callNode()], P('E')) }),
   '5-5': () => ({ func:P('R').concat([IF('like', P('E'))]),
                   main:[LP(3, [callNode()])].concat(P('U'), [LP(3, [callNode()])], P('U'), [LP(2, [callNode()])]) }),
-  '5-6': () => ({ main:[LP(3, P('UR').concat([IF('like', P('E'))], P('RDR')))].concat(P('E')) }),
+  '5-6': () => ({ main:[LP(3, P('UR').concat([IF('like', P('E'))], P('RDRR')))].concat(P('E')) }),
 };
 function runSelftest() {
   const out = [];
@@ -1993,6 +2220,43 @@ function runSelftest() {
     T(`${lv.id} 想定解の枚数(${n}) == par(${lv.par})`, n === lv.par);
     if (lv.maxCards) T(`${lv.id} par(${lv.par}) <= maxCards(${lv.maxCards})`, lv.par <= lv.maxCards);
   });
+
+  // --- 抜け道ハンター ---
+  // par より 少ない 枚数で クリアできる「かんたんな 形」が ないかを 総あたりで さがす。
+  //   形1: [pre] ⟳k[ 方向1〜2まい (+❓) ] [post] [食べる]
+  //   形2: ⟳k[d1] ⟳m[d2] [食べる]              （pre/post は ⬆⬇の どちらか 1まい）
+  (() => {
+    const DIR4 = ['U','D','L','R'];
+    ALL_LEVELS.forEach(lv => {
+      if (!lv.cards.includes('LOOP')) return;     // ⟳が 無い しまは この形を そもそも 作れない
+      const dirs = DIR4.filter(d => lv.cards.includes(d));
+      const conds = [null].concat(lv.cards.includes('IF_like') ? ['like'] : [],
+                                  lv.cards.includes('IF_food') ? ['food'] : []);
+      const bodies = [];
+      dirs.forEach(a => bodies.push([a]));
+      dirs.forEach(a => dirs.forEach(b => bodies.push([a, b])));
+      const kMax = Math.min(12, Math.max(lv.grid.w, lv.grid.h) + 2);
+      const ends = [null].concat(dirs.filter(d => d === 'U' || d === 'D'));
+      let found = 0;
+      const check = prog => {
+        if (found) return;
+        const n = countNodes(prog);
+        if (n >= lv.par) return;
+        if (simulate(lv, prog, []).result === 'clear') found = n;
+      };
+      for (const pre of ends) for (const post of ends) for (const addE of [false, true])
+        for (const body of bodies) for (const cond of conds) for (let k = 1; k <= kMax; k++) {
+          check((pre ? P(pre) : []).concat(
+            [LP(k, body.map(cmdNode).concat(cond ? [ifUnit(cond)] : []))],
+            post ? P(post) : [], addE ? P('E') : []));
+        }
+      for (const d1 of dirs) for (const d2 of dirs) for (const addE of [false, true])
+        for (let k = 1; k <= kMax; k++) for (let m = 1; m <= kMax; m++) {
+          check([LP(k, P(d1)), LP(m, P(d2))].concat(addE ? P('E') : []));
+        }
+      T(`抜け道なし: ${lv.id}` + (found ? `（見つかった: ${found}まい・par${lv.par}）` : ''), !found);
+    });
+  })();
 
   // --- レベル定義の整合性 ---
   T('全レベル スタートが通行可', ALL_LEVELS.every(lv => !isBlocked(lv, lv.start.x, lv.start.y)));
@@ -2102,7 +2366,7 @@ function runSelftest() {
   })());
   T('わざ＋ループの合わせ技（4-1別解）も クリア', (() => {
     const lv = L('4-1');
-    const sol = { func:P('URRD'), main:[LP(3, [callNode()].concat(P('R')))].concat(P('E')) };
+    const sol = { func:P('URRD'), main:[LP(2, [callNode()].concat(P('RR')))].concat(P('E')) };
     const r = simulate(lv, sol.main, sol.func);
     return r.result === 'clear' && countNodes(sol.main) + countNodes(sol.func) <= lv.par;
   })());
@@ -2121,7 +2385,7 @@ function runSelftest() {
   T('食べものに ゆれアニメの クラスが ある', stageMarkup(L('1-1'), true).includes('food-emoji'));
   T('はこを ひらくと 外が うすく なる（dim/cursor）', (() => {
     const bak = G;
-    G = { level:L('2-2'), main:[LP(3, [])], func:[], root:'main', path:[0], running:false, free:false };
+    G = { level:L('2-2'), main:[LP(3, [])], func:[], root:'main', path:[0], sel:null, ins:null, running:false, free:false };
     renderEditors();
     const ok = !!document.querySelector('#editors .prow.dim') && !!document.querySelector('#editors .pbox.cursor');
     G = bak; $('editors').innerHTML = ''; $('meter').classList.add('hide');
@@ -2130,7 +2394,7 @@ function runSelftest() {
   })());
   T('はこを とじると dimが 外れる', (() => {
     const bak = G;
-    G = { level:L('2-2'), main:[LP(3, [])], func:[], root:'main', path:[], running:false, free:false };
+    G = { level:L('2-2'), main:[LP(3, [])], func:[], root:'main', path:[], sel:null, ins:null, running:false, free:false };
     renderEditors();
     const ok = !document.querySelector('#editors .prow.dim') && !document.querySelector('#editors .pbox.cursor');
     G = bak; $('editors').innerHTML = ''; $('meter').classList.add('hide');
@@ -2144,7 +2408,7 @@ function runSelftest() {
   })());
   T('❓を たしても はこは ひらかない（⟳→❓→➡ でも ➡は ⟳の 中）', (() => {
     const bak = G;
-    G = { level:L('3-1'), main:[], func:[], root:'main', path:[], running:false, free:false, failCount:0 };
+    G = { level:L('3-1'), main:[], func:[], root:'main', path:[], sel:null, ins:null, running:false, free:false, failCount:0 };
     addNode(loopNode(7));
     addNode(ifUnit('food'));
     addNode(cmdNode('R'));
@@ -2158,7 +2422,7 @@ function runSelftest() {
   })());
   T('⟳→➡→❓ の じゅんで 3-1が par枚数で クリアできる', (() => {
     const bak = G;
-    G = { level:L('3-1'), main:[], func:[], root:'main', path:[], running:false, free:false, failCount:0 };
+    G = { level:L('3-1'), main:[], func:[], root:'main', path:[], sel:null, ins:null, running:false, free:false, failCount:0 };
     addNode(loopNode(7)); addNode(cmdNode('R')); addNode(ifUnit('food'));
     const r = simulate(L('3-1'), G.main, []);
     const n = countNodes(G.main);
@@ -2197,7 +2461,8 @@ function runSelftest() {
     const texts = [];
     Object.values(CREATURES).forEach(c => texts.push(c.name, c.fact, c.wow));
     ISLANDS.forEach(is => texts.push(is.name, is.sub));
-    ALL_LEVELS.forEach(lv => texts.push(lv.name, lv.goal, lv.hint, lv.clearMsg || '', (lv.foods||[]).map(f=>f.name).join('')));
+    ALL_LEVELS.forEach(lv => texts.push(lv.name, lv.goal, lv.hint, lv.hint1 || '', lv.clearMsg || '', (lv.foods||[]).map(f=>f.name).join('')));
+    ISLAND_HINT1.forEach(t => texts.push(t));
     const bad = [];
     texts.forEach(t => Array.from(String(t)).forEach(ch => {
       if (/[一-鿿]/.test(ch) && !ok.has(ch) && bad.indexOf(ch) < 0) bad.push(ch);
@@ -2206,10 +2471,12 @@ function runSelftest() {
   })();
 
   // --- カードメーターの 表示ロジック ---
-  T('メーター: しま1は「近い道」・しま2以降は「みじかい プログラム」',
-    meterInfo(L('1-1'), 0).goal === 'いちばん 近い道' &&
-    meterInfo(L('2-2'), 0).goal === 'いちばん みじかい プログラム' &&
-    meterInfo(L('4-5'), 0).goal === 'いちばん みじかい プログラム');
+  T('メーター: しま1は「めあて（近い道）」・しま2以降は「めあて」',
+    meterInfo(L('1-1'), 0).goal === 'めあて（近い道）' &&
+    meterInfo(L('2-2'), 0).goal === 'めあて' &&
+    meterInfo(L('4-5'), 0).goal === 'めあて');
+  T('メーター: 「いちばん」と 言い切らない',
+    ALL_LEVELS.every(lv => meterInfo(lv, 0).goal.indexOf('いちばん') < 0));
   T('メーター: par未満は のこり枚数', meterInfo(L('2-2'), 1).msg.includes('あと 2まい'));
   T('メーター: parちょうどは par状態', meterInfo(L('2-2'), 3).state === 'par');
   T('メーター: par超過でも クリアできると 伝える',
@@ -2220,6 +2487,159 @@ function runSelftest() {
   T('メーター: 上限なしの面でも par分は 出る', meterInfo(L('1-1'), 0).slots === 4 && meterInfo(L('1-1'), 0).max === 0);
   T('メーター: 全レベルで メッセージが 出る', ALL_LEVELS.every(lv =>
     [0, 1, lv.par, lv.par + 1, lv.maxCards || lv.par + 2].every(n => !!meterInfo(lv, n).msg)));
+
+  // --- 2だんかいヒント ---
+  T('ヒント1だんめが 全レベルで 出る', ALL_LEVELS.every(lv => !!hint1Text(lv)));
+  T('ヒント1だんめは 2だんめ（答えに近い方）と 別の 文', ALL_LEVELS.every(lv => hint1Text(lv) !== lv.hint));
+  T('ヒント1だんめは しまごとに ちがう',
+    new Set(ALL_LEVELS.map(lv => hint1Text(lv))).size === 5);
+  T('レベルの hint1が あれば そちらが 勝つ', hint1Text({ island:0, hint1:'テスト' }) === 'テスト');
+
+  // --- クリア画面の「くわしく」 ---
+  T('くわしく: 中みが 無ければ ボタンを 出さない', (() => {
+    setMore('');
+    return !$('btn-more').classList.contains('show') && !$('overlay-more').classList.contains('show');
+  })());
+  T('くわしく: 中みが あれば ボタンが 出る（さいしょは とじたまま）', (() => {
+    setMore('やあ');
+    const ok = $('btn-more').classList.contains('show') && !$('overlay-more').classList.contains('show')
+               && $('btn-more').textContent === 'くわしく';
+    setMore('');
+    return ok;
+  })());
+
+  // --- 「もう一回」で プログラムが のこる ---
+  T('もう一回: keep=trueで カードが のこる／マップからは からっぽ', (() => {
+    const bak = G;
+    startLevel(L('1-1'));
+    addNode(cmdNode('R')); addNode(cmdNode('R'));
+    const before = totalCards();
+    startLevel(L('1-1'), true);
+    const kept = totalCards();
+    startLevel(L('1-1'));
+    const fresh = totalCards();
+    G = bak; $('editors').innerHTML = ''; $('meter').classList.add('hide');
+    const cb = $('btn-closebox'); if (cb) cb.classList.remove('show');
+    return before === 2 && kept === 2 && fresh === 0;
+  })());
+
+  // --- カードを えらんで「ここに 入れる／けす」（v2.7.0） ---
+  (() => {
+    const mkG = (over) => Object.assign({ level:L('2-2'), main:[], func:[], root:'main', path:[],
+                                          sel:null, ins:null, running:false, free:false, failCount:0 }, over || {});
+    const back = (bak) => {
+      G = bak; $('editors').innerHTML = ''; $('meter').classList.add('hide');
+      const cb = $('btn-closebox'); if (cb) cb.classList.remove('show');
+      $('selbar').classList.remove('show');
+    };
+    const chars = list => list.map(n => n.t === 'loop' ? '⟳' : (n.t === 'if' ? '❓' : n.c)).join('');
+
+    T('とちゅうの カードを えらぶと、次の カードは その すぐ うしろに 入る', (() => {
+      const bak = G;
+      G = mkG({ main:P('RRE') }); renderEditors();
+      selectNode('main', [0]);
+      const ins = G.ins;
+      addNode(cmdNode('U'));
+      const got = chars(G.main);
+      back(bak);
+      return ins === 1 && got === 'RURE';
+    })());
+
+    T('えらんで「けす」と けした ばしょに カーソルが 残る', (() => {
+      const bak = G;
+      G = mkG({ main:P('RUE') }); renderEditors();
+      selectNode('main', [1]);
+      $('btn-sel-del').click();
+      const mid = chars(G.main), ins = G.ins, sel = G.sel;
+      addNode(cmdNode('D'));
+      const got = chars(G.main);
+      back(bak);
+      return mid === 'RE' && ins === 1 && sel === null && got === 'RDE';
+    })());
+
+    T('⟳を えらんで「はこの 中へ」＝はこの 中の うしろに 入る', (() => {
+      const bak = G;
+      G = mkG({ main:[LP(3, P('R'))].concat(P('E')) }); renderEditors();
+      selectNode('main', [0]);
+      const into = !$('btn-sel-into').disabled && !$('btn-sel-count').disabled;
+      $('btn-sel-into').click();
+      const opened = samePath(G.path, [0]) && G.ins === null;
+      addNode(cmdNode('U'));
+      const inner = chars(G.main[0].body), outer = chars(G.main);
+      back(bak);
+      return into && opened && inner === 'RU' && outer === '⟳E';
+    })());
+
+    T('はこを とじると はこの すぐ うしろに つづけて 入る', (() => {
+      const bak = G;
+      G = mkG({ main:[LP(3, [])].concat(P('E')), path:[0] }); renderEditors();
+      closeBox();
+      const ins = G.ins;
+      addNode(cmdNode('R'));
+      const got = chars(G.main);
+      back(bak);
+      return ins === 1 && got === '⟳RE';
+    })());
+
+    T('「一つけす」は カーソルの 前の 1まいを けす', (() => {
+      const bak = G;
+      G = mkG({ main:P('RUE') }); renderEditors();
+      selectNode('main', [1]);              // ⇒ ins = 2（Uの うしろ）
+      G.sel = null;
+      undoNode();
+      const got = chars(G.main), ins = G.ins;
+      back(bak);
+      return got === 'RE' && ins === 1;
+    })());
+
+    T('えらぶと そうさバーが 出る／「やめる」で 消える', (() => {
+      const bak = G;
+      G = mkG({ main:P('RE') }); renderEditors();
+      const off0 = $('selbar').classList.contains('show');
+      selectNode('main', [0]);
+      const on = $('selbar').classList.contains('show') && $('sel-msg').textContent.length > 0
+                 && !$('btn-sel-del').disabled && $('btn-sel-into').disabled && $('btn-sel-count').disabled;
+      $('btn-sel-none').click();
+      const off1 = $('selbar').classList.contains('show');
+      back(bak);
+      return !off0 && on && !off1;
+    })());
+
+    T('カードを タップしても けさない（えらぶ だけ）', (() => {
+      const bak = G;
+      G = mkG({ main:P('RUE') }); renderEditors();
+      const card = document.querySelectorAll('#editors .prow-row > .pcard')[1];
+      if (card) card.click();
+      const got = chars(G.main);
+      const picked = !!G.sel && samePath(G.sel.path, [1]);
+      const hi = !!document.querySelector('#editors .pcard.sel');
+      back(bak);
+      return got === 'RUE' && picked && hi;
+    })());
+
+    T('はこを ひらいた まま 前の カードを けしても ひらきが ずれない', (() => {
+      const bak = G;
+      G = mkG({ main:[LP(2, []), LP(3, [])], path:[1] }); renderEditors();
+      removeAt('main', [0]);
+      const ok = samePath(G.path, [0]) && G.main.length === 1 && G.main[0].n === 3;
+      addNode(cmdNode('R'));
+      const inner = chars(G.main[0].body);
+      back(bak);
+      return ok && inner === 'R';
+    })());
+
+    T('startLevel で えらび／カーソルが もとに もどる', (() => {
+      const bak = G;
+      startLevel(L('1-1'));
+      addNode(cmdNode('R')); addNode(cmdNode('R'));
+      selectNode('main', [0]);
+      const picked = !!G.sel && G.ins === 1;
+      startLevel(L('1-1'));
+      const ok = picked && G.sel === null && G.ins === null;
+      back(bak);
+      return ok;
+    })());
+  })();
 
   // --- 枚数カウント ---
   T('countNodes: 平坦', countNodes(P('RRE')) === 3);
