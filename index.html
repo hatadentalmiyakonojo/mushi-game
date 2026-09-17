@@ -88,8 +88,12 @@
   #game-header { display:flex; align-items:center; gap:8px; padding: max(8px, env(safe-area-inset-top)) 12px 6px; }
   #game-header button { font-size:14px; padding:9px 12px; font-weight:bold; white-space:nowrap; }
   #lv-title { flex:1; text-align:center; font-size:clamp(15px,2.6vw,20px); font-weight:bold; color:#3f7a1f; }
-  #goal-bar { margin:0 12px; padding:7px 14px; background:#fff8e6; border:2px solid #f0d9a0; border-radius:12px; font-size:clamp(13px,2.2vw,16px); line-height:1.45; display:flex; align-items:center; gap:8px; }
+  #goal-bar { margin:0 12px; padding:7px 14px; background:#fff8e6; border:2px solid #f0d9a0; border-radius:12px; font-size:clamp(13px,2.2vw,16px); line-height:1.45; display:flex; align-items:center; gap:8px; flex-wrap:wrap; }
   #goal-bar .goal-text { flex:1; }
+  /* 生きものの とくいわざ（池を およげる など）を 目で わかるように */
+  #ability-tag { flex-shrink:0; font-size:clamp(11px,1.9vw,14px); font-weight:bold; color:#12648f;
+                 background:#dff0fb; border:2px solid #a8d8f5; border-radius:999px; padding:3px 11px; white-space:nowrap; }
+  #ability-tag:empty { display:none; }
   /* カードメーター：🏅が 何まいまでかを 目で 見て わかるように */
   #meter { margin:7px 12px 0; padding:5px 14px 7px; background:#fff; border-radius:12px; box-shadow:var(--shadow);
            display:flex; align-items:center; gap:12px; flex-wrap:wrap; font-size:clamp(12px,2vw,15px); font-weight:bold; }
@@ -144,6 +148,10 @@
   /* えらんだ カード／はこ（「ここに 入る」「ここを けす」が 目で わかるように） */
   .pcard.sel, .pbox.sel { outline:4px solid #ffb300; outline-offset:2px; }
   .pcard.sel { transform:scale(1.06); }
+  /* えらんだ ふつうの カードにも ✕。はこの ✕と 同じ 見た目＝「えらぶ→その場で けす」の 2タップで すむ */
+  .pcard .xbadge { position:absolute; top:-9px; right:-9px; width:24px; height:24px; border-radius:12px;
+                   background:rgba(255,255,255,.95); color:var(--ink); font-size:13px; line-height:24px;
+                   text-align:center; padding:0; box-shadow:0 1px 3px rgba(0,0,0,.28); z-index:3; }
 
   #stage-wrap { flex:1; display:flex; align-items:center; justify-content:center; padding:6px 12px; position:relative; min-height:0; }
   #stage { width:100%; height:100%; }
@@ -158,6 +166,8 @@
   #sel-msg { flex:0 1 auto; min-width:0; margin-right:auto; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; font-size:13px; font-weight:bold; color:#7a5f14; background:#fff6da; border-radius:9px; padding:5px 10px; }
   #sel-msg:empty { background:none; padding:0; }
   #selbar .util-btn { flex:0 0 auto; height:38px; font-size:13px; padding:0 10px; }
+  /* 「けす」だけ 赤系＝もどせない そうさだと 目で わかるように */
+  #selbar .danger-btn { background:#e0604a; color:#fff; }
 
   #palette { display:flex; align-items:center; gap:7px; padding:8px 12px calc(10px + env(safe-area-inset-bottom)); flex-wrap:wrap; justify-content:center; }
   .cmd-btn { width:clamp(50px,6.4vw,62px); height:clamp(50px,6.4vw,62px); font-size:26px; font-weight:bold; color:#fff; border-radius:14px; padding:0; line-height:1.1; }
@@ -173,14 +183,15 @@
   #btn-run { font-size:clamp(17px,2.7vw,22px); padding:0 22px; height:clamp(50px,6.4vw,62px); background:var(--accent); color:#fff; font-weight:bold; }
   .sep { width:5px; }
   body.running .cmd-btn, body.running .util-btn, body.running #btn-closebox,
-  body.running .pbox-head .xbtn { opacity:.45; pointer-events:none; }
+  body.running .pbox-head .xbtn, body.running .pcard .xbadge { opacity:.45; pointer-events:none; }
   /* 実行中は 同じ ばしょ・同じ 大きさの まま「■ とめる」に なる（おし まちがい ぼうし） */
   body.running #btn-run { background:#e0604a; }
 
   /* ===== オーバーレイ ===== */
   #overlay { position:fixed; inset:0; background:rgba(60,80,30,.45); display:none; align-items:center; justify-content:center; z-index:20; }
   #overlay.show { display:flex; }
-  #overlay-card { background:#fffef5; border-radius:24px; padding:26px 34px; text-align:center; max-width:min(90vw,470px); display:flex; flex-direction:column; gap:12px; align-items:center; animation:pop2 .35s; }
+  /* 高さの ひくい 画面（よこむきの iPhone など）でも「つぎへ ▶」まで とどくよう 中で スクロールさせる */
+  #overlay-card { background:#fffef5; border-radius:24px; padding:26px 34px; text-align:center; max-width:min(90vw,470px); max-height:90vh; overflow:auto; display:flex; flex-direction:column; gap:12px; align-items:center; animation:pop2 .35s; }
   @keyframes pop2 { 0%{transform:scale(.5); opacity:0} 100%{transform:scale(1); opacity:1} }
   #overlay-card h3 { font-size:clamp(24px,4.6vw,34px); color:var(--accent-dark); }
   #overlay-card svg { width:86px; height:auto; }
@@ -225,6 +236,8 @@
   .zk-card .zk-fact { font-size:clamp(11px,1.7vw,13px); line-height:1.5; color:#6a5f4a; text-align:center; }
   .zk-card .zk-wow { font-size:clamp(11px,1.7vw,13px); line-height:1.55; color:#8a6a2a; text-align:left;
                      background:#fff6d8; border-radius:10px; padding:7px 9px; width:100%; }
+  .zk-card .zk-ability { font-size:clamp(10px,1.6vw,12px); font-weight:bold; color:#12648f;
+                         background:#dff0fb; border:2px solid #a8d8f5; border-radius:999px; padding:1px 9px; }
   .zk-card.unknown svg { filter:brightness(0) opacity(.25); }
   .zk-card.unknown .zk-fact { color:#b0a888; }
 
@@ -242,6 +255,8 @@
   .fc-btn.sel { background:var(--accent); }
   #free-bottom button { font-size:13px; padding:9px 12px; font-weight:bold; }
   #btn-free-play { background:var(--accent); color:#fff; font-size:16px; padding:11px 20px; }
+  /* じぶんで といた マップを おうちの人に 出す */
+  #btn-free-quiz { background:#b07fd8; color:#fff; }
 
   /* ===== おうちのかたへ ===== */
   #screen-parent { background:#eef2f5; padding: max(10px, env(safe-area-inset-top)) 20px 20px; overflow:auto; display:none; }
@@ -358,6 +373,7 @@
   </div>
   <div id="goal-bar">
     <span>🎯</span><span class="goal-text" id="goal-text"></span>
+    <span id="ability-tag"></span>
     <button id="btn-hint">💡ヒント</button>
   </div>
   <div id="meter">
@@ -372,10 +388,10 @@
   </div>
   <div id="selbar">
     <span id="sel-msg"></span>
-    <button id="btn-sel-del" class="util-btn">けす</button>
-    <button id="btn-sel-into" class="util-btn">はこの 中へ</button>
-    <button id="btn-sel-count" class="util-btn">回数を かえる</button>
     <button id="btn-sel-none" class="util-btn">やめる</button>
+    <button id="btn-sel-into" class="util-btn">中に カードを 入れる</button>
+    <button id="btn-sel-count" class="util-btn">回数を かえる</button>
+    <button id="btn-sel-del" class="util-btn danger-btn">けす</button>
   </div>
   <div id="palette"></div>
 </div>
@@ -437,6 +453,7 @@
     <button id="btn-free-clear">まっさら</button>
     <button id="btn-free-save">ほぞん</button>
     <button id="btn-free-load">よみこむ</button>
+    <button id="btn-free-quiz">👪 おうちの人に 出す</button>
   </div>
 </div>
 
@@ -445,12 +462,14 @@
   <div class="parent-box">
     <h2>おうちのかたへ</h2>
     <p>小学校低学年向けの「考える力を育てる」パズルゲームです。命令カードを並べて生き物をエサまで導きます。時間制限・ゲームオーバーはなく、何度でもやり直せます。</p>
-    <h3>5つのしま（学習の順序）</h3>
+    <h3>しまの構成（学習の順序）</h3>
     <ul>
       <li><b>じゅんばんの しま</b>… 順次実行。やることを順番に並べる</li>
       <li><b>くりかえしの しま</b>… ループ。同じ動きをまとめる（＝規則性を見つける）</li>
       <li><b>もしもの しま</b>… 条件分岐。「〜だったら〜する」＝場合分け</li>
+      <li><b>とくいわざの しま</b>… 生き物ごとに通れる場所が変わる（カエルは池を泳げる／オタマジャクシは水の中しか動けない）。同じマップでも「誰が動くか」で正解が変わることを体験します</li>
       <li><b>名前を つける しま</b>… 手続き（関数）。動きのかたまりに名前をつけて使い回す＝抽象化</li>
+      <li><b>ちょうせんの しま</b>… 応用。くりかえし・もしも・わざを組み合わせて解く</li>
       <li><b>じゆうの しま</b>… 自分でマップを作って遊ぶ</li>
     </ul>
     <p>各面には「カードは○まいまで」という制限があります。これは指の速さではなく<b>考え方</b>を要求する仕掛けで、少ない手数で書くには規則性を見つける必要があります。制限を超えても遊べますが、🏅は最短手数で解けたときだけつきます。</p>
@@ -465,7 +484,9 @@
       <button id="btn-reset" class="danger">データを全て消去してやり直す</button>
     </div>
     <h3>プログラムの直し方</h3>
-    <p>並べたカードをタップすると、そのカードが<b>えらばれた状態</b>（オレンジの枠）になり、下に操作バーが出ます。「けす」でその1枚だけ消せ、えらんだ直後（黄色い印のところ）に次のカードが入ります。途中を直すのに、後ろを全部消す必要はありません。⟳のはこは見出しをタップして「はこの 中へ」「回数を かえる」が選べます。</p>
+    <p>並べたカードをタップすると、そのカードが<b>えらばれた状態</b>（オレンジの枠）になり、右上に<b>✕</b>バッジと下に操作バーが出ます。✕か「けす」でその1枚だけ消せ、えらんだ直後（黄色い印のところ）に次のカードが入ります。途中を直すのに、後ろを全部消す必要はありません。⟳のはこは見出しをタップして「中に カードを 入れる」「回数を かえる」が選べます。</p>
+    <h3>「おうちの人に 出す」（じゆうの しま）</h3>
+    <p>じゆうの しまで<b>自分が一度クリアしたマップ</b>だけ、「👪 おうちの人に 出す」から出題できます（未クリアのマップは押しても出せません＝解けないマップを出さないための仕掛けです）。出題モードではヒントとカード枚数メーターが出ず、解いても子どものクリア状況・ずかんには影響しません。</p>
     <h3>ヒント機能</h3>
     <p>「💡ヒント」はいつでも押せます。1回目は「どこを見ればいいか」という考えどころだけ、2回目以降で答えに近いヒントが出る2段階です。まずは自分で考えさせて、詰まったときだけ使わせるのがおすすめです。</p>
     <div class="btnrow"><button id="btn-parent-back">← ゲームにもどる</button></div>
@@ -480,9 +501,12 @@
 /* =====================================================================
    むしむし プログラミング
    単一HTML / 外部依存なし / iPad Safari 対応 / localStorage 保存
-   しま1 じゅんばん / しま2 くりかえし / しま3 もしも / しま4 名前をつける / しま5 じゆう
+   ならびは「あく じゅんばん」＝ しま1 じゅんばん / しま2 くりかえし / しま3 もしも /
+   しま4 とくいわざ / しま5 名前をつける / しま6 ちょうせん / しま7 じゆう
+   ※ ならびを かえても 進みが 閉じないよう、ISLANDS の requires（＝ならびの ばんごう）で ひもづける。
+      id は 保存データの キーでは ないが、ISLAND_HINT1 などは id で 引く（ならび依存を さける ため）
 ===================================================================== */
-const APP_VERSION = '2.7.0';
+const APP_VERSION = '2.9.0';
 const DATA_SCHEMA = 1;
 const STORAGE_KEY = 'mushimushi-programming';
 const CELL = 100;          // SVG内セルサイズ
@@ -581,6 +605,30 @@ const CREATURES = {
   neko: { name:'ネコ',
     fact:'ひげで せまい ところを 通れるか たしかめるよ。',
     svg:`<g><path d="M26 70 Q6 66 10 46 Q14 36 22 42" fill="none" stroke="#e59a4a" stroke-width="8" stroke-linecap="round"/><ellipse cx="48" cy="66" rx="26" ry="17" fill="#f0a852"/><path d="M34 56 q6 -6 4 4 M46 52 q6 -6 4 4 M58 54 q6 -6 4 4" stroke="#d68a3a" stroke-width="3" fill="none"/><circle cx="72" cy="50" r="16" fill="#f0a852"/><path d="M60 40 L58 22 L72 32 Z M84 40 L88 22 L76 32 Z" fill="#f0a852"/><path d="M62 38 L61 28 L69 34 Z M82 38 L84 28 L76 34 Z" fill="#f7c9d3"/><ellipse cx="66" cy="50" rx="3.5" ry="4.5" fill="#3a2a1e"/><ellipse cx="78" cy="50" rx="3.5" ry="4.5" fill="#3a2a1e"/><circle cx="67" cy="48" r="1.4" fill="#fff"/><circle cx="79" cy="48" r="1.4" fill="#fff"/><path d="M72 56 l-3 -3 l6 0 z" fill="#f7a6b5"/><path d="M68 60 q4 3 8 0" stroke="#3a2a1e" stroke-width="2" fill="none"/><path d="M56 56 l-12 -2 M56 58 l-12 2 M88 56 l12 -2 M88 58 l12 2" stroke="#3a2a1e" stroke-width="1.5"/><line x1="36" y1="82" x2="34" y2="90" stroke="#d68a3a" stroke-width="4" stroke-linecap="round"/><line x1="58" y1="82" x2="60" y2="90" stroke="#d68a3a" stroke-width="4" stroke-linecap="round"/></g>` },
+
+  /* --- しま6（とくいわざ）※ ability を もつのは この しまの 生きものだけ --- */
+  amagaeru: { name:'アマガエル', ability:'swim',
+    fact:'雨が ふる 前に よく 鳴くよ。',
+    svg:`<g><ellipse cx="50" cy="64" rx="27" ry="19" fill="#7ec850"/><ellipse cx="50" cy="70" rx="17" ry="10" fill="#e8f5c8"/><circle cx="35" cy="44" r="10" fill="#7ec850"/><circle cx="65" cy="44" r="10" fill="#7ec850"/><circle cx="35" cy="42" r="6" fill="#fff"/><circle cx="65" cy="42" r="6" fill="#fff"/><circle cx="36.5" cy="43" r="2.8" fill="#222"/><circle cx="66.5" cy="43" r="2.8" fill="#222"/><path d="M41 61 Q50 67 59 61" stroke="#4e9a30" stroke-width="3" fill="none" stroke-linecap="round"/><path d="M26 76 Q16 82 22 86 Q30 88 33 82" fill="#6bb444"/><path d="M74 76 Q84 82 78 86 Q70 88 67 82" fill="#6bb444"/><circle cx="20" cy="85" r="4" fill="#9ad86a"/><circle cx="80" cy="85" r="4" fill="#9ad86a"/></g>` },
+  tonosama: { name:'トノサマガエル', ability:'swim',
+    fact:'日本の 田んぼに すむ 大きな カエル。',
+    svg:`<g><ellipse cx="50" cy="64" rx="29" ry="20" fill="#4e7a33"/><ellipse cx="50" cy="70" rx="18" ry="11" fill="#dbe8b8"/><rect x="47" y="46" width="6" height="28" rx="3" fill="#a8c86a"/><circle cx="33" cy="60" r="5" fill="#2f4d1e"/><circle cx="67" cy="60" r="5" fill="#2f4d1e"/><circle cx="41" cy="72" r="4" fill="#2f4d1e"/><circle cx="59" cy="72" r="4" fill="#2f4d1e"/><circle cx="34" cy="42" r="11" fill="#4e7a33"/><circle cx="66" cy="42" r="11" fill="#4e7a33"/><circle cx="34" cy="40" r="6.5" fill="#f7e06a"/><circle cx="66" cy="40" r="6.5" fill="#f7e06a"/><circle cx="35.5" cy="41" r="3" fill="#222"/><circle cx="67.5" cy="41" r="3" fill="#222"/><path d="M40 58 Q50 64 60 58" stroke="#33521f" stroke-width="3" fill="none" stroke-linecap="round"/><path d="M22 76 Q12 82 18 86 Q26 88 30 82" fill="#3f6628"/><path d="M78 76 Q88 82 82 86 Q74 88 70 82" fill="#3f6628"/></g>` },
+  ushigaeru: { name:'ウシガエル', ability:'swim',
+    fact:'ウシのような ひくい 声で 鳴くよ。',
+    svg:`<g><ellipse cx="50" cy="66" rx="32" ry="21" fill="#6e7a3a"/><ellipse cx="50" cy="72" rx="20" ry="11" fill="#d8d8a8"/><circle cx="32" cy="44" r="12" fill="#6e7a3a"/><circle cx="68" cy="44" r="12" fill="#6e7a3a"/><circle cx="32" cy="42" r="7" fill="#f0d878"/><circle cx="68" cy="42" r="7" fill="#f0d878"/><circle cx="33.5" cy="43" r="3.2" fill="#222"/><circle cx="69.5" cy="43" r="3.2" fill="#222"/><circle cx="24" cy="58" r="9" fill="#5c6630" stroke="#4a5326" stroke-width="2"/><circle cx="76" cy="58" r="9" fill="#5c6630" stroke="#4a5326" stroke-width="2"/><path d="M38 62 Q50 70 62 62" stroke="#4a5326" stroke-width="3.5" fill="none" stroke-linecap="round"/><path d="M20 78 Q8 84 15 89 Q25 91 30 84" fill="#5c6630"/><path d="M80 78 Q92 84 85 89 Q75 91 70 84" fill="#5c6630"/></g>` },
+  otama: { name:'オタマジャクシ', ability:'waterOnly',
+    fact:'カエルの 子ども。しっぽで およぐよ。',
+    svg:`<g><path d="M30 52 Q14 30 8 40 Q2 54 8 68 Q16 76 30 62 Z" fill="#3a3a3a"/><path d="M28 50 Q16 38 12 44 Q9 54 13 63 Q19 68 28 58 Z" fill="#565656"/><ellipse cx="58" cy="54" rx="28" ry="22" fill="#2e2e2e"/><ellipse cx="52" cy="44" rx="15" ry="8" fill="#4d4d4d" opacity=".75"/><circle cx="74" cy="46" r="5.5" fill="#fff"/><circle cx="75.5" cy="47" r="2.6" fill="#222"/><path d="M69 63 q7 3 13 -1" stroke="#1a1a1a" stroke-width="2.5" fill="none" stroke-linecap="round"/></g>` },
+};
+
+/* とくいわざの 見せかた（ゲーム画面の 見出し／ずかんの しるし） */
+const ABILITY_TAG = {
+  swim:      '🐸 とくいわざ: 池を およげる',
+  waterOnly: '🌊 とくいわざ: 水の 中だけ うごける',
+};
+const ABILITY_MARK = {
+  swim:      '🏊 およげる',
+  waterOnly: '🌊 水の 中だけ',
 };
 
 /* とっておきの まめちしき（クリアした ときに 出る・ずかんにも のこる）
@@ -613,6 +661,10 @@ const WOW = {
   fukurou: 'はねの ふちが ギザギザで、とんでも ほとんど 音が しないんだ。ねずみに 気づかれないよ。',
   panda:   'パンダは クマの なかま。生まれた ときは 100gくらいで、白くて とても 小さいんだ。',
   neko:    '高い ところから おちても、空中で 体を 回して 足から おりるよ。',
+  amagaeru: '体の 色を みどりから 茶色に かえられるよ。まわりに 合わせて いるんだ。',
+  tonosama: '人が 近づくと 水に とびこんで にげる。とても 早いよ。',
+  ushigaeru:'アメリカから 来た 大きな カエル。口に 入る ものは 何でも 食べるんだ。',
+  otama:    '大きく なると 足が 生えて、しっぽは 体の 中に すいこまれて いくんだ。',
 };
 Object.keys(WOW).forEach(k => { if (CREATURES[k]) CREATURES[k].wow = WOW[k]; });
 
@@ -641,6 +693,49 @@ function usesCall(list) {
   return list.some(nd => nd.t === 'call' || (nd.body && usesCall(nd.body)));
 }
 
+/* 子ども向けの ことば。ここに まとめて 書き、コードからは かならず これを つかう。
+   selftest の 漢字チェック（2年生までか）が この 中みを そのまま 見るので、
+   じかに 文字列を 書くと チェックから もれる。「おうちのかたへ」画面と バックアップは 大人向けなので 対象外。 */
+const KID_MSG = {
+  cardsFirst:   'カードを ならべてね',
+  rowFuncHint:  'ここを タップしてから カードを ならべてね',
+  rowBoxing:    'カードは 明るい はこの 中に 入るよ',
+  rowFuncNote:  'ここに 書いた うごきが ⚡カードに なるよ',
+  wazaEmpty:    '⚡わざの 中が からっぽだよ！',
+  noCallInCall: '⚡の 中で ⚡は つかえないよ',
+  noPrevCard:   'ここより 前に カードは ないよ',
+  clearAllAsk:  'ぜんぶ けす？',
+  clearAllYes:  'けす',
+  loopCountAsk: '何回 くりかえす？',
+  selCard:      'えらんだよ ▸ <span class="long">パレットを タップで </span>ここに 入る<span class="long">／✕で けせる</span>',
+  selBox:       'はこを えらんだよ',
+  tooDeep:      'はこの 中の はこが 多すぎるよ',
+  tooMany:      'ながく なりすぎたよ！ もっと みじかく してみよう',
+  ifHit:        'もしも → ○ あった！',
+  ifMiss:       'もしも → × なかった',
+  blockRock:    '岩で 通れないよ！',
+  blockWater:   'そこは ふかい 水だよ！',
+  blockLand:    'そこは 水の 外だよ！ オタマジャクシは 水の 中だけ',
+  blockOther:   'そっちは 行けないよ！',
+  eatEmpty:     'あれれ？ ここには 食べものが ないよ',
+  stopped:      'とめたよ',
+  tryAgain:     'もう一回 考えてみよう！',
+  islandLocked: 'まえの しまを クリアすると あくよ！',
+  freeStartBusy:'スタートの ところには おけないよ',
+  freeNeedFood: 'たべものを 1つ いじょう おいてね',
+  freeStartBad: 'スタートが 岩や 水の 上だよ',
+  freeSolveFirst:'まず じぶんで クリアしてね',
+  freeSlotEmpty:'そこは からっぽだよ',
+  quizTitle:    '🎨 もんだい！',
+  quizGoal:     'おうちの人へ：この マップを クリアしてね！',
+  quizClear:    '🎉 といた！',
+  quizClearMsg: 'クリア！ 作った人に 見せよう。',
+  blockPrefix:  'あれれ？ ',
+  eatOk:    name => `ぱくっ！ ${name}を 食べたよ！`,
+  eatBad:   name => `うえっ！ ${name}は にがてだよ〜`,
+  overLimit:  n  => `カードは ${n}まいまでだよ。もっと みじかく できないかな？`,
+};
+
 const CMD_LABEL = { U:'⬆', D:'⬇', L:'⬅', R:'➡' };
 const CONDS = {
   food: { label:'たべものが あったら', short:'たべもの', icon:'🍽', likeOnly:false },
@@ -654,6 +749,7 @@ const B_LOOP_IF = BASIC.concat(['LOOP','IF_food']);
 const B_LOOP_LIKE = BASIC.concat(['LOOP','IF_like']);
 const B_ALL = BASIC.concat(['LOOP','IF_like','CALL']);
 const B_LOOP_CALL = BASIC.concat(['LOOP','CALL']);
+// じゆうの しまの カードは freeCards() が しまの クリア具合を 見て 組み立てる（全部そろうと この形）
 const B_FREE = BASIC.concat(['LOOP','IF_food','IF_like','CALL']);
 
 const ISLANDS = [
@@ -664,12 +760,14 @@ const ISLANDS = [
         grid:{w:5,h:3}, start:{x:0,y:1},
         foods:[{x:3,y:1,emoji:'🍯',name:'じゅえき'}], rocks:[], par:4,
         goal:'カブトムシを 🍯じゅえきまで つれて行こう！さいごに「食べる」を わすれずに！',
+        hint1:'エサは 右に いくつ すすんだ ところ？ 数えて みよう',
         hint:'➡を 3回 ならべて、さいごに「食べる」だよ',
         speak:'カブトムシを じゅえきまで つれていこう！ さいごに たべるを わすれずに！' },
       { id:'1-2', name:'まがり道', creature:'ari', cards:BASIC,
         grid:{w:5,h:4}, start:{x:0,y:0},
         foods:[{x:2,y:2,emoji:'🍬',name:'さとうがし'}], rocks:[], par:5,
         goal:'アリさんは あまいものが 大すき。🍬まで つれて行こう！',
+        hint1:'右に いくつ、下に いくつ？ ゆびで なぞろう',
         hint:'右に 2回、下に 2回で つくよ',
         speak:'ありさんは あまいものが だいすき。おかしまで つれていこう！' },
       { id:'1-3', name:'岩を よけて', creature:'dango', cards:BASIC,
@@ -784,7 +882,49 @@ const ISLANDS = [
     ]
   },
   {
-    id:4, icon:'⚡', name:'名前を つける しま', sub:'うごきの かたまりに 名前を つける',
+    id:6, icon:'🐸', name:'とくいわざの しま', sub:'生きものの とくいわざで 道が かわる', requires:2,
+    levels:[
+      { id:'6-1', name:'池は 近道', creature:'amagaeru', ability:'swim', cards:B_LOOP,
+        grid:{w:7,h:5}, start:{x:0,y:2},
+        foods:[{x:6,y:2,emoji:'🦟',name:'エサ'}], rocks:[],
+        holes:[].concat(...[2,3,4].map(x => [1,2,3].map(y => ({ x, y })))), par:3, maxCards:6,
+        goal:'アマガエルは およげる！ 池の 中を まっすぐ 通れるよ。',
+        hint1:'アマガエルは 池を 通れる。まっすぐ 行けるかな？',
+        hint:'⟳6回[➡] さいごに 食べる',
+        speak:'アマガエルは およげる！ いけの なかを まっすぐ とおれるよ。' },
+      { id:'6-2', name:'とび石は いらない', creature:'tonosama', ability:'swim', cards:B_LOOP,
+        grid:{w:7,h:5}, start:{x:0,y:2},
+        foods:[{x:6,y:3,emoji:'🪰',name:'ハエ'}], rocks:[],
+        stones:[[0,2],[1,2],[2,2],[2,1],[3,1],[4,1],[4,2],[4,3],[5,3],[6,3]], par:4, maxCards:7,
+        goal:'1-6と 同じ 池。でも トノサマガエルは およげるから、石を たどらなくて いいんだ。',
+        hint1:'石を たどらなくても いい。いちばん 近い 道は？',
+        hint:'⟳6回[➡] ⬇ 食べる',
+        speak:'いち の ろく と おなじ いけ。でも トノサマガエルは およげるから、いしを たどらなくて いいんだ。' },
+      { id:'6-3', name:'池の 中の ごちそう', creature:'ushigaeru', ability:'swim', cards:B_LOOP_LIKE,
+        grid:{w:8,h:3}, start:{x:0,y:1},
+        holes:Array.from({length:6},(_,i)=>({x:i+1,y:1})),
+        foods:[{x:2,y:1,emoji:'🐛',name:'エサ'},{x:4,y:1,emoji:'🐛',name:'エサ'},{x:7,y:1,emoji:'🐛',name:'エサ'},
+               {x:3,y:1,emoji:'🐡',name:'ふぐ',bad:true},{x:5,y:1,emoji:'🐡',name:'ふぐ',bad:true}],
+        rocks:[], par:4, maxCards:7,
+        goal:'池の 中に エサが うかんでる。すきなのだけ 食べながら わたろう！',
+        hint1:'にがてな ものも うかんでる。❓で えらんで 食べよう',
+        hint:'⟳7回[➡ ❓すきなの]',
+        speak:'いけの なかに えさが うかんでる。すきなのだけ たべながら わたろう！' },
+      { id:'6-4', name:'水の 中だけ', creature:'otama', ability:'waterOnly', cards:B_LOOP,
+        grid:{w:7,h:3}, start:{x:0,y:2},
+        holes:[{x:0,y:2},{x:1,y:2},{x:2,y:2},{x:2,y:1},{x:2,y:0},{x:3,y:0},{x:4,y:0},
+               {x:5,y:0},{x:5,y:1},{x:5,y:2},{x:6,y:2}],
+        foods:[{x:6,y:2,emoji:'🌿',name:'こけ'}], rocks:[], par:10, maxCards:14,
+        goal:'オタマジャクシは 水の 中しか うごけない！ 水の 道を たどろう。',
+        hint1:'水の 道は 何回 まがる？ まがるたびに はこを 分けよう',
+        hint:'⟳2回[➡] ⟳2回[⬆] ⟳3回[➡] ⟳2回[⬇] ➡ 食べる',
+        speak:'オタマジャクシは みずの なかしか うごけない！ みずの みちを たどろう。' },
+    ]
+  },
+  {
+    // requires:2 ＝ ❓もしもの しま（ならびの 2ばん）を 全クリアで あく。
+    // 既定（ひとつ前の しま＝🐸）に すると、しま4まで クリア ずみの 子の 進みが 閉じて しまう
+    id:4, icon:'⚡', name:'名前を つける しま', sub:'うごきの かたまりに 名前を つける', requires:2,
     levels:[
       { id:'4-1', name:'⚡わざを 作ろう', creature:'usagi', cards:B_LOOP_CALL, func:true,
         grid:{w:9,h:3}, start:{x:0,y:2},
@@ -830,7 +970,8 @@ const ISLANDS = [
     ]
   },
   {
-    id:5, icon:'🏆', name:'ちょうせんの しま', sub:'ぜんぶ つかって とく むずかしい めん', requires:3,
+    // requires:4 ＝ ⚡名前を つける しま（ならびの 4ばん）を 全クリアで あく
+    id:5, icon:'🏆', name:'ちょうせんの しま', sub:'ぜんぶ つかって とく むずかしい めん', requires:4,
     levels:[
       { id:'5-1', name:'かいだんで えらんで', creature:'koorogi', cards:B_LOOP_LIKE,
         grid:{w:6,h:6}, start:{x:0,y:0},
@@ -884,21 +1025,37 @@ const ISLANDS = [
         speak:'さいごの ちょうせん！ いわの うえの えさを たべながら すすもう。きのこは たべないでね。' },
     ]
   },
-  { id:6, icon:'🎨', name:'じゆうの しま', sub:'じぶんで マップを 作って あそぶ', free:true, requires:3, levels:[] },
+  { id:7, icon:'🎨', name:'じゆうの しま', sub:'じぶんで マップを 作って あそぶ', free:true, requires:1, levels:[] },
 ];
 
 const ALL_LEVELS = [];
 ISLANDS.forEach((is, ii) => is.levels.forEach((lv, li) => { lv.island = ii; lv.index = li; ALL_LEVELS.push(lv); }));
+// しまの id から ならびの ばんごうを 引く。ならびを かえても こわれない ように、
+// 「どの しまを クリアしたか」を 見る ところは かならず これを 通す
+const ISLE = id => ISLANDS.findIndex(is => is.id === id);
 
 const DIRS = { U:{x:0,y:-1}, D:{x:0,y:1}, L:{x:-1,y:0}, R:{x:1,y:0} };
 
 /* ---------------- エンジン（純ロジック・selftestと共用） ---------------- */
-function isBlocked(level, x, y) {
+// 地面そのものが 何か（生きものの とくいわざは 見ない）。絵を かくのは いつも こちら
+function terrainAt(level, x, y) {
   if (x < 0 || y < 0 || x >= level.grid.w || y >= level.grid.h) return 'wall';
   if (level.rocks && level.rocks.some(r => r.x === x && r.y === y)) return 'rock';
   if (level.holes && level.holes.some(r => r.x === x && r.y === y)) return 'water';
   if (level.stones && !level.stones.some(s => s[0] === x && s[1] === y)) return 'water';
   return null;
+}
+// 通れるか どうか。生きものの とくいわざ（level.ability）で かわる。
+//   swim      … 水を およげる（岩・かべは そのまま）
+//   waterOnly … 水の 中しか うごけない（ふつうの 地面は 'land'＝通れない）
+function isBlocked(level, x, y) {
+  const t = terrainAt(level, x, y);
+  if (level.ability === 'swim' && t === 'water') return null;
+  if (level.ability === 'waterOnly') {
+    if (t === 'water') return null;
+    if (t === null) return 'land';
+  }
+  return t;
 }
 function makeState(level) {
   return { x: level.start.x, y: level.start.y, foods: level.foods.map(f => ({ ...f, eaten:false })) };
@@ -980,12 +1137,16 @@ function defaultSave() {
   return { schema:DATA_SCHEMA, version:APP_VERSION, cleared:{}, zukan:[],
            settings:{ mute:false, fast:false }, free:{ map:null, slots:[null,null,null] } };
 }
+// cleared は「id → {clear,perfect}」の ただの オブジェクトで なければ ならない。
+// 文字列や 配列が 入って いると levelCleared が だまって 全部 false に なる
+function validCleared(c) { return !!c && typeof c === 'object' && !Array.isArray(c); }
 function loadSave() {
   try {
     const raw = localStorage.getItem(STORAGE_KEY);
     if (!raw) return defaultSave();
     const d = JSON.parse(raw);
     if (!d || typeof d !== 'object' || !d.cleared) return defaultSave();
+    if (!validCleared(d.cleared)) d.cleared = {};
     d.schema = d.schema || DATA_SCHEMA;
     d.zukan = Array.isArray(d.zukan) ? d.zukan : [];
     d.settings = d.settings || {};
@@ -1109,14 +1270,15 @@ function renderIslands() {
     b.className = 'is-btn' + (open ? '' : ' locked');
     const done = is.levels.filter(lv => levelCleared(lv.id)).length;
     const perf = is.levels.filter(lv => SAVE.cleared[lv.id] && SAVE.cleared[lv.id].perfect).length;
-    const lockMsg = is.requires === 3 ? '🔒 しま4まで クリアで あく' : '🔒';
+    const req = typeof is.requires === 'number' ? is.requires : ii - 1;
+    const lockMsg = `🔒 しま${req + 1}まで クリアで あく`;
     const prog = is.free
       ? (open ? '🎨 いつでも あそべる' : lockMsg)
       : (open ? '⭐'.repeat(done) + '・'.repeat(is.levels.length - done) + (perf ? `　🏅${perf}` : '') : lockMsg);
     b.innerHTML = `<span class="is-icon">${is.icon}</span><span class="is-name">${is.name}</span>` +
                   `<span class="is-sub">${is.sub}</span><span class="is-prog">${prog}</span>`;
     b.addEventListener('click', () => {
-      if (!open) { SFX.fail(); showToast('まえの しまを クリアすると あくよ！'); return; }
+      if (!open) { SFX.fail(); showToast(KID_MSG.islandLocked); return; }
       SFX.tap();
       if (is.free) { openFree(); } else { renderMap(ii); showScreen('map'); }
     });
@@ -1181,8 +1343,9 @@ function renderZukan() {
       const known = SAVE.zukan.includes(k);
       const div = document.createElement('div');
       div.className = 'zk-card' + (known ? '' : ' unknown');
+      const mark = c.ability ? `<div class="zk-ability">${ABILITY_MARK[c.ability]}</div>` : '';
       div.innerHTML = known
-        ? `${creatureSVG(k, 66)}<div class="zk-name">${c.name}</div><div class="zk-fact">${c.fact}</div>` +
+        ? `${creatureSVG(k, 66)}<div class="zk-name">${c.name}</div>${mark}<div class="zk-fact">${c.fact}</div>` +
           `<div class="zk-wow">🔎 ${c.wow}</div>`
         : `${creatureSVG(k, 66)}<div class="zk-name">？？？</div><div class="zk-fact">クリアすると なかま入りするよ</div>`;
       if (known) div.addEventListener('click', () => { SFX.tap(); speak(c.name + '。' + c.fact + ' ' + c.wow); });
@@ -1197,15 +1360,21 @@ function renderZukan() {
 ===================================================================== */
 let G = null;
 
-/* ヒント1だんめ＝しまごとの「考えるところ」（答えは まだ 言わない） */
-const ISLAND_HINT1 = [
-  'まず 生きものの 道を ゆびで なぞって みよう。岩や 池は どこ？',
-  '同じ うごきが 何回 つづく？ そこを はこに 入れよう',
-  'エサが ある マスと ない マスを くらべて みよう',
-  '同じ かたまりが 何回 出てくる？ それが ⚡わざだよ',
-  'くりかえし・もしも・わざ、どれが つかえそう？',
-];
-function hint1Text(lv) { return lv.hint1 || ISLAND_HINT1[lv.island] || ISLAND_HINT1[ISLAND_HINT1.length - 1]; }
+/* ヒント1だんめ＝しまごとの「考えるところ」（答えは まだ 言わない）。
+   しまの ならびを かえても ずれない ように、キーは しまの id（ならびの ばんごうでは ない） */
+const ISLAND_HINT1 = {
+  1: 'まず 生きものの 道を ゆびで なぞって みよう。岩や 池は どこ？',
+  2: '同じ うごきが 何回 つづく？ そこを はこに 入れよう',
+  3: 'エサが ある マスと ない マスを くらべて みよう',
+  4: '同じ かたまりが 何回 出てくる？ それが ⚡わざだよ',
+  5: 'くりかえし・もしも・わざ、どれが つかえそう？',
+  6: 'とくいわざを 思い出そう。この 子は 何が できる？',
+};
+const HINT1_FALLBACK = ISLAND_HINT1[5];
+function hint1Text(lv) {
+  const is = ISLANDS[lv.island];
+  return lv.hint1 || (is && ISLAND_HINT1[is.id]) || HINT1_FALLBACK;
+}
 
 // keep が 真なら さっきの プログラムを のこす（「もう一回」で 作り直さなくて いいように）
 function startLevel(level, keep) {
@@ -1213,13 +1382,15 @@ function startLevel(level, keep) {
   const keptFunc = (keep && G) ? G.func : [];
   G = { level, main:keptMain, func:keptFunc, root:'main', path:[], sel:null, ins:null, state:makeState(level),
         running:false, stopReq:false, failCount:0, hintStep:0, free: level.id === 'free' };
+  const quiz = !!level.quiz;                        // おうちの人に 出した もんだい
   $('lv-title').textContent = level.id === 'free'
-    ? '🎨 じぶんの マップ'
+    ? (quiz ? KID_MSG.quizTitle : '🎨 じぶんの マップ')
     : `ステージ${level.index + 1}：${level.name}`;
   $('goal-text').textContent = level.goal;
+  $('ability-tag').textContent = ABILITY_TAG[level.ability] || '';
   $('btn-hint').textContent = '💡ヒント';
   $('btn-hint').style.display = level.id === 'free' ? 'none' : '';
-  $('btn-back').textContent = level.id === 'free' ? '← なおす' : '← もどる';
+  $('btn-back').textContent = level.id === 'free' ? (quiz ? '← やめる' : '← なおす') : '← もどる';
   updateMuteBtn(); updateFastBtn();
   buildPalette();
   renderEditors();
@@ -1246,7 +1417,7 @@ function buildPalette() {
   if (cards.includes('IF_like')) mk('cmd-btn cond', '❓<br>すきなの', () => addNode(ifUnit('like')));
   if (cards.includes('CALL')) {
     const b = mk('cmd-btn call', '⚡<br>わざ', () => {
-      if (G.root === 'func') { showBubble('⚡の 中で ⚡は つかえないよ'); SFX.fail(); return; }
+      if (G.root === 'func') { showBubble(KID_MSG.noCallInCall); SFX.fail(); return; }
       addNode(callNode());
     });
     b.id = 'btn-call';
@@ -1280,9 +1451,11 @@ function insAt(arr) {
 function addNode(node) {
   if (G.running) return;
   const limit = G.level.maxCards || 40;
-  if (totalCards() >= limit) {
+  // ❓は「しらべて→食べる」の ワンセット＝2ノード。1まいと 数えると 上限を こえて しまう
+  const cost = countNodes([node]);
+  if (totalCards() + cost > limit) {
     SFX.fail();
-    showBubble(`カードは ${limit}まいまでだよ。もっと みじかく できないかな？`, 3000);
+    showBubble(KID_MSG.overLimit(limit), 3000);
     return;
   }
   SFX.tap();
@@ -1303,7 +1476,7 @@ function undoNode() {
   G.sel = null;
   if (typeof G.ins === 'number') {
     const at = insAt(arr);
-    if (at === 0) { SFX.fail(); showBubble('ここより 前に カードは ないよ'); return; }
+    if (at === 0) { SFX.fail(); showBubble(KID_MSG.noPrevCard); return; }
     SFX.tap();
     arr.splice(at - 1, 1);                        // 光っている ばしょの 前の 1まいを けす
     G.ins = at - 1;
@@ -1318,7 +1491,7 @@ function clearAll() {
   SFX.tap();
   const doClear = () => { G.main = []; G.func = []; G.path = []; G.root = 'main'; G.sel = null; G.ins = null; renderEditors(); };
   // 3まい いじょう ならべて いたら、まちがえて おした ときの ために たしかめる
-  if (totalCards() >= 3) { openModal('ぜんぶ けす？', [{ label:'けす', value:true }], doClear); return; }
+  if (totalCards() >= 3) { openModal(KID_MSG.clearAllAsk, [{ label:KID_MSG.clearAllYes, value:true }], doClear); return; }
   doClear();
 }
 function closeBox() {
@@ -1382,8 +1555,7 @@ function renderSelbar() {
   if (G && G.sel && !node) G.sel = null;          // けした あとの 古い えらび は すてる
   const isLoop = !!node && node.t === 'loop';
   bar.classList.toggle('show', !!node);
-  $('sel-msg').innerHTML = !node ? ''
-    : (isLoop ? 'はこを えらんだよ' : 'ここに 入るよ<span class="long"> ▸ パレットの カードを タップ</span>');
+  $('sel-msg').innerHTML = !node ? '' : (isLoop ? KID_MSG.selBox : KID_MSG.selCard);
   $('btn-sel-del').disabled = !node;
   $('btn-sel-into').disabled = !isLoop;
   $('btn-sel-count').disabled = !isLoop;
@@ -1412,7 +1584,7 @@ $('btn-sel-count').addEventListener('click', () => {
   const node = nodeAt(G.sel.root, G.sel.path);
   if (!node || node.t !== 'loop') return;
   SFX.tap();
-  askLoopCount(n => { node.n = n; renderEditors(); });
+  askLoopCount(n => { node.n = n; renderEditors(); }, node.n);
 });
 $('btn-sel-none').addEventListener('click', () => {
   if (!G || G.running || !G.sel) return;
@@ -1465,8 +1637,8 @@ function makeRow(root, label, list) {
   const head = document.createElement('div');
   head.className = 'prow-label';
   head.innerHTML = `<span class="tag">${label}</span>` +
-    (boxing ? '<span>カードは 明るい はこの 中に 入るよ</span>'
-            : (root === 'main' ? '' : '<span>ここに 書いた うごきが ⚡カードに なるよ</span>'));
+    (boxing ? `<span>${KID_MSG.rowBoxing}</span>`
+            : (root === 'main' ? '' : `<span>${KID_MSG.rowFuncNote}</span>`));
   head.addEventListener('click', () => {
     if (G.running || G.root === root) return;
     SFX.tap(); G.root = root; G.path = []; G.ins = null; G.sel = null; renderEditors();
@@ -1484,7 +1656,7 @@ function makeRow(root, label, list) {
   if (list.length === 0 && !(G.root === root && G.path.length === 0)) {
     const h = document.createElement('span');
     h.className = 'empty-hint';
-    h.textContent = root === 'func' ? 'ここを タップしてから カードを ならべてね' : 'カードを ならべてね';
+    h.textContent = root === 'func' ? KID_MSG.rowFuncHint : KID_MSG.cardsFirst;
     body.appendChild(h);
   }
   row.appendChild(body);
@@ -1511,12 +1683,25 @@ function nodeEl(node, root, path) {
     d.className = 'pcard ' + (node.t === 'call' ? 'call' : (node.c === 'E' ? 'eat' : 'move'));
     d.dataset.nid = node.id;
     d.innerHTML = node.t === 'call' ? '⚡<br>わざ' : (node.c === 'E' ? '😋<br>食べる' : CMD_LABEL[node.c]);
-    if (G.sel && G.sel.root === root && samePath(G.sel.path, path)) d.classList.add('sel');
-    // タップ＝えらぶ（けさない）。けすのは そうさバーの「けす」
+    // タップ＝えらぶ（けさない）。けすのは 右上の ✕ か そうさバーの「けす」
     d.addEventListener('click', e => {
       e.stopPropagation();
       selectNode(root, path);
     });
+    if (G.sel && G.sel.root === root && samePath(G.sel.path, path)) {
+      d.classList.add('sel');
+      // えらんだ カードの その場に ✕を 出す（ゆびを 下まで はこばずに 1まい けせる）
+      const xb = document.createElement('button');
+      xb.className = 'xbadge'; xb.type = 'button'; xb.textContent = '✕';
+      xb.addEventListener('click', e => {
+        e.stopPropagation();
+        if (G.running) return;
+        SFX.tap();
+        G.sel = null;
+        removeAt(root, path);                     // けした ばしょに 光る しるしが 残る
+      });
+      d.appendChild(xb);
+    }
     return d;
   }
   // はこ（くりかえし／もし）
@@ -1595,10 +1780,11 @@ function openModal(title, items, onPick) {
   $('modal').classList.add('show');
 }
 $('modal-cancel').addEventListener('click', () => { SFX.tap(); $('modal').classList.remove('show'); });
-function askLoopCount(cb) {
+// current を わたすと いまの 回数が オレンジで 光る（今 何回なのかが 見て わかる）
+function askLoopCount(cb, current) {
   const items = [];
-  for (let i = 2; i <= 10; i++) items.push({ label: i + '回', value:i });
-  openModal('何回 くりかえす？', items, cb);
+  for (let i = 2; i <= 10; i++) items.push({ label: i + '回', value:i, sel: i === current });
+  openModal(KID_MSG.loopCountAsk, items, cb);
 }
 
 /* --- ステージ描画 --- */
@@ -1606,7 +1792,7 @@ function stageMarkup(level, withActor) {
   const w = level.grid.w, h = level.grid.h;
   let s = '';
   for (let y = 0; y < h; y++) for (let x = 0; x < w; x++) {
-    const b = isBlocked(level, x, y);
+    const b = terrainAt(level, x, y);   // 絵は 地形の まま（およげる 生きものでも 水は 水に かく）
     if (b === 'water') {
       s += `<rect x="${x*CELL}" y="${y*CELL}" width="${CELL}" height="${CELL}" fill="#7cbfec"/>`;
       s += `<path d="M${x*CELL+18} ${y*CELL+55} q10 -8 20 0 q10 8 20 0 q10 -8 24 0" stroke="#a8d8f5" stroke-width="4" fill="none" stroke-linecap="round"/>`;
@@ -1697,13 +1883,18 @@ function endRun() {
 }
 async function runProgram() {
   if (!G) return;
-  if (G.running) { SFX.tap(); G.stopReq = true; return; }   // 2回目の タップ＝とめる
-  if (G.main.length === 0) { showBubble('カードを ならべてね'); SFX.fail(); return; }
+  if (G.running) {
+    // ▶を 2回 つづけて おして しまう 子が いる。はじまって すぐの「とめる」は 聞かない
+    if (performance.now() - (G.runStartedAt || 0) < 500) return;
+    SFX.tap(); G.stopReq = true; return;                    // 2回目の タップ＝とめる
+  }
+  if (G.main.length === 0) { showBubble(KID_MSG.cardsFirst); SFX.fail(); return; }
   if (usesCall(G.main) && G.func.length === 0) {
-    showBubble('⚡わざの 中が からっぽだよ！', 2600); SFX.fail(); return;
+    showBubble(KID_MSG.wazaEmpty, 2600); SFX.fail(); return;
   }
   G.running = true;
   G.stopReq = false;
+  G.runStartedAt = performance.now();             // おし まちがいの「とめる」を はじく ため
   G.sel = null; G.ins = null;                     // うごかす ときは えらびを 外して おく
   renderEditors();                                // そうさバーも いっしょに しまう
   document.body.classList.add('running');
@@ -1722,7 +1913,7 @@ async function runProgram() {
     if (G.stopReq) break;
     if (ev.kind === 'error') {
       failed = true;
-      failMsg = ev.reason === 'toodeep' ? 'はこの 中の はこが 多すぎるよ' : 'ながく なりすぎたよ！ もっと みじかく してみよう';
+      failMsg = ev.reason === 'toodeep' ? KID_MSG.tooDeep : KID_MSG.tooMany;
       SFX.fail();
       break;
     }
@@ -1747,7 +1938,7 @@ async function runProgram() {
       const el = elOf(ev.node);
       if (el) el.classList.add('exec');
       ev.hit ? SFX.yes() : SFX.no();
-      showBubble(ev.hit ? 'もしも → ○ あった！' : 'もしも → × なかった', 900);
+      showBubble(ev.hit ? KID_MSG.ifHit : KID_MSG.ifMiss, 900);
       await sl(280);
       if (el) el.classList.remove('exec');
       if (G.stopReq) break;
@@ -1779,30 +1970,34 @@ async function runProgram() {
       const d = DIRS[node.c], a = $('actor');
       a.style.transition = 'transform .2s';
       a.style.transform = `translate(${(G.state.x + d.x*0.25)*CELL}px, ${(G.state.y + d.y*0.25)*CELL}px)`;
-      await sleep(200);
+      await sl(200);
       a.style.transform = `translate(${G.state.x*CELL}px, ${G.state.y*CELL}px)`;
-      await sleep(200);
+      await sl(200);
       a.style.transition = 'transform .55s ease-in-out';
       $('stage').classList.add('stage-shake');
       setTimeout(() => $('stage').classList.remove('stage-shake'), 450);
       SFX.fail();
       failed = true;
-      failMsg = 'あれれ？ ' + (r.reason === 'rock' ? '岩で 通れないよ！' : r.reason === 'water' ? 'そこは ふかい 水だよ！' : 'そっちは 行けないよ！');
+      failMsg = KID_MSG.blockPrefix + (r.reason === 'rock' ? KID_MSG.blockRock
+                            : r.reason === 'water' ? KID_MSG.blockWater
+                            : r.reason === 'land' ? KID_MSG.blockLand
+                            : KID_MSG.blockOther);
     } else if (r.type === 'eat') {
       SFX.eat();
       const fi = G.level.foods.findIndex(f => f.x === r.food.x && f.y === r.food.y);
       const fe = $('food-' + fi);
       if (fe) { fe.style.transition = 'opacity .4s'; fe.style.opacity = '0'; }
-      showBubble('ぱくっ！ ' + r.food.name + 'を 食べたよ！', 1500);
+      showBubble(KID_MSG.eatOk(r.food.name), 1500);
       await sl(620);
+      if (G.stopReq) break;                       // さいごの ひとくちの 途中で とめても クリアに しない
       if (r.allEaten) { if (el) el.classList.remove('exec'); await sl(250); onClear(used); return; }
     } else if (r.type === 'eat-bad') {
       SFX.fail();
-      showBubble('うえっ！ ' + r.food.name + 'は にがてだよ〜', 2600);
+      showBubble(KID_MSG.eatBad(r.food.name), 2600);
       failed = true; failMsg = '';
     } else if (r.type === 'eat-empty') {
       SFX.fail();
-      failed = true; failMsg = 'あれれ？ ここには 食べものが ないよ';
+      failed = true; failMsg = KID_MSG.eatEmpty;
     }
     if (el) el.classList.remove('exec');
     if (failed || G.stopReq) break;
@@ -1812,7 +2007,7 @@ async function runProgram() {
   // ■とめる で 止めた ときは しっぱい あつかいに しない
   if (G.stopReq) {
     resetStage();
-    showBubble('とめたよ', 1600);
+    showBubble(KID_MSG.stopped, 1600);
     endRun();
     return;
   }
@@ -1825,9 +2020,9 @@ async function runProgram() {
   if (failMsg) showBubble(failMsg, 2800);
 
   G.failCount++;
-  await sleep(1500);
+  await sl(1500);
   resetStage();
-  showBubble('もう一回 考えてみよう！', 1800);
+  showBubble(KID_MSG.tryAgain, 1800);
   endRun();
 }
 
@@ -1857,13 +2052,23 @@ function onClear(usedSteps) {
   const cards = totalCards();
 
   if (G.free) {
-    $('overlay-title').textContent = '🎉 クリア！';
     $('overlay-creature').innerHTML = creatureSVG(lv.creature, 86);
     $('overlay-badges').textContent = '⭐';
-    $('overlay-msg').innerHTML = `じぶんで 作った マップを クリア！<br>カード${cards}まい・${usedSteps}歩 だったよ。`;
+    if (lv.quiz) {
+      // おうちの人が といた ばあい。ずかん・進みには さわらない
+      $('overlay-title').textContent = KID_MSG.quizClear;
+      $('overlay-msg').innerHTML = KID_MSG.quizClearMsg;
+      $('btn-map2').textContent = 'マップへ';
+    } else {
+      // じぶんで といた マップだけ「おうちの人に 出す」ことが できる
+      if (FREE) { FREE.solved = true; SAVE.free.map = FREE; persist(); }
+      $('overlay-title').textContent = '🎉 クリア！';
+      $('overlay-msg').innerHTML = `じぶんで 作った マップを クリア！<br>カード${cards}まい・${usedSteps}歩 だったよ。` +
+                                   `<br>👪 これで「おうちの人に 出す」が つかえるよ！`;
+      $('btn-map2').textContent = 'マップを なおす';
+    }
     setMore('');
     $('btn-next').style.display = 'none';
-    $('btn-map2').textContent = 'マップを なおす';
     $('overlay-fact').classList.remove('show');
     $('overlay').classList.add('show');
     return;
@@ -1974,7 +2179,12 @@ const FREE_TOOLS = [
 function defaultFree() {
   const s = FREE_SIZES.m;
   return { w:s.w, h:s.h, cells:makeCells(s.w, s.h), start:{x:0,y:Math.floor(s.h/2)},
-           foods:[{ x:s.w-1, y:Math.floor(s.h/2), emoji:'🍎', name:'りんご' }], creature:'kabuto' };
+           foods:[{ x:s.w-1, y:Math.floor(s.h/2), emoji:'🍎', name:'りんご' }], creature:'kabuto',
+           solved:false };   // じぶんで 一回 クリアしたら true（おうちの人に 出せるように なる）
+}
+// マップを いじったら「といた しるし」は 消える（解けない マップを 出させない ため）
+function freeTouched() {
+  if (FREE) FREE.solved = false;
 }
 function makeCells(w, h) {
   const a = [];
@@ -1998,8 +2208,16 @@ function reviveFree(o) {
       if (v === 'rock' || v === 'water' || v === 'floor') f.cells[y][x] = v;
     }
     f.start = { x:Math.min(f.w-1, Math.max(0, (o.start&&o.start.x)|0)), y:Math.min(f.h-1, Math.max(0, (o.start&&o.start.y)|0)) };
-    f.foods = Array.isArray(o.foods) ? o.foods.filter(x => x && x.x < f.w && x.y < f.h).map(x => ({ x:x.x|0, y:x.y|0, emoji:x.emoji||'🍎', name:x.name||'たべもの', bad:!!x.bad })) : [];
+    // ますの 外（マイナスも ふくむ）と、岩・水の 上の たべものは すてる。
+    // 取れない たべものが のこると「クリアできない もんだい」に なる
+    const raw = Array.isArray(o.foods) ? o.foods : [];
+    f.foods = raw
+      .filter(x => x && (x.x|0) >= 0 && (x.y|0) >= 0 && (x.x|0) < f.w && (x.y|0) < f.h)
+      .map(x => ({ x:x.x|0, y:x.y|0, emoji:x.emoji||'🍎', name:x.name||'たべもの', bad:!!x.bad }))
+      .filter(x => f.cells[x.y][x.x] === 'floor');
     f.creature = CREATURES[o.creature] ? o.creature : 'kabuto';
+    // 1つでも すてたら もとの マップとは 別もの＝「といた しるし」は しんじられない
+    f.solved = !!o.solved && f.foods.length === raw.length;
   } catch (e) {}
   return f;
 }
@@ -2028,23 +2246,42 @@ function renderFreeCreatures() {
     const b = document.createElement('button');
     b.className = 'fc-btn' + (FREE.creature === k ? ' sel' : '');
     b.innerHTML = creatureSVG(k, 40);
-    b.addEventListener('click', () => { SFX.tap(); FREE.creature = k; renderFreeCreatures(); renderFreeStage(); });
+    b.addEventListener('click', () => { SFX.tap(); pickFreeCreature(k); });
     el.appendChild(b);
   });
 }
-function freeToLevel(f) {
+// 生きものを かえると とくいわざが かわる＝解けるか どうかも かわるので、
+// 「といた しるし」を 消して もういちど じぶんで とかせる（解けない もんだいを 出させない ため）
+function pickFreeCreature(k) {
+  FREE.creature = k;
+  freeTouched();
+  SAVE.free.map = FREE; persist();
+  renderFreeCreatures(); renderFreeStage();
+}
+// じゆうの しまで つかえる カード。しまを クリアするたびに ふえる（純ロジック・selftest対象）
+function freeCards() {
+  let c = BASIC.slice();
+  if (islandDone(ISLE(2))) c = c.concat(['LOOP']);                  // 🔁くりかえし
+  if (islandDone(ISLE(3))) c = c.concat(['IF_food','IF_like']);     // ❓もしも
+  if (islandDone(ISLE(4))) c = c.concat(['CALL']);                  // ⚡名前を つける
+  return c;
+}
+function freeToLevel(f, opts) {
+  const o = opts || {};
   const rocks = [], holes = [];
   for (let y = 0; y < f.h; y++) for (let x = 0; x < f.w; x++) {
     if (f.cells[y][x] === 'rock') rocks.push({ x, y });
     else if (f.cells[y][x] === 'water') holes.push({ x, y });
   }
-  return { id:'free', name:'じぶんの マップ', creature:f.creature, cards:B_FREE, func:true,
+  const quiz = !!o.quiz;
+  return { id:'free', name:'じぶんの マップ', creature:f.creature, cards:freeCards(), func:islandDone(ISLE(4)),
+           ability:(CREATURES[f.creature] || {}).ability,
            grid:{ w:f.w, h:f.h }, start:{ x:f.start.x, y:f.start.y },
            foods:f.foods.map(x => ({ ...x })), rocks, holes, par:99, maxCards:40,
-           island:FREE_IDX, index:0,
-           goal:'じぶんで 作った マップで あそぼう！',
+           island:FREE_IDX, index:0, quiz,
+           goal: quiz ? KID_MSG.quizGoal : 'じぶんで 作った マップで あそぼう！',
            hint:'カードを ならべて、じぶんの マップを クリアしよう',
-           speak:'じぶんで つくった マップで あそぼう！' };
+           speak: quiz ? 'おうちの ひとへ。この マップを クリアしてね！' : 'じぶんで つくった マップで あそぼう！' };
 }
 function renderFreeStage() {
   const lv = freeToLevel(FREE);
@@ -2073,10 +2310,11 @@ function paintCell(x, y) {
     else { rmFood(); FREE.cells[y][x] = 'floor';
            FREE.foods.push(bad ? { x, y, emoji:'🍄', name:'きのこ', bad:true } : { x, y, emoji:'🍎', name:'りんご' }); }
   } else {
-    if (FREE.start.x === x && FREE.start.y === y && FREE_TOOL !== 'floor') { showToast('スタートの ところには おけないよ'); return; }
+    if (FREE.start.x === x && FREE.start.y === y && FREE_TOOL !== 'floor') { showToast(KID_MSG.freeStartBusy); return; }
     FREE.cells[y][x] = (FREE.cells[y][x] === FREE_TOOL) ? 'floor' : FREE_TOOL;
     if (FREE.cells[y][x] !== 'floor') rmFood();
   }
+  freeTouched();
   SAVE.free.map = FREE; persist();
   renderFreeStage();
 }
@@ -2091,6 +2329,7 @@ document.querySelectorAll('#free-bottom [data-size]').forEach(b => {
     FREE.start = { x:Math.min(FREE.start.x, s.w-1), y:Math.min(FREE.start.y, s.h-1) };
     FREE.cells[FREE.start.y][FREE.start.x] = 'floor';
     FREE.foods = FREE.foods.filter(f => f.x < s.w && f.y < s.h);
+    freeTouched();
     SAVE.free.map = FREE; persist();
     renderFreeTools(); renderFreeStage();
   });
@@ -2098,17 +2337,29 @@ document.querySelectorAll('#free-bottom [data-size]').forEach(b => {
 $('btn-free-clear').addEventListener('click', () => {
   SFX.tap();
   FREE.cells = makeCells(FREE.w, FREE.h); FREE.foods = [];
+  freeTouched();
   SAVE.free.map = FREE; persist(); renderFreeStage();
 });
 $('btn-free-back').addEventListener('click', () => { SFX.tap(); renderIslands(); showScreen('islands'); });
 $('btn-free-play').addEventListener('click', () => {
   const good = FREE.foods.filter(f => !f.bad);
-  if (!good.length) { SFX.fail(); showToast('たべものを 1つ いじょう おいてね'); return; }
+  if (!good.length) { SFX.fail(); showToast(KID_MSG.freeNeedFood); return; }
   const lv = freeToLevel(FREE);
-  if (isBlocked(lv, FREE.start.x, FREE.start.y)) { SFX.fail(); showToast('スタートが 岩や 水の 上だよ'); return; }
+  if (isBlocked(lv, FREE.start.x, FREE.start.y)) { SFX.fail(); showToast(KID_MSG.freeStartBad); return; }
   SAVE.free.map = FREE; persist();
   SFX.tap();
   startLevel(lv);
+});
+// 👪 じぶんで といた マップだけ「もんだい」として 出せる
+$('btn-free-quiz').addEventListener('click', () => {
+  if (!FREE.solved) { SFX.fail(); showToast(KID_MSG.freeSolveFirst); return; }
+  const good = FREE.foods.filter(f => !f.bad);
+  if (!good.length) { SFX.fail(); showToast(KID_MSG.freeNeedFood); return; }
+  const lv = freeToLevel(FREE, { quiz:true });
+  if (isBlocked(lv, FREE.start.x, FREE.start.y)) { SFX.fail(); showToast(KID_MSG.freeStartBad); return; }
+  SAVE.free.map = FREE; persist();
+  SFX.tap();
+  startLevel(lv, false);
 });
 $('btn-free-save').addEventListener('click', () => {
   const items = SAVE.free.slots.map((s, i) => ({ label:`${i+1}ばん\n${s ? 'ほぞん ずみ' : 'から'}`, value:i }));
@@ -2120,8 +2371,9 @@ $('btn-free-save').addEventListener('click', () => {
 $('btn-free-load').addEventListener('click', () => {
   const items = SAVE.free.slots.map((s, i) => ({ label:`${i+1}ばん\n${s ? 'よみこむ' : 'から'}`, value:i }));
   openModal('どれを よみこむ？', items, i => {
-    if (!SAVE.free.slots[i]) { showToast('そこは からっぽだよ'); return; }
+    if (!SAVE.free.slots[i]) { showToast(KID_MSG.freeSlotEmpty); return; }
     FREE = reviveFree(SAVE.free.slots[i]);
+    freeTouched();                               // よみこんだ ばかりの マップは まず じぶんで とく
     SAVE.free.map = FREE; persist();
     renderFreeTools(); renderFreeCreatures(); renderFreeStage();
     showToast(`${i+1}ばんを よみこんだよ！`);
@@ -2146,7 +2398,7 @@ $('import-file').addEventListener('change', e => {
   reader.onload = () => {
     try {
       const d = JSON.parse(reader.result);
-      if (!d || typeof d !== 'object' || !d.cleared) throw new Error('形式が違います');
+      if (!d || typeof d !== 'object' || !validCleared(d.cleared)) throw new Error('形式が違います');
       localStorage.setItem(STORAGE_KEY, JSON.stringify(d));
       SAVE = loadSave();
       FREE = null;
@@ -2206,10 +2458,16 @@ const SOLUTIONS = {
   '5-5': () => ({ func:P('R').concat([IF('like', P('E'))]),
                   main:[LP(3, [callNode()])].concat(P('U'), [LP(3, [callNode()])], P('U'), [LP(2, [callNode()])]) }),
   '5-6': () => ({ main:[LP(3, P('UR').concat([IF('like', P('E'))], P('RDRR')))].concat(P('E')) }),
+  '6-1': () => ({ main:[LP(6, P('R'))].concat(P('E')) }),
+  '6-2': () => ({ main:[LP(6, P('R'))].concat(P('DE')) }),
+  '6-3': () => ({ main:[LP(7, P('R').concat([IF('like', P('E'))]))] }),
+  '6-4': () => ({ main:[LP(2, P('R')), LP(2, P('U')), LP(3, P('R')), LP(2, P('D'))].concat(P('RE')) }),
 };
 function runSelftest() {
   const out = [];
   const T = (name, cond) => out.push({ name, ok: !!cond });
+  // しまは id で 引く（ならびを かえても テストが こわれない ように）
+  const IS = id => ISLANDS[ISLE(id)];
 
   // --- 各レベルの 想定解 ---
   ALL_LEVELS.forEach(lv => {
@@ -2266,7 +2524,7 @@ function runSelftest() {
   T('全レベル ヒントがある', ALL_LEVELS.every(lv => !!lv.hint));
   T('レベルID重複なし', new Set(ALL_LEVELS.map(l => l.id)).size === ALL_LEVELS.length);
   T('生きもの重複なし（1レベル1匹）', new Set(ALL_LEVELS.map(l => l.creature)).size === ALL_LEVELS.length);
-  T('ずかん定義=レベル数', Object.keys(CREATURES).length === ALL_LEVELS.length);
+  T('ずかん定義=レベル数=31', Object.keys(CREATURES).length === ALL_LEVELS.length && ALL_LEVELS.length === 31);
   T('想定解に使う条件カードが パレットにある', ALL_LEVELS.every(lv => {
     const need = new Set();
     (function walk(list) {
@@ -2280,8 +2538,44 @@ function runSelftest() {
     })(SOLUTIONS[lv.id]().main.concat(SOLUTIONS[lv.id]().func || []));
     return Array.from(need).every(k => lv.cards.includes(k));
   }));
-  T('しま4はfunc:true', ISLANDS[3].levels.every(lv => lv.func === true));
-  T('しま4以外はfuncなし', ISLANDS.slice(0,3).every(is => is.levels.every(lv => !lv.func)));
+  T('⚡名前を つける しまは 全面 func:true', IS(4).levels.every(lv => lv.func === true));
+  T('⚡と🏆 いがいの しまは funcなし',
+    [1,2,3,6].every(id => IS(id).levels.every(lv => !lv.func)));
+  T('しまの ならびが あく じゅんばん（🌱🔁❓🐸⚡🏆🎨）',
+    ISLANDS.map(is => is.id).join(',') === '1,2,3,6,4,5,7' &&
+    ISLANDS[6].free === true && FREE_IDX === 6);
+  T('ならびを かえても 進みが 閉じない requires（🐸=2・⚡=2・🏆=4・🎨=1）',
+    IS(6).requires === 2 && IS(4).requires === 2 && IS(5).requires === 4 && IS(7).requires === 1);
+  T('requires は いつも じぶんより 前の しまを さす',
+    ISLANDS.every((is, ii) => typeof is.requires !== 'number' || is.requires < ii));
+
+  // --- とくいわざ（生きものごとに 通れる ところが かわる・v2.8.0） ---
+  (() => {
+    const swim = ALL_LEVELS.find(l => l.id === '6-1');
+    const only = ALL_LEVELS.find(l => l.id === '6-4');
+    const stone = ALL_LEVELS.find(l => l.id === '6-2');
+    const plain = ALL_LEVELS.find(l => l.id === '1-6');
+    T('terrainAt は とくいわざを 見ない（水は いつも 水）',
+      terrainAt(swim, 2, 2) === 'water' && terrainAt(only, 0, 2) === 'water' &&
+      terrainAt(only, 1, 1) === null && terrainAt(stone, 3, 2) === 'water');
+    T('isBlocked: swimは 水を 通れる／かべは そのまま',
+      isBlocked(swim, 2, 2) === null && isBlocked(swim, -1, 2) === 'wall' && isBlocked(swim, 6, 2) === null);
+    T('isBlocked: waterOnlyは 陸が land・水は 通れる',
+      isBlocked(only, 1, 1) === 'land' && isBlocked(only, 0, 2) === null && isBlocked(only, 7, 2) === 'wall');
+    T('とび石の 面でも swimなら 水を 通れる（6-2）', isBlocked(stone, 3, 2) === null);
+    T('とくいわざの ない レベルは これまで どおり（1-6の 池は 通れない）',
+      isBlocked(plain, 3, 2) === 'water' && !plain.ability && !CREATURES.kaeru.ability);
+    T('waterOnly: 陸に 出ようと すると fail-land', simulate(only, P('U')).result === 'fail-land');
+    T('絵は 地形の まま（およげる 生きものでも 水を かく）',
+      stageMarkup(swim, true).includes('#7cbfec') && stageMarkup(only, true).includes('#7cbfec'));
+    T('とくいわざの しまの 4面すべてに abilityが ある',
+      IS(6).levels.length === 4 &&
+      IS(6).levels.every(lv => lv.ability === CREATURES[lv.creature].ability && !!lv.ability));
+    T('abilityを もつのは とくいわざの しまの 生きものだけ',
+      Object.keys(CREATURES).filter(k => CREATURES[k].ability).length === 4);
+    T('とくいわざの 見出しが 2しゅるい とも ある',
+      !!ABILITY_TAG.swim && !!ABILITY_TAG.waterOnly && !!ABILITY_MARK.swim && !!ABILITY_MARK.waterOnly);
+  })();
 
   // --- 失敗パターン ---
   const L = id => ALL_LEVELS.find(l => l.id === id);
@@ -2430,6 +2724,31 @@ function runSelftest() {
     const cb = $('btn-closebox'); if (cb) cb.classList.remove('show');
     return r.result === 'clear' && n === L('3-1').par;
   })());
+  T('❓は 2ノードぶん 数えて 上限を こえさせない（3-1は 上限7・➡6まいの あと ❓は 入らない）', (() => {
+    const bak = G;
+    G = { level:L('3-1'), main:P('RRRRRR'), func:[], root:'main', path:[], sel:null, ins:null,
+          running:false, free:false, failCount:0 };
+    renderEditors();
+    const before = totalCards();
+    addNode(ifUnit('food'));                      // 6 + 2 = 8 > 7 ⇒ 入らない
+    const after = totalCards();
+    addNode(cmdNode('R'));                        // 1まいなら ちょうど 7で 入る
+    const after2 = totalCards();
+    G = bak; $('editors').innerHTML = ''; $('meter').classList.add('hide');
+    const cb = $('btn-closebox'); if (cb) cb.classList.remove('show');
+    return before === 6 && after === 6 && after2 === 7;
+  })());
+  T('❓が ちょうど 上限に おさまる ときは 入る（5まい＋❓2＝7）', (() => {
+    const bak = G;
+    G = { level:L('3-1'), main:P('RRRRR'), func:[], root:'main', path:[], sel:null, ins:null,
+          running:false, free:false, failCount:0 };
+    renderEditors();
+    addNode(ifUnit('food'));
+    const n = totalCards();
+    G = bak; $('editors').innerHTML = ''; $('meter').classList.add('hide');
+    const cb = $('btn-closebox'); if (cb) cb.classList.remove('show');
+    return n === 7;
+  })());
   T('⟳→❓→➡ の じゅんでも 一歩ずつ うごく（とまる 事故に ならない）',
     simulate(L('3-1'), [LP(7, [ifUnit('food'), cmdNode('R')])], []).steps >= 7);
   T('しっぱい助言: ❓の じゅんばんミスには「➡の あとに ❓」', (() => {
@@ -2447,7 +2766,7 @@ function runSelftest() {
   T('しっぱい助言: のこり数を 出す', failAdvice(makeState(L('1-1')), P('R'), 1).includes('あと1こ'));
 
   // --- まめちしき ---
-  T('全21匹に とっておきの まめちしきが ある',
+  T(`全${Object.keys(CREATURES).length}匹に とっておきの まめちしきが ある`,
     Object.keys(CREATURES).every(k => typeof CREATURES[k].wow === 'string' && CREATURES[k].wow.length >= 10));
   T('まめちしきは ずかんの 一言と 別の 文', Object.keys(CREATURES).every(k => CREATURES[k].wow !== CREATURES[k].fact));
   T('まめちしきの あて先が 全部 実在の 生きもの', Object.keys(WOW).every(k => !!CREATURES[k]));
@@ -2462,7 +2781,37 @@ function runSelftest() {
     Object.values(CREATURES).forEach(c => texts.push(c.name, c.fact, c.wow));
     ISLANDS.forEach(is => texts.push(is.name, is.sub));
     ALL_LEVELS.forEach(lv => texts.push(lv.name, lv.goal, lv.hint, lv.hint1 || '', lv.clearMsg || '', (lv.foods||[]).map(f=>f.name).join('')));
-    ISLAND_HINT1.forEach(t => texts.push(t));
+    Object.values(ISLAND_HINT1).forEach(t => texts.push(t));
+    // 画面に 出る ことばは ぜんぶ 見る（ここを 広げないと 新しい メッセージが すりぬける）
+    Object.values(KID_MSG).forEach(v => texts.push(typeof v === 'function' ? v('エサ') : v));
+    Object.values(ABILITY_TAG).forEach(t => texts.push(t));
+    Object.values(ABILITY_MARK).forEach(t => texts.push(t));
+    FREE_TOOLS.forEach(t => texts.push(t.label));
+    texts.push($('selbar').textContent);                       // そうさバーの ボタンの 文字
+    texts.push(document.querySelector('#screen-free .map-header h2').textContent);
+    // しっぱい助言は「出る 文」を じっさいに 作って 見る（文を 直しても 見のがさない）
+    (() => {
+      const lv1 = ALL_LEVELS.find(l => l.id === '1-1');
+      const s0 = makeState(lv1);
+      texts.push(failAdvice(s0, [], 0));
+      texts.push(failAdvice(s0, P('R'), 1));
+      const s1 = makeState(lv1); s1.x = 3; s1.y = 1;
+      texts.push(failAdvice(s1, P('RRR'), 3));
+      const lv3 = ALL_LEVELS.find(l => l.id === '3-1');
+      const s2 = makeState(lv3); s2.x = 7; s2.y = 1;
+      s2.foods.forEach(f => { if (f.x !== 7) f.eaten = true; });
+      texts.push(failAdvice(s2, [LP(7, [ifUnit('food'), cmdNode('R')])], 10));
+    })();
+    // メーターの ことばも 全レベル・全だんかいで 見る
+    ALL_LEVELS.forEach(lv => [0, 1, lv.par, lv.par + 1, (lv.maxCards || lv.par + 2)].forEach(n => {
+      const info = meterInfo(lv, n);
+      texts.push(info.msg, info.goal);
+    }));
+    // しまの 鍵の 文言（「🔒 しま○まで クリアで あく」）
+    ISLANDS.forEach((is, ii) => {
+      const req = typeof is.requires === 'number' ? is.requires : ii - 1;
+      texts.push(`🔒 しま${req + 1}まで クリアで あく`, '🎨 いつでも あそべる');
+    });
     const bad = [];
     texts.forEach(t => Array.from(String(t)).forEach(ch => {
       if (/[一-鿿]/.test(ch) && !ok.has(ch) && bad.indexOf(ch) < 0) bad.push(ch);
@@ -2491,9 +2840,15 @@ function runSelftest() {
   // --- 2だんかいヒント ---
   T('ヒント1だんめが 全レベルで 出る', ALL_LEVELS.every(lv => !!hint1Text(lv)));
   T('ヒント1だんめは 2だんめ（答えに近い方）と 別の 文', ALL_LEVELS.every(lv => hint1Text(lv) !== lv.hint));
-  T('ヒント1だんめは しまごとに ちがう',
-    new Set(ALL_LEVELS.map(lv => hint1Text(lv))).size === 5);
+  T('しまごとの ヒント1だんめが 6しま ぶん あって すべて ちがう',
+    Object.keys(ISLAND_HINT1).length === 6 &&
+    new Set(Object.values(ISLAND_HINT1)).size === 6);
+  T('ヒント1だんめは しまの idで 引く（ならびを かえても ずれない）',
+    ISLANDS.every(is => is.levels.every(lv => lv.hint1 || hint1Text(lv) === ISLAND_HINT1[is.id])));
   T('レベルの hint1が あれば そちらが 勝つ', hint1Text({ island:0, hint1:'テスト' }) === 'テスト');
+  T('面ごとの hint1が 6面に 入っている（1-1・1-2・6-1〜6-4）',
+    ['1-1','1-2','6-1','6-2','6-3','6-4'].every(id => !!ALL_LEVELS.find(l => l.id === id).hint1) &&
+    ALL_LEVELS.filter(lv => lv.hint1).length === 6);
 
   // --- クリア画面の「くわしく」 ---
   T('くわしく: 中みが 無ければ ボタンを 出さない', (() => {
@@ -2628,6 +2983,66 @@ function runSelftest() {
       return ok && inner === 'R';
     })());
 
+    T('えらんだ カードに ✕バッジが 出て、その ✕で 1まい けせる（v2.9.0）', (() => {
+      const bak = G;
+      G = mkG({ main:P('RUE') }); renderEditors();
+      const none = !document.querySelector('#editors .pcard .xbadge');
+      selectNode('main', [1]);
+      const badge = document.querySelector('#editors .pcard.sel .xbadge');
+      const shown = !!badge;
+      if (badge) badge.click();
+      const got = chars(G.main), sel = G.sel;
+      back(bak);
+      return none && shown && got === 'RE' && sel === null;
+    })());
+
+    T('えらんで いない カードには ✕バッジを 出さない', (() => {
+      const bak = G;
+      G = mkG({ main:P('RUE') }); renderEditors();
+      selectNode('main', [1]);
+      const n = document.querySelectorAll('#editors .pcard .xbadge').length;
+      back(bak);
+      return n === 1;
+    })());
+
+    T('そうさバーの ならびは やめる／中に カードを 入れる／回数を かえる／けす（けすは 赤）', (() => {
+      const labels = Array.from($('selbar').querySelectorAll('button')).map(b => b.textContent);
+      return labels.join('|') === 'やめる|中に カードを 入れる|回数を かえる|けす' &&
+             $('btn-sel-del').classList.contains('danger-btn');
+    })());
+
+    T('えらんだ ときの 文は 「ここに 入る」と「✕で けせる」を つたえる', (() => {
+      const bak = G;
+      G = mkG({ main:P('RE') }); renderEditors();
+      selectNode('main', [0]);
+      const html = $('sel-msg').innerHTML, txt = $('sel-msg').textContent;
+      // せまい 画面では .long が 消えて「えらんだよ ▸ ここに 入る」だけ になる
+      const shortForm = html.replace(/<span class="long">.*?<\/span>/g, '');
+      back(bak);
+      return txt.includes('ここに 入る') && txt.includes('✕で けせる') &&
+             shortForm === 'えらんだよ ▸ ここに 入る';
+    })());
+
+    T('回数を かえる ときは いまの 回数が 光る（sel付き）', (() => {
+      const bak = G;
+      G = mkG({ main:[LP(5, P('R'))] }); renderEditors();
+      selectNode('main', [0]);
+      $('btn-sel-count').click();
+      const sel = $('modal-body').querySelector('button.sel');
+      const ok = !!sel && sel.textContent === '5回' &&
+                 $('modal-body').querySelectorAll('button.sel').length === 1;
+      $('modal').classList.remove('show');
+      back(bak);
+      return ok;
+    })());
+
+    T('新しく ⟳を 出す ときは どれも 光らない', (() => {
+      askLoopCount(() => {});
+      const n = $('modal-body').querySelectorAll('button.sel').length;
+      $('modal').classList.remove('show');
+      return n === 0;
+    })());
+
     T('startLevel で えらび／カーソルが もとに もどる', (() => {
       const bak = G;
       startLevel(L('1-1'));
@@ -2650,20 +3065,51 @@ function runSelftest() {
   // --- しま/めん の 解放ロジック ---
   (() => {
     const bak = JSON.parse(JSON.stringify(SAVE));
+    const clearIsland = id => IS(id).levels.forEach(lv => SAVE.cleared[lv.id] = { clear:true });
+    const openIds = () => ISLANDS.filter((is, ii) => islandUnlocked(ii)).map(is => is.id);
     SAVE.cleared = {};
-    T('最初は しま1だけ 解放', islandUnlocked(0) && !islandUnlocked(1) && !islandUnlocked(4) && !islandUnlocked(FREE_IDX));
+    T('最初は しま1だけ 解放', openIds().join(',') === '1');
     T('最初は 1-1だけ 遊べる', levelUnlocked(L('1-1')) && !levelUnlocked(L('1-2')));
     SAVE.cleared['1-1'] = { clear:true };
     T('1-1クリアで 1-2が 解放', levelUnlocked(L('1-2')));
-    ISLANDS[0].levels.forEach(lv => SAVE.cleared[lv.id] = { clear:true });
-    T('しま1全クリアで しま2が 解放', islandUnlocked(1) && !islandUnlocked(2));
-    ISLANDS[1].levels.forEach(lv => SAVE.cleared[lv.id] = { clear:true });
-    ISLANDS[2].levels.forEach(lv => SAVE.cleared[lv.id] = { clear:true });
-    ISLANDS[3].levels.forEach(lv => SAVE.cleared[lv.id] = { clear:true });
-    T('しま4全クリアで じゆうの しまが 解放', islandUnlocked(FREE_IDX));
-    T('しま4全クリアで ちょうせんの しまも 解放', islandUnlocked(4) && ISLANDS[4].id === 5 && !ISLANDS[4].free);
-    T('ちょうせんを とかなくても じゆうの しまは 閉じない（進みが 消えない）', !islandDone(4) && islandUnlocked(FREE_IDX));
+    clearIsland(1);
+    T('🌱全クリアで 🔁が 解放（ほかは まだ）', openIds().join(',') === '1,2');
+    clearIsland(2);
+    T('🔁全クリアで ❓と 🎨じゆうが 開く', openIds().join(',') === '1,2,3,7');
+    T('じゆう: しま2までなら カードは BASIC＋⟳だけ（わざ行も 出ない）', (() => {
+      const c = freeCards();
+      return c.length === BASIC.length + 1 && c.includes('LOOP') &&
+             !c.includes('IF_food') && !c.includes('IF_like') && !c.includes('CALL') &&
+             freeToLevel(defaultFree()).func === false;
+    })());
+    clearIsland(3);
+    T('❓全クリアで 🐸と ⚡が 開く（🏆は まだ）', openIds().join(',') === '1,2,3,6,4,7');
+    T('❓全クリアで ❓カードが つかえる（⚡は まだ）', (() => {
+      const c = freeCards();
+      return c.includes('IF_food') && c.includes('IF_like') && !c.includes('CALL');
+    })());
+    clearIsland(4);
+    T('⚡全クリアで 🏆も ひらいて 7しま すべて 開く', openIds().join(',') === '1,2,3,6,4,5,7');
+    T('⚡全クリアで ⚡カードと わざ行が つかえる', (() => {
+      const c = freeCards();
+      return c.includes('CALL') && freeToLevel(defaultFree()).func === true;
+    })());
+    T('🐸を とばしても ⚡・🏆・🎨は 閉じない（進みが 消えない）',
+      !islandDone(ISLE(6)) && islandUnlocked(ISLE(4)) && islandUnlocked(ISLE(5)) && islandUnlocked(FREE_IDX));
     T('ちょうせんの 面も 前の 面クリアで 順に あく', levelUnlocked(L('5-1')) && !levelUnlocked(L('5-2')));
+    T('とくいわざの 面も 前の 面クリアで 順に あく', levelUnlocked(L('6-1')) && !levelUnlocked(L('6-2')));
+    // v2.8.0までの ならびで しま1〜4（🌱🔁❓⚡）を クリア ずみの 子＝新ならびでも 全しま あく
+    SAVE.cleared = {};
+    [1,2,3,4].forEach(clearIsland);
+    T('しま1〜4クリア ずみの データで 7しま ぜんぶ 開く（進みが 閉じない）',
+      openIds().length === ISLANDS.length && openIds().join(',') === '1,2,3,6,4,5,7');
+    SAVE.cleared = {};
+    [1,2,3].forEach(clearIsland);
+    T('しま1〜3だけの データで 🐸と⚡は 開き 🏆は 閉じている',
+      islandUnlocked(ISLE(6)) && islandUnlocked(ISLE(4)) && !islandUnlocked(ISLE(5)));
+    SAVE.cleared = {};
+    [1,2].forEach(clearIsland);
+    T('しま1〜2だけの データで 🎨じゆうが 開く', islandUnlocked(FREE_IDX));
     SAVE.cleared = bak.cleared; SAVE.zukan = bak.zukan; SAVE.free = bak.free; SAVE.settings = bak.settings;
   })();
 
@@ -2679,6 +3125,18 @@ function runSelftest() {
     T('保存→読込 roundtrip', re.cleared['1-1'].perfect === true && re.zukan.includes('kabuto') && re.free.slots[1].w === 5);
     localStorage.setItem(STORAGE_KEY, '{"broken":');
     T('壊れたデータでもデフォルトで起動', Object.keys(loadSave().cleared).length === 0);
+    localStorage.setItem(STORAGE_KEY, '{"cleared":"x"}');
+    T('clearedが 文字列なら からの オブジェクトに 直す', (() => {
+      const d = loadSave();
+      return validCleared(d.cleared) && !Array.isArray(d.cleared) && Object.keys(d.cleared).length === 0;
+    })());
+    localStorage.setItem(STORAGE_KEY, '{"cleared":["1-1"]}');
+    T('clearedが 配列でも からの オブジェクトに 直す', (() => {
+      const d = loadSave();
+      return validCleared(d.cleared) && !Array.isArray(d.cleared) && Object.keys(d.cleared).length === 0;
+    })());
+    T('validCleared の 判定', validCleared({}) && !validCleared([]) && !validCleared('x') &&
+                              !validCleared(null) && !validCleared(3));
     // v1.0.0（しま1だけ・free無し）のデータが読めるか
     localStorage.setItem(STORAGE_KEY, JSON.stringify({
       schema:1, version:'1.0.0',
@@ -2715,7 +3173,103 @@ function runSelftest() {
   })());
   T('じゆう: 壊れたデータを 直して読む', (() => {
     const f = reviveFree({ w:999, h:-3, cells:'x', start:{x:99,y:99}, foods:'x', creature:'ないよ' });
-    return f.w <= 12 && f.h >= 3 && f.start.x < f.w && f.creature === 'kabuto';
+    return f.w <= 12 && f.h >= 3 && f.start.x < f.w && f.creature === 'kabuto' && f.solved === false;
+  })());
+  T('じゆう: えらんだ 生きものの とくいわざが レベルに 入る', (() => {
+    const f = defaultFree();
+    f.cells[2][3] = 'water';
+    const asBug  = freeToLevel(f);                       // カブトムシ＝とくいわざ なし
+    f.creature = 'amagaeru';
+    const asFrog = freeToLevel(f);                       // アマガエル＝およげる
+    return asBug.ability === undefined && isBlocked(asBug, 3, 2) === 'water' &&
+           asFrog.ability === 'swim' && isBlocked(asFrog, 3, 2) === null &&
+           terrainAt(asFrog, 3, 2) === 'water';
+  })());
+  T('じゆう: solved（といた しるし）は 保存データに のこる', (() => {
+    const f = defaultFree(); f.solved = true;
+    return reviveFree(JSON.parse(JSON.stringify(f))).solved === true;
+  })());
+  T('じゆう: ますの 外（マイナス）の たべものは すてて solvedも 落とす', (() => {
+    const f = reviveFree({ w:5, h:4, foods:[{ x:-3, y:1 }], solved:true });
+    return f.foods.length === 0 && f.solved === false;
+  })());
+  T('じゆう: 岩・水の 上の たべものは すてて solvedも 落とす', (() => {
+    const cells = makeCells(5, 4);
+    cells[1][1] = 'rock'; cells[2][2] = 'water';
+    const f = reviveFree({ w:5, h:4, cells, solved:true,
+                           foods:[{ x:1, y:1 }, { x:2, y:2 }, { x:3, y:0 }] });
+    return f.foods.length === 1 && f.foods[0].x === 3 && f.foods[0].y === 0 && f.solved === false;
+  })());
+  T('じゆう: たべものを 1つも すてなければ solvedは のこる', (() => {
+    const f = reviveFree({ w:5, h:4, cells:makeCells(5, 4), solved:true, foods:[{ x:3, y:0 }] });
+    return f.foods.length === 1 && f.solved === true;
+  })());
+  T('じゆう: 生きものを かえると solvedが 消える（とくいわざで 解けるかが かわる）', (() => {
+    const bakFree = FREE, bakMap = SAVE.free.map;
+    FREE = defaultFree(); FREE.solved = true;
+    pickFreeCreature('ari');
+    const ok = FREE.solved === false;
+    FREE = bakFree; SAVE.free.map = bakMap; persist();
+    return ok;
+  })());
+  T('じゆう: 生きものを かえると 保存データにも すぐ 書かれる', (() => {
+    const bakFree = FREE, bakMap = SAVE.free.map;
+    FREE = defaultFree(); FREE.solved = true;
+    pickFreeCreature('ari');
+    const ok = SAVE.free.map === FREE && SAVE.free.map.solved === false;
+    FREE = bakFree; SAVE.free.map = bakMap; persist();
+    return ok;
+  })());
+  T('じゆう: マップを なおすと solvedが 消える（paintCell）', (() => {
+    const bakFree = FREE, bakTool = FREE_TOOL, bakMap = SAVE.free.map;
+    FREE = defaultFree(); FREE.solved = true;
+    FREE_TOOL = 'rock';
+    paintCell(1, 0);
+    const ok = FREE.solved === false && FREE.cells[0][1] === 'rock';
+    FREE = bakFree; FREE_TOOL = bakTool; SAVE.free.map = bakMap; persist();
+    return ok;
+  })());
+
+  // --- 👪 おうちの人に 出す（v2.8.0） ---
+  T('もんだいモード: ヒント・メーターが 出ない／もどるは「やめる」', (() => {
+    const bak = G, bakFree = FREE;
+    FREE = defaultFree(); FREE.solved = true;
+    const lv = freeToLevel(FREE, { quiz:true });
+    startLevel(lv, false);
+    const ok = lv.quiz === true && lv.id === 'free' && G.free === true &&
+               $('lv-title').textContent.indexOf('もんだい') >= 0 &&
+               $('btn-hint').style.display === 'none' &&
+               $('meter').classList.contains('hide') &&
+               $('btn-back').textContent.indexOf('やめる') >= 0 &&
+               freeToLevel(FREE).quiz === false;
+    G = bak; FREE = bakFree; $('editors').innerHTML = ''; $('meter').classList.add('hide');
+    const cb = $('btn-closebox'); if (cb) cb.classList.remove('show');
+    return ok;
+  })());
+  T('もんだいを といても クリア状況・ずかんは かわらない', (() => {
+    const bak = G, bakFree = FREE;
+    const nc = Object.keys(SAVE.cleared).length, nz = SAVE.zukan.length;
+    FREE = defaultFree(); FREE.solved = true;
+    startLevel(freeToLevel(FREE, { quiz:true }), false);
+    onClear(7);
+    const ok = Object.keys(SAVE.cleared).length === nc && SAVE.zukan.length === nz &&
+               !SAVE.cleared['free'] &&
+               $('overlay-title').textContent.indexOf('といた') >= 0 &&
+               $('btn-next').style.display === 'none';
+    $('overlay').classList.remove('show');
+    G = bak; FREE = bakFree; $('editors').innerHTML = ''; $('meter').classList.add('hide');
+    return ok;
+  })());
+  T('じぶんで クリアすると solvedが 立つ（＝出せるように なる）', (() => {
+    const bak = G, bakFree = FREE, bakMap = SAVE.free.map;
+    FREE = defaultFree(); FREE.solved = false;
+    startLevel(freeToLevel(FREE), false);
+    onClear(7);
+    const ok = FREE.solved === true && $('overlay-title').textContent.indexOf('クリア') >= 0;
+    $('overlay').classList.remove('show');
+    G = bak; FREE = bakFree; SAVE.free.map = bakMap; persist();
+    $('editors').innerHTML = ''; $('meter').classList.add('hide');
+    return ok;
   })());
 
   const okCount = out.filter(t => t.ok).length;
