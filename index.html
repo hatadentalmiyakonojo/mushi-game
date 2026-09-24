@@ -44,9 +44,7 @@
   button[disabled] { opacity:.4; pointer-events:none; }
 
   /* ===== タイトル ===== */
-  #screen-title { align-items:center; justify-content:center; gap:24px;
-    background: linear-gradient(#cfe9ff 0%, #e8f6d0 55%, #b8dd8a 100%); }
-  #screen-title h1 { font-size:clamp(30px,6vw,52px); color:#3f7a1f; text-shadow:2px 2px 0 #fff; letter-spacing:2px; text-align:center; line-height:1.3; }
+  #screen-title { align-items:center; justify-content:center; gap:24px; }
   #title-parade { display:flex; gap:14px; }
   #title-parade svg { width:clamp(48px,9vw,84px); height:auto; animation:hop 1.6s ease-in-out infinite; }
   #title-parade svg:nth-child(2){ animation-delay:.2s } #title-parade svg:nth-child(3){ animation-delay:.4s }
@@ -64,7 +62,7 @@
 
   /* ===== しま えらび ===== */
   #screen-islands { background:linear-gradient(#cfe9ff,#dff0c0); padding: max(10px, env(safe-area-inset-top)) 16px 16px; }
-  #island-list { flex:1; display:flex; flex-wrap:wrap; gap:clamp(10px,2vw,18px); align-content:center; justify-content:center; overflow:auto; }
+  #island-list { flex:1; display:flex; flex-direction:column; overflow:auto; min-height:0; padding:4px 0 10px; }
   .is-btn { width:clamp(150px,18vw,215px); padding:16px 10px 14px; display:flex; flex-direction:column; align-items:center; gap:6px; background:#fffef5; }
   .is-btn .is-icon { font-size:clamp(30px,5vw,44px); }
   .is-btn .is-name { font-size:clamp(15px,2.3vw,19px); font-weight:bold; text-align:center; line-height:1.3; }
@@ -74,7 +72,9 @@
 
   /* ===== めん えらび ===== */
   #screen-map { background: linear-gradient(#dff0c0, #c2e096); padding: max(10px, env(safe-area-inset-top)) 16px 16px; }
-  #map-levels { flex:1; display:flex; flex-wrap:wrap; gap:clamp(10px,2vw,20px); align-content:center; justify-content:center; overflow:auto; }
+  #map-levels { flex:1; display:flex; flex-direction:column; overflow:auto; min-height:0; padding:4px 0 10px; }
+  /* 中の ならびは margin:auto で 中央へ。入りきらない ときは 上から スクロールで 見える（align-content:center だと 上が 切れて もどれない） */
+  .card-grid { width:100%; margin:auto 0; display:flex; flex-wrap:wrap; gap:clamp(10px,2vw,18px); justify-content:center; padding:6px 2px; }
   .lv-btn { width:clamp(130px,21vw,190px); padding:14px 8px 12px; display:flex; flex-direction:column; align-items:center; gap:6px; background:#fffef5; }
   .lv-btn svg { width:clamp(48px,7vw,70px); height:auto; }
   .lv-btn .lv-num { font-size:13px; color:#8a9a76; font-weight:bold; }
@@ -327,20 +327,188 @@
 
   .stage-shake { animation:shake .4s; }
   @keyframes shake { 0%,100%{transform:translateX(0)} 25%{transform:translateX(-6px)} 75%{transform:translateX(6px)} }
+  /* ===== 生きものの 絵の うごき（まばたき・はばたき） ===== */
+  .mm-eye { transform-box:fill-box; transform-origin:center; animation:mm-blink 5.2s infinite; }
+  @keyframes mm-blink { 0%,93%,100% { transform:scaleY(1) } 96% { transform:scaleY(.1) } }
+  .mm-flapx { transform-box:view-box; transform-origin:50px 50px; animation:mm-flapx .5s ease-in-out infinite alternate; }
+  @keyframes mm-flapx { from { transform:scaleX(1) } to { transform:scaleX(.72) } }
+  .mm-flapy { transform-box:view-box; transform-origin:50px 54px; animation:mm-flapy .18s ease-in-out infinite alternate; }
+  @keyframes mm-flapy { from { transform:scaleY(1) } to { transform:scaleY(.82) } }
+  .mm-buzz { transform-box:view-box; transform-origin:48px 42px; animation:mm-buzz .12s ease-in-out infinite alternate; }
+  @keyframes mm-buzz { from { transform:rotate(-7deg) } to { transform:rotate(6deg) } }
+  .mm-glow { animation:mm-glow 1.9s ease-in-out infinite; }
+  @keyframes mm-glow { 0%,100% { opacity:.45 } 50% { opacity:1 } }
+  .mm-tail { transform-box:view-box; transform-origin:52px 60px; animation:mm-tail .55s ease-in-out infinite alternate; }
+  @keyframes mm-tail { from { transform:rotate(-7deg) } to { transform:rotate(7deg) } }
+  /* ステージの うごき */
+  .wave { animation:wave 3.2s ease-in-out infinite alternate; }
+  @keyframes wave { from { transform:translateX(-4px); opacity:.75 } to { transform:translateX(4px); opacity:1 } }
+  .twinkle { transform-box:fill-box; transform-origin:center; animation:twinkle 2.4s ease-in-out infinite; }
+  @keyframes twinkle { 0%,100% { transform:scale(.2); opacity:0 } 50% { transform:scale(1); opacity:.95 } }
+  #actor-hop { transform-box:fill-box; transform-origin:50% 100%; }
+  #actor-hop.hopping { animation:hopstep .45s ease-out; }
+  @keyframes hopstep { 0% { transform:translateY(0) scale(1,1) } 30% { transform:translateY(-15px) scale(.95,1.06) }
+                       62% { transform:translateY(-4px) scale(1,1) } 82% { transform:translateY(0) scale(1.07,.9) } 100% { transform:translateY(0) scale(1,1) } }
+  .spark { transform-box:fill-box; transform-origin:center; animation:spark .75s ease-out forwards; }
+  @keyframes spark { 0% { transform:translate(0,0) scale(.4) rotate(0deg); opacity:1 } 100% { transform:translate(var(--dx),var(--dy)) scale(1.25) rotate(90deg); opacity:0 } }
+  .pop-up { transform-box:fill-box; transform-origin:center; animation:popup .95s ease-out forwards; }
+  @keyframes popup { 0% { transform:translateY(8px) scale(.4); opacity:0 } 25% { transform:translateY(0) scale(1.1); opacity:1 } 100% { transform:translateY(-34px) scale(1); opacity:0 } }
+  @media (prefers-reduced-motion: reduce) {
+    .wave, .twinkle, #actor-hop.hopping { animation:none !important; }
+    .mm-eye, .mm-flapx, .mm-flapy, .mm-buzz, .mm-glow, .mm-tail, .idle, .food-emoji { animation:none !important; }
+  }
+  /* =====================================================================
+     えほん風の 見た目（背景・ロゴ・島カード・ボタン・ずかん・クリア演出）
+  ===================================================================== */
+  .scene-wrap { position:absolute; inset:0; z-index:0; overflow:hidden; pointer-events:none; }
+  .scene-wrap .scene { width:100%; height:100%; display:block; }
+  .screen > *:not(.scene-wrap) { position:relative; z-index:1; }
+  .sun-rays { animation:spin 40s linear infinite; }
+  .spin { animation:spin 3.2s linear infinite; }
+  @keyframes spin { to { transform:rotate(360deg) } }
+  .cloud { animation:drift 80s linear infinite; }
+  @keyframes drift { from { transform:translateX(-320px) } to { transform:translateX(1500px) } }
+  .bf { animation:fly1 16s ease-in-out infinite; }
+  .bf2 { animation:fly2 21s ease-in-out infinite; }
+  .bf-wing { transform-box:fill-box; transform-origin:center; animation:mm-flapx .22s ease-in-out infinite alternate; }
+  @keyframes fly1 { 0%,100% { transform:translate(180px,430px) } 25% { transform:translate(420px,360px) rotate(8deg) }
+                    50% { transform:translate(640px,450px) } 75% { transform:translate(380px,520px) rotate(-8deg) } }
+  @keyframes fly2 { 0%,100% { transform:translate(980px,470px) } 30% { transform:translate(760px,390px) rotate(-6deg) }
+                    60% { transform:translate(860px,560px) } 80% { transform:translate(1080px,420px) rotate(6deg) } }
+  .boat { animation:sail 60s linear infinite; }
+  @keyframes sail { 0% { transform:translate(1300px,215px) } 100% { transform:translate(-120px,215px) } }
+
+  /* 縦むき・横むきで 見える はんいが ちがうので、太陽や 木を 出し分ける */
+  @media (orientation: portrait) { .only-land { display:none } }
+  @media (orientation: landscape) { .only-port { display:none } }
+  /* タイトル */
+  #screen-title { background:#d2f0ff; overflow:hidden; gap:clamp(16px,3.4vh,34px); justify-content:center; padding-bottom:14vh; }
+  #screen-title .logo { font-size:clamp(46px,9vw,104px); line-height:1.08; text-align:center; font-weight:900; letter-spacing:.02em; margin:0; }
+  .logo span { display:inline-block; color:var(--c);
+    text-shadow: 3px 0 0 #fff, -3px 0 0 #fff, 0 3px 0 #fff, 0 -3px 0 #fff, 2.5px 2.5px 0 #fff, -2.5px 2.5px 0 #fff, 2.5px -2.5px 0 #fff, -2.5px -2.5px 0 #fff,
+                 5px 0 0 #fff, -5px 0 0 #fff, 0 5px 0 #fff, 0 -5px 0 #fff, 4px 4px 0 #fff, -4px 4px 0 #fff, 4px -4px 0 #fff, -4px -4px 0 #fff,
+                 0 10px 0 rgba(70,110,40,.28);
+    animation:letter 2.6s ease-in-out infinite; animation-delay:calc(var(--i) * .11s); }
+  .logo .l2 { font-size:.66em; }
+  @keyframes letter { 0%,100% { transform:translateY(0) rotate(0) } 40% { transform:translateY(-8px) rotate(-3deg) } 60% { transform:translateY(-4px) rotate(2deg) } }
+  #btn-start { font-size:clamp(24px,4.2vw,36px); padding:clamp(14px,2.2vh,20px) clamp(48px,8vw,76px); border-radius:999px;
+    background:linear-gradient(#ffc15a, #ff8a1f); color:#fff; font-weight:900; letter-spacing:.08em;
+    border:4px solid #fff; box-shadow:0 7px 0 #d8680c, 0 14px 26px rgba(60,40,10,.25), inset 0 3px 0 rgba(255,255,255,.5);
+    text-shadow:0 2px 0 rgba(150,60,0,.35); animation:breathe 2.2s ease-in-out infinite; }
+  #btn-start:active { transform:translateY(5px); box-shadow:0 2px 0 #d8680c, 0 6px 12px rgba(60,40,10,.2), inset 0 3px 0 rgba(255,255,255,.5); }
+  @keyframes breathe { 0%,100% { transform:scale(1) } 50% { transform:scale(1.05) } }
+  #title-parade { position:absolute !important; left:0; right:0; bottom:clamp(8px,4vh,40px); justify-content:center; gap:clamp(4px,1.4vw,18px); }
+  #title-parade svg { width:clamp(56px,10vw,110px); }
+  #title-ver { position:absolute !important; }
+
+  /* しま えらび */
+  #screen-islands { background:#8fd4ff; }
+  #screen-zukan .map-header h2 { color:#8a5a1a; text-shadow:0 2px 0 #fff; }
+  #screen-islands .map-header h2, #screen-map .map-header h2 {
+    color:#fff; text-shadow:0 2px 0 rgba(40,90,130,.5), 0 0 12px rgba(40,90,130,.35); }
+  #island-total { color:#fff !important; }
+  .is-btn { width:clamp(160px,19vw,228px); padding:0 0 12px; overflow:hidden; border-radius:22px; background:#fffef7;
+    border:4px solid #fff; box-shadow:0 6px 0 rgba(20,70,110,.25), 0 12px 22px rgba(20,70,110,.2); gap:4px; }
+  .is-btn .is-art { width:100%; height:auto; display:block; margin-bottom:4px; }
+  .is-btn .is-icon { font-size:1em; }
+  .is-btn .is-name { padding:0 8px; }
+  .is-btn.locked { filter:none; opacity:1; }
+  .is-btn.locked .is-art { filter:grayscale(.7) brightness(1.05); }
+  .is-btn.locked .is-name, .is-btn.locked .is-sub { opacity:.6; }
+  .is-btn:not(.locked):hover .is-art, .is-btn:not(.locked):active .is-art { transform:scale(1.03); }
+  .is-btn .is-art { transition:transform .2s; }
+
+  /* めん えらび */
+  #screen-map { background:#d2f0ff; }
+  .lv-btn { border-radius:22px; border:4px solid #fff; background:#fffef7;
+    box-shadow:0 6px 0 rgba(70,110,40,.25), 0 12px 22px rgba(70,110,40,.18); }
+  .lv-pic { width:clamp(70px,9vw,96px); height:clamp(70px,9vw,96px); border-radius:50%; display:flex; align-items:center; justify-content:center;
+    background:radial-gradient(circle at 40% 35%, #fff 0, var(--tt) 45%, var(--tc) 100%); border:3px solid var(--tc);
+    box-shadow:inset 0 -5px 0 rgba(0,0,0,.08); }
+  .lv-pic svg { width:78% !important; }
+  .lv-btn .lv-num { background:var(--tc); color:#fff; border-radius:999px; padding:2px 12px; text-shadow:0 1px 0 rgba(0,0,0,.2); }
+  .lv-btn.locked .lv-pic { filter:grayscale(1); opacity:.6; }
+
+  /* ずかん */
+  #screen-zukan { background:radial-gradient(circle at 20% 0%, #fff8dc 0, transparent 45%), linear-gradient(#f9e6b8, #f0d596); }
+  .zk-card { border:3px solid #fff; border-radius:20px; box-shadow:0 5px 0 rgba(140,100,30,.2), 0 10px 18px rgba(140,100,30,.14); }
+  .zk-pic { position:relative; width:clamp(74px,9vw,94px); height:clamp(74px,9vw,94px); border-radius:50%; display:flex; align-items:center; justify-content:center;
+    background:radial-gradient(circle at 40% 35%, #fff 0, var(--tt) 45%, var(--tc) 100%); border:3px solid var(--tc); }
+  .zk-pic svg { width:84% !important; }
+  .zk-q { position:absolute; font-size:28px; font-weight:900; color:#fff; text-shadow:0 2px 0 rgba(0,0,0,.2); }
+  .zk-card.unknown .zk-pic { background:#e9e2cf; border-color:#d8cfb8; }
+  .zk-sec { color:#8a5a1a; background:#fff6dc; display:inline-block; padding:4px 14px; border-radius:999px; box-shadow:0 3px 0 rgba(140,100,30,.15); }
+
+  /* ゲーム画面の 地（うすい 野原） */
+  #screen-game { background:radial-gradient(ellipse at 50% 0%, #fffbe8 0, transparent 60%), linear-gradient(#eef8e2, #dff0cc); }
+  #stage { filter:drop-shadow(0 6px 10px rgba(60,50,20,.18)); }
+
+  /* ボタン・カードを ぷっくり（上に つや・下に かげ） */
+  .cmd-btn.move, .cmd-btn.eat, .cmd-btn.loop, .cmd-btn.cond, .cmd-btn.call,
+  .pcard.move, .pcard.eat, .pcard.call {
+    background-image:linear-gradient(180deg, rgba(255,255,255,.42) 0, rgba(255,255,255,.08) 46%, rgba(0,0,0,0) 54%, rgba(0,0,0,.08) 100%);
+    box-shadow:0 4px 0 rgba(0,0,0,.2), inset 0 2px 0 rgba(255,255,255,.45), inset 0 -3px 0 rgba(0,0,0,.08);
+    text-shadow:0 1.5px 0 rgba(0,0,0,.22); border:2px solid rgba(255,255,255,.55); }
+  .cmd-btn:active { transform:translateY(3px); box-shadow:0 1px 0 rgba(0,0,0,.2), inset 0 2px 0 rgba(255,255,255,.45); }
+  #btn-run { background-image:linear-gradient(180deg, rgba(255,255,255,.35), rgba(255,255,255,0) 50%, rgba(0,0,0,.06));
+    box-shadow:0 5px 0 #c96a14, inset 0 2px 0 rgba(255,255,255,.45); border:2px solid rgba(255,255,255,.6); text-shadow:0 1.5px 0 rgba(0,0,0,.2); border-radius:18px; }
+  body.running #btn-run { box-shadow:0 5px 0 #a8402f, inset 0 2px 0 rgba(255,255,255,.35); }
+  .util-btn { border:2px solid #eee6d2; box-shadow:0 3px 0 #ddd3bb; }
+  .pbox.loop { background:linear-gradient(#dcebff, #c6ddff); }
+  .pbox.cond { background:linear-gradient(#ffeadb, #ffd9c0); }
+  .map-header button, #game-header button { border:2px solid #fff; box-shadow:0 3px 0 rgba(0,0,0,.14); }
+
+  /* クリア画面: 生きものの うしろに ひかりの わ＋紙ふぶき */
+  #overlay-creature { position:relative; display:flex; align-items:center; justify-content:center; width:150px; height:130px; }
+  #overlay-creature::before { content:""; position:absolute; width:170px; height:170px; border-radius:50%;
+    background:repeating-conic-gradient(from 0deg, rgba(255,214,90,.55) 0 12deg, rgba(255,255,255,0) 12deg 24deg);
+    -webkit-mask:radial-gradient(circle, #000 35%, transparent 70%); mask:radial-gradient(circle, #000 35%, transparent 70%);
+    animation:spin 9s linear infinite; }
+  #overlay-creature svg { position:relative; width:110px !important; }
+  #overlay-card { border:5px solid #fff; box-shadow:0 10px 0 rgba(60,80,30,.2), 0 24px 44px rgba(40,60,20,.3); }
+  .confetti { position:absolute; top:-20px; width:10px; height:16px; border-radius:3px; z-index:25; pointer-events:none;
+    animation:fall 2.8s cubic-bezier(.3,.6,.5,1) forwards; }
+  @keyframes fall { 0% { transform:translateY(0) rotate(0); opacity:1 } 85% { opacity:1 } 100% { transform:translateY(105vh) rotate(var(--rot)); opacity:0 } }
+
+  @media (prefers-reduced-motion: reduce) {
+    .sun-rays, .spin, .cloud, .bf, .bf2, .bf-wing, .boat, .logo span, #btn-start, #overlay-creature::before, .confetti { animation:none !important; }
+    .confetti { display:none; }
+  }
+  @media (max-width: 700px), (max-height: 520px) {
+    .is-btn { width:calc(50% - 9px); max-width:210px; }
+    .card-grid { gap:10px; }
+    #screen-title { padding-bottom:18vh; }
+  }
 </style>
 </head>
 <body>
+<!-- 絵の 共通パーツ（つや・ひかり・地形の グラデーション）。display:none に しないこと -->
+<svg id="art-defs" width="0" height="0" style="position:absolute;width:0;height:0;overflow:hidden" aria-hidden="true" focusable="false">
+  <defs>
+    <radialGradient id="mm-sheen" cx=".38" cy=".35" r=".62"><stop offset="0" stop-color="#fff" stop-opacity=".78"/><stop offset="1" stop-color="#fff" stop-opacity="0"/></radialGradient>
+    <linearGradient id="mm-grassA" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#b3dc7c"/><stop offset="1" stop-color="#a3d06a"/></linearGradient>
+    <linearGradient id="mm-grassB" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#a6d470"/><stop offset="1" stop-color="#96c75d"/></linearGradient>
+    <radialGradient id="mm-water" cx=".5" cy=".35" r=".75"><stop offset="0" stop-color="#bfe6fb" stop-opacity=".55"/><stop offset=".6" stop-color="#7cbfec" stop-opacity="0"/><stop offset="1" stop-color="#4e9fd6" stop-opacity=".35"/></radialGradient>
+    <linearGradient id="mm-frame" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#b98552"/><stop offset=".5" stop-color="#a06d3e"/><stop offset="1" stop-color="#8a5a31"/></linearGradient>
+    <radialGradient id="mm-rock" cx=".38" cy=".3" r=".8"><stop offset="0" stop-color="#cfc8bd"/><stop offset=".55" stop-color="#a49b8f"/><stop offset="1" stop-color="#7d756b"/></radialGradient>
+    <radialGradient id="mm-stone" cx=".4" cy=".3" r=".8"><stop offset="0" stop-color="#f1ece0"/><stop offset=".6" stop-color="#d6cfbf"/><stop offset="1" stop-color="#b3aa98"/></radialGradient>
+    <linearGradient id="mm-sea" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#9fe0f7"/><stop offset="1" stop-color="#4fb0e0"/></linearGradient>
+    <radialGradient id="mm-glowg"><stop offset="0" stop-color="#fffbb0" stop-opacity=".95"/><stop offset=".55" stop-color="#ffe75c" stop-opacity=".45"/><stop offset="1" stop-color="#ffe75c" stop-opacity="0"/></radialGradient>
+  </defs>
+</svg>
 
 <!-- ============ タイトル ============ -->
 <div id="screen-title" class="screen active">
-  <div id="title-parade"></div>
-  <h1>むしむし<br>プログラミング</h1>
+  <div id="title-scene" class="scene-wrap"></div>
+  <h1 id="title-logo" class="logo"></h1>
   <button id="btn-start">はじめる</button>
+  <div id="title-parade"></div>
   <div id="title-ver"></div>
 </div>
 
 <!-- ============ しま えらび ============ -->
 <div id="screen-islands" class="screen">
+  <div id="islands-scene" class="scene-wrap"></div>
   <div class="map-header">
     <h2>🗺️ しまを えらぼう <span id="island-total" style="font-size:.7em;color:#6a7a5a;margin-left:8px;white-space:nowrap"></span></h2>
     <div class="hbtns">
@@ -353,6 +521,7 @@
 
 <!-- ============ めん えらび ============ -->
 <div id="screen-map" class="screen">
+  <div id="map-scene" class="scene-wrap"></div>
   <div class="map-header">
     <h2 id="map-title"></h2>
     <div class="hbtns">
@@ -506,7 +675,7 @@
    ※ ならびを かえても 進みが 閉じないよう、ISLANDS の requires（＝ならびの ばんごう）で ひもづける。
       id は 保存データの キーでは ないが、ISLAND_HINT1 などは id で 引く（ならび依存を さける ため）
 ===================================================================== */
-const APP_VERSION = '2.9.0';
+const APP_VERSION = '3.0.0';
 const DATA_SCHEMA = 1;
 const STORAGE_KEY = 'mushimushi-programming';
 const CELL = 100;          // SVG内セルサイズ
@@ -517,108 +686,77 @@ const DEPTH_LIMIT = 6;
 const CREATURES = {
   /* --- しま1 --- */
   kabuto: { name:'カブトムシ',
-    fact:'木のしるが 大すき。りっぱなツノは オスだけに あるんだよ。',
-    svg:`<g><line x1="30" y1="72" x2="22" y2="84" stroke="#4a3216" stroke-width="4" stroke-linecap="round"/><line x1="48" y1="76" x2="44" y2="88" stroke="#4a3216" stroke-width="4" stroke-linecap="round"/><line x1="64" y1="74" x2="68" y2="86" stroke="#4a3216" stroke-width="4" stroke-linecap="round"/><ellipse cx="46" cy="58" rx="30" ry="21" fill="#7a4a21"/><path d="M20 52 Q46 30 72 50" fill="#8f5a2b"/><circle cx="74" cy="52" r="13" fill="#5d3617"/><path d="M80 44 Q88 30 85 22" stroke="#5d3617" stroke-width="5" fill="none" stroke-linecap="round"/><path d="M85 22 L78 16 M85 22 L93 18" stroke="#5d3617" stroke-width="4" fill="none" stroke-linecap="round"/><circle cx="77" cy="51" r="4.5" fill="#fff"/><circle cx="78.5" cy="52" r="2.2" fill="#222"/><path d="M30 50 Q46 42 62 50" stroke="#5d3617" stroke-width="2" fill="none" opacity=".5"/></g>` },
+    fact:'木のしるが 大すき。りっぱなツノは オスだけに あるんだよ。' },
   ari: { name:'アリ',
-    fact:'自分の 体より ずっと おもいものも はこべる 力もち！',
-    svg:`<g><line x1="40" y1="66" x2="30" y2="82" stroke="#2c2016" stroke-width="3.5" stroke-linecap="round"/><line x1="52" y1="68" x2="50" y2="84" stroke="#2c2016" stroke-width="3.5" stroke-linecap="round"/><line x1="62" y1="66" x2="70" y2="82" stroke="#2c2016" stroke-width="3.5" stroke-linecap="round"/><ellipse cx="32" cy="58" rx="17" ry="13" fill="#4a3423"/><circle cx="53" cy="58" r="10" fill="#5a4028"/><circle cx="70" cy="53" r="12" fill="#4a3423"/><path d="M74 44 Q78 34 74 28" stroke="#4a3423" stroke-width="3" fill="none" stroke-linecap="round"/><path d="M66 44 Q64 34 58 30" stroke="#4a3423" stroke-width="3" fill="none" stroke-linecap="round"/><circle cx="74" cy="52" r="4" fill="#fff"/><circle cx="75.5" cy="53" r="2" fill="#222"/></g>` },
+    fact:'自分の 体より ずっと おもいものも はこべる 力もち！' },
   dango: { name:'ダンゴムシ',
-    fact:'びっくりすると まるくなるよ。じつは エビや カニに 近い なかま！',
-    svg:`<g><line x1="34" y1="74" x2="30" y2="84" stroke="#5a6068" stroke-width="3.5" stroke-linecap="round"/><line x1="46" y1="76" x2="44" y2="86" stroke="#5a6068" stroke-width="3.5" stroke-linecap="round"/><line x1="58" y1="76" x2="58" y2="86" stroke="#5a6068" stroke-width="3.5" stroke-linecap="round"/><path d="M18 74 Q18 34 48 32 Q78 34 80 74 Z" fill="#8a8f98"/><path d="M30 40 Q48 33 66 40 M24 50 Q48 41 74 50 M21 62 Q48 52 78 62" stroke="#6d737d" stroke-width="3" fill="none"/><circle cx="80" cy="66" r="10" fill="#7a8089"/><path d="M84 58 Q88 50 86 46 M78 58 Q78 49 74 46" stroke="#7a8089" stroke-width="3" fill="none" stroke-linecap="round"/><circle cx="83" cy="64" r="3.8" fill="#fff"/><circle cx="84.5" cy="65" r="1.9" fill="#222"/></g>` },
+    fact:'びっくりすると まるくなるよ。じつは エビや カニに 近い なかま！' },
   katatsu: { name:'カタツムリ',
-    fact:'小さな はが 1万本 いじょう！ はっぱを けずって 食べるよ。',
-    svg:`<g><path d="M14 78 Q40 70 60 74 Q76 76 78 62 Q80 46 74 40" fill="none" stroke="#e8c99a" stroke-width="13" stroke-linecap="round"/><circle cx="40" cy="52" r="23" fill="#c98d4f"/><path d="M40 52 m0 -17 a17 17 0 1 1 -12 29 a11 11 0 1 0 8 -19 a5 5 0 1 1 4 -10" fill="none" stroke="#9a6633" stroke-width="4" stroke-linecap="round"/><path d="M74 44 Q76 32 72 26 M82 48 Q88 38 86 30" stroke="#e8c99a" stroke-width="4" fill="none" stroke-linecap="round"/><circle cx="72" cy="24" r="4" fill="#e8c99a"/><circle cx="87" cy="28" r="4" fill="#e8c99a"/><circle cx="76" cy="58" r="4" fill="#fff"/><circle cx="77.5" cy="59" r="2" fill="#222"/><path d="M72 68 Q76 70 80 68" stroke="#b09268" stroke-width="2.5" fill="none" stroke-linecap="round"/></g>` },
+    fact:'小さな はが 1万本 いじょう！ はっぱを けずって 食べるよ。' },
   risu: { name:'リス',
-    fact:'どんぐりを 土に かくすよ。ときどき かくした ばしょを わすれちゃう！',
-    svg:`<g><path d="M34 76 Q6 72 12 44 Q16 20 36 26 Q24 44 34 58 Z" fill="#a2622d"/><ellipse cx="52" cy="62" rx="22" ry="18" fill="#b97a3e"/><circle cx="72" cy="48" r="15" fill="#b97a3e"/><path d="M64 36 L60 24 L72 32 Z" fill="#a2622d"/><path d="M80 36 L84 24 L88 34 Z" fill="#a2622d"/><ellipse cx="54" cy="68" rx="12" ry="9" fill="#e9cfa8"/><circle cx="76" cy="46" r="4.5" fill="#fff"/><circle cx="77.5" cy="47" r="2.2" fill="#222"/><circle cx="85" cy="52" r="3" fill="#7a4a21"/><line x1="46" y1="80" x2="44" y2="88" stroke="#8a5426" stroke-width="4" stroke-linecap="round"/><line x1="62" y1="80" x2="64" y2="88" stroke="#8a5426" stroke-width="4" stroke-linecap="round"/></g>` },
+    fact:'どんぐりを 土に かくすよ。ときどき かくした ばしょを わすれちゃう！' },
   kaeru: { name:'カエル',
-    fact:'長い したを びゅん！と のばして 虫を つかまえるよ。',
-    svg:`<g><ellipse cx="50" cy="64" rx="28" ry="20" fill="#58a14e"/><ellipse cx="50" cy="70" rx="18" ry="11" fill="#cfe8b8"/><circle cx="34" cy="42" r="11" fill="#58a14e"/><circle cx="66" cy="42" r="11" fill="#58a14e"/><circle cx="34" cy="40" r="6.5" fill="#fff"/><circle cx="66" cy="40" r="6.5" fill="#fff"/><circle cx="36" cy="41" r="3" fill="#222"/><circle cx="68" cy="41" r="3" fill="#222"/><path d="M40 60 Q50 66 60 60" stroke="#3a7a34" stroke-width="3" fill="none" stroke-linecap="round"/><path d="M24 76 Q14 82 20 86 Q28 88 32 82" fill="#4a8a42"/><path d="M76 76 Q86 82 80 86 Q72 88 68 82" fill="#4a8a42"/></g>` },
+    fact:'長い したを びゅん！と のばして 虫を つかまえるよ。' },
 
   /* --- しま2 --- */
   batta: { name:'バッタ',
-    fact:'うしろ足で 高く とべるよ。体の 20ばいも とぶ ことが ある。',
-    svg:`<g><line x1="52" y1="70" x2="48" y2="84" stroke="#558b2f" stroke-width="3.5" stroke-linecap="round"/><line x1="62" y1="70" x2="62" y2="84" stroke="#558b2f" stroke-width="3.5" stroke-linecap="round"/><path d="M38 62 L26 38 L36 36 L48 60 Z" fill="#689f38"/><path d="M28 38 L20 80" stroke="#558b2f" stroke-width="4.5" fill="none" stroke-linecap="round"/><ellipse cx="48" cy="58" rx="30" ry="14" fill="#8bc34a"/><ellipse cx="44" cy="53" rx="25" ry="8" fill="#9ccc65"/><circle cx="76" cy="52" r="12" fill="#8bc34a"/><path d="M82 44 Q90 34 88 26 M76 42 Q78 32 72 26" stroke="#8bc34a" stroke-width="3" fill="none" stroke-linecap="round"/><circle cx="80" cy="50" r="4.5" fill="#fff"/><circle cx="81.5" cy="51" r="2.2" fill="#222"/></g>` },
+    fact:'うしろ足で 高く とべるよ。体の 20ばいも とぶ ことが ある。' },
   tento: { name:'テントウムシ',
-    fact:'アブラムシを たくさん 食べる 虫。人の やくに 立つよ。',
-    svg:`<g><line x1="30" y1="72" x2="24" y2="84" stroke="#2e2420" stroke-width="3.5" stroke-linecap="round"/><line x1="46" y1="78" x2="44" y2="88" stroke="#2e2420" stroke-width="3.5" stroke-linecap="round"/><line x1="60" y1="76" x2="64" y2="86" stroke="#2e2420" stroke-width="3.5" stroke-linecap="round"/><ellipse cx="46" cy="58" rx="30" ry="23" fill="#e53935"/><path d="M46 36 L46 80" stroke="#3a2a2a" stroke-width="3.5"/><circle cx="34" cy="50" r="6" fill="#3a2a2a"/><circle cx="58" cy="50" r="6" fill="#3a2a2a"/><circle cx="38" cy="68" r="5" fill="#3a2a2a"/><circle cx="56" cy="68" r="5" fill="#3a2a2a"/><ellipse cx="34" cy="46" rx="7" ry="4" fill="#f4736f" opacity=".5"/><circle cx="74" cy="54" r="12" fill="#3a2a2a"/><path d="M80 46 Q88 36 86 30 M70 45 Q68 36 62 32" stroke="#3a2a2a" stroke-width="3" fill="none" stroke-linecap="round"/><circle cx="78" cy="52" r="4" fill="#fff"/><circle cx="79.5" cy="53" r="2" fill="#222"/></g>` },
+    fact:'アブラムシを たくさん 食べる 虫。人の やくに 立つよ。' },
   hachi: { name:'ミツバチ',
-    fact:'花の みつを あつめて はちみつを 作るよ。',
-    svg:`<g><ellipse cx="40" cy="38" rx="20" ry="11" fill="#eaf6ff" opacity=".85" transform="rotate(-22 40 38)"/><ellipse cx="58" cy="36" rx="17" ry="10" fill="#eaf6ff" opacity=".85" transform="rotate(-10 58 36)"/><ellipse cx="46" cy="60" rx="28" ry="19" fill="#f9c22e"/><ellipse cx="34" cy="60" rx="4" ry="16" fill="#3a2a18"/><ellipse cx="46" cy="60" rx="4" ry="18" fill="#3a2a18"/><ellipse cx="58" cy="60" rx="4" ry="16" fill="#3a2a18"/><path d="M18 60 l-7 -6 M18 60 l-7 6" stroke="#3a2a18" stroke-width="4" fill="none" stroke-linecap="round"/><circle cx="76" cy="54" r="13" fill="#3a2a18"/><path d="M82 44 Q88 34 86 28 M72 43 Q68 34 62 30" stroke="#3a2a18" stroke-width="3" fill="none" stroke-linecap="round"/><circle cx="80" cy="52" r="4.5" fill="#fff"/><circle cx="81.5" cy="53" r="2.2" fill="#222"/></g>` },
+    fact:'花の みつを あつめて はちみつを 作るよ。' },
   chou: { name:'チョウ',
-    fact:'口が ストローみたいに 長いよ。花の みつが 大すき。',
-    svg:`<g><ellipse cx="32" cy="42" rx="21" ry="17" fill="#ffa3c4" transform="rotate(-20 32 42)"/><ellipse cx="68" cy="42" rx="21" ry="17" fill="#ffa3c4" transform="rotate(20 68 42)"/><ellipse cx="35" cy="72" rx="15" ry="12" fill="#ff7fae" transform="rotate(20 35 72)"/><ellipse cx="65" cy="72" rx="15" ry="12" fill="#ff7fae" transform="rotate(-20 65 72)"/><circle cx="32" cy="42" r="6" fill="#fff" opacity=".75"/><circle cx="68" cy="42" r="6" fill="#fff" opacity=".75"/><ellipse cx="50" cy="58" rx="6" ry="24" fill="#6b4a2b"/><circle cx="50" cy="34" r="9" fill="#6b4a2b"/><path d="M45 27 Q38 17 32 15 M55 27 Q62 17 68 15" stroke="#6b4a2b" stroke-width="3" fill="none" stroke-linecap="round"/><circle cx="46" cy="32" r="3" fill="#fff"/><circle cx="54" cy="32" r="3" fill="#fff"/><circle cx="46.5" cy="33" r="1.6" fill="#222"/><circle cx="54.5" cy="33" r="1.6" fill="#222"/></g>` },
+    fact:'口が ストローみたいに 長いよ。花の みつが 大すき。' },
   semi: { name:'セミ',
-    fact:'土の 中で 何年も くらして、夏に 出てくるよ。',
-    svg:`<g><ellipse cx="38" cy="44" rx="30" ry="13" fill="#dceaf2" opacity=".85" transform="rotate(10 38 44)"/><ellipse cx="38" cy="62" rx="28" ry="11" fill="#dceaf2" opacity=".75" transform="rotate(20 38 62)"/><ellipse cx="52" cy="56" rx="25" ry="15" fill="#5a4634"/><path d="M34 52 q18 -6 34 -2" stroke="#48372a" stroke-width="3" fill="none"/><circle cx="74" cy="52" r="14" fill="#4a382a"/><circle cx="79" cy="46" r="4.5" fill="#fff"/><circle cx="80.5" cy="47" r="2.2" fill="#222"/><circle cx="68" cy="44" r="4" fill="#3a2a1e"/><path d="M42 68 q10 5 20 1" stroke="#3a2a1e" stroke-width="3" fill="none" stroke-linecap="round"/></g>` },
+    fact:'土の 中で 何年も くらして、夏に 出てくるよ。' },
 
   /* --- しま3 --- */
   kamakiri: { name:'カマキリ',
-    fact:'前足の カマで 虫を つかまえる ハンター。',
-    svg:`<g><line x1="34" y1="66" x2="26" y2="82" stroke="#689f38" stroke-width="3.5" stroke-linecap="round"/><line x1="46" y1="66" x2="44" y2="84" stroke="#689f38" stroke-width="3.5" stroke-linecap="round"/><ellipse cx="34" cy="60" rx="28" ry="10" fill="#7cb342" transform="rotate(-8 34 60)"/><ellipse cx="58" cy="52" rx="15" ry="10" fill="#8bc34a"/><path d="M66 46 L84 34 L88 44 L72 54 Z" fill="#8bc34a"/><path d="M64 52 L78 42" stroke="#689f38" stroke-width="6" stroke-linecap="round"/><path d="M78 42 L70 34" stroke="#689f38" stroke-width="6" stroke-linecap="round"/><path d="M70 34 l-5 3 l3 -6 z" fill="#558b2f"/><circle cx="82" cy="40" r="4.5" fill="#fff"/><circle cx="83.5" cy="41" r="2.2" fill="#222"/><path d="M86 32 Q92 24 90 18" stroke="#8bc34a" stroke-width="2.5" fill="none" stroke-linecap="round"/></g>` },
+    fact:'前足の カマで 虫を つかまえる ハンター。' },
   tonbo: { name:'トンボ',
-    fact:'目が とても 大きくて、うしろにも とべるよ。',
-    svg:`<g><ellipse cx="42" cy="36" rx="26" ry="8" fill="#cfeaf7" opacity=".85" transform="rotate(-12 42 36)"/><ellipse cx="42" cy="72" rx="26" ry="8" fill="#cfeaf7" opacity=".85" transform="rotate(12 42 72)"/><ellipse cx="60" cy="38" rx="19" ry="7" fill="#cfeaf7" opacity=".7" transform="rotate(-8 60 38)"/><ellipse cx="60" cy="70" rx="19" ry="7" fill="#cfeaf7" opacity=".7" transform="rotate(8 60 70)"/><rect x="12" y="50" width="56" height="9" rx="4.5" fill="#4a98b8"/><rect x="12" y="50" width="14" height="9" rx="4.5" fill="#3a7a98"/><circle cx="74" cy="54" r="14" fill="#57a8c8"/><circle cx="79" cy="49" r="5" fill="#fff"/><circle cx="80.5" cy="50" r="2.5" fill="#222"/><circle cx="70" cy="46" r="4" fill="#fff" opacity=".6"/></g>` },
+    fact:'目が とても 大きくて、うしろにも とべるよ。' },
   kuwagata: { name:'クワガタ',
-    fact:'大きな あごで けんかを するよ。あごが 大きいのは オス。',
-    svg:`<g><line x1="30" y1="72" x2="22" y2="84" stroke="#2e1f14" stroke-width="4" stroke-linecap="round"/><line x1="46" y1="76" x2="44" y2="88" stroke="#2e1f14" stroke-width="4" stroke-linecap="round"/><line x1="60" y1="74" x2="64" y2="86" stroke="#2e1f14" stroke-width="4" stroke-linecap="round"/><ellipse cx="44" cy="58" rx="29" ry="20" fill="#3e2b1c"/><ellipse cx="40" cy="53" rx="23" ry="13" fill="#54402c"/><path d="M44 40 L44 76" stroke="#2a1c12" stroke-width="2.5" opacity=".7"/><circle cx="72" cy="54" r="12" fill="#2e1f14"/><path d="M80 47 Q94 38 88 28" stroke="#2e1f14" stroke-width="5" fill="none" stroke-linecap="round"/><path d="M80 61 Q94 64 90 74" stroke="#2e1f14" stroke-width="5" fill="none" stroke-linecap="round"/><path d="M88 28 l4 5 M90 74 l5 -3" stroke="#2e1f14" stroke-width="4" stroke-linecap="round"/><circle cx="75" cy="51" r="4" fill="#fff"/><circle cx="76.5" cy="52" r="2" fill="#222"/></g>` },
+    fact:'大きな あごで けんかを するよ。あごが 大きいのは オス。' },
   hotaru: { name:'ホタル',
-    fact:'おしりが 光るよ。きれいな 水の ある ところに すむ。',
-    svg:`<g><circle cx="28" cy="58" r="17" fill="#fff3a0" opacity=".55"/><ellipse cx="32" cy="58" rx="17" ry="13" fill="#ffe066"/><ellipse cx="56" cy="56" rx="25" ry="16" fill="#4a3a2a"/><ellipse cx="52" cy="52" rx="19" ry="9" fill="#5c4a36"/><circle cx="76" cy="52" r="12" fill="#c0392b"/><circle cx="79" cy="49" r="4" fill="#fff"/><circle cx="80.5" cy="50" r="2" fill="#222"/><path d="M82 43 Q88 33 86 27 M72 42 Q70 32 64 28" stroke="#4a3a2a" stroke-width="3" fill="none" stroke-linecap="round"/><line x1="44" y1="70" x2="40" y2="82" stroke="#3a2e22" stroke-width="3.5" stroke-linecap="round"/><line x1="58" y1="70" x2="60" y2="82" stroke="#3a2e22" stroke-width="3.5" stroke-linecap="round"/></g>` },
+    fact:'おしりが 光るよ。きれいな 水の ある ところに すむ。' },
   amenbo: { name:'アメンボ',
-    fact:'水の 上を すべる 虫。足の 先に あぶらが あるよ。',
-    svg:`<g><path d="M42 54 L16 28 M46 58 L22 80 M52 52 L38 20 M56 60 L46 86 M62 54 L86 28 M64 60 L84 80" stroke="#4a3a2a" stroke-width="3" fill="none" stroke-linecap="round"/><ellipse cx="52" cy="57" rx="23" ry="7" fill="#5a4a3a"/><ellipse cx="46" cy="55" rx="14" ry="4" fill="#6d5b47"/><circle cx="76" cy="55" r="8.5" fill="#4a3a2a"/><circle cx="78.5" cy="52.5" r="3" fill="#fff"/><circle cx="79.5" cy="53.5" r="1.5" fill="#222"/></g>` },
+    fact:'水の 上を すべる 虫。足の 先に あぶらが あるよ。' },
 
   /* --- しま4 --- */
   usagi: { name:'ウサギ',
-    fact:'耳が 長いのは 音を よく きくため。目は うしろまで 見える。',
-    svg:`<g><ellipse cx="42" cy="66" rx="27" ry="20" fill="#f5f0e6"/><circle cx="16" cy="62" r="11" fill="#fff"/><circle cx="68" cy="52" r="17" fill="#f8f4ea"/><ellipse cx="61" cy="26" rx="6.5" ry="19" fill="#f8f4ea" transform="rotate(-8 61 26)"/><ellipse cx="77" cy="26" rx="6.5" ry="19" fill="#f8f4ea" transform="rotate(9 77 26)"/><ellipse cx="61" cy="28" rx="3" ry="12" fill="#f7c6cf" transform="rotate(-8 61 28)"/><ellipse cx="77" cy="28" rx="3" ry="12" fill="#f7c6cf" transform="rotate(9 77 28)"/><circle cx="76" cy="50" r="3.6" fill="#3a3226"/><circle cx="62" cy="50" r="3.6" fill="#3a3226"/><path d="M69 58 l-4.5 -4 l9 0 z" fill="#f7a6b5"/><line x1="34" y1="82" x2="31" y2="88" stroke="#e0d8c8" stroke-width="4" stroke-linecap="round"/><line x1="52" y1="84" x2="53" y2="90" stroke="#e0d8c8" stroke-width="4" stroke-linecap="round"/></g>` },
+    fact:'耳が 長いのは 音を よく きくため。目は うしろまで 見える。' },
   kame: { name:'カメ',
-    fact:'ゆっくり あるくけど、100年 いじょう 生きる ことも ある。',
-    svg:`<g><ellipse cx="30" cy="80" rx="9" ry="5.5" fill="#8ec46a"/><ellipse cx="60" cy="82" rx="9" ry="5.5" fill="#8ec46a"/><ellipse cx="14" cy="66" rx="9" ry="5" fill="#8ec46a"/><ellipse cx="46" cy="62" rx="32" ry="22" fill="#6a9e4a"/><ellipse cx="46" cy="62" rx="24" ry="15" fill="#7cb35a"/><circle cx="46" cy="60" r="7" fill="#5c8c3e"/><circle cx="31" cy="59" r="5" fill="#5c8c3e"/><circle cx="61" cy="59" r="5" fill="#5c8c3e"/><circle cx="38" cy="72" r="4.5" fill="#5c8c3e"/><circle cx="55" cy="72" r="4.5" fill="#5c8c3e"/><circle cx="80" cy="58" r="12" fill="#8ec46a"/><circle cx="84" cy="55" r="4" fill="#fff"/><circle cx="85.5" cy="56" r="2" fill="#222"/><path d="M86 64 q4 1 6 -1" stroke="#5c8c3e" stroke-width="2.5" fill="none" stroke-linecap="round"/></g>` },
+    fact:'ゆっくり あるくけど、100年 いじょう 生きる ことも ある。' },
   harinezumi: { name:'ハリネズミ',
-    fact:'体じゅうの はりで じぶんを まもるよ。まるくなると ボールみたい。',
-    svg:`<g><ellipse cx="44" cy="64" rx="32" ry="22" fill="#9c8264"/><path d="M20 52 l-7 -15 l15 9 z M32 44 l-3 -17 l13 13 z M46 40 l3 -17 l10 15 z M60 42 l9 -14 l6 16 z" fill="#6f5942"/><path d="M14 62 l-11 -6 l11 -4 z" fill="#6f5942"/><circle cx="76" cy="66" r="13" fill="#e8d8c0"/><ellipse cx="66" cy="58" rx="5" ry="6" fill="#d8c4a8"/><circle cx="80" cy="62" r="3.6" fill="#3a3226"/><circle cx="88" cy="68" r="3.4" fill="#3a2a22"/><path d="M78 72 q5 3 9 0" stroke="#b8a488" stroke-width="2.5" fill="none" stroke-linecap="round"/><line x1="36" y1="84" x2="34" y2="90" stroke="#7a6248" stroke-width="4" stroke-linecap="round"/><line x1="56" y1="84" x2="58" y2="90" stroke="#7a6248" stroke-width="4" stroke-linecap="round"/></g>` },
+    fact:'体じゅうの はりで じぶんを まもるよ。まるくなると ボールみたい。' },
   kitsune: { name:'キツネ',
-    fact:'耳が とても よくて、雪の 下の ねずみの 音も 聞こえる。',
-    svg:`<g><path d="M26 74 Q4 68 10 44 Q16 30 28 36 Q18 54 30 66 Z" fill="#d9812f"/><path d="M12 44 Q8 36 16 34 Q14 40 18 44 Z" fill="#f7e6cf"/><ellipse cx="48" cy="66" rx="26" ry="17" fill="#e89a4a"/><ellipse cx="50" cy="74" rx="18" ry="8" fill="#f7e6cf"/><circle cx="74" cy="52" r="15" fill="#e89a4a"/><path d="M63 40 L61 23 L75 33 Z" fill="#d9812f"/><path d="M82 37 L91 25 L91 40 Z" fill="#d9812f"/><path d="M74 54 q10 3 13 9 q-11 4 -17 -1 z" fill="#f7e6cf"/><circle cx="88" cy="60" r="3.5" fill="#3a2a1e"/><circle cx="78" cy="48" r="4" fill="#fff"/><circle cx="79.5" cy="49" r="2" fill="#222"/><circle cx="66" cy="48" r="3.4" fill="#3a2a1e"/><line x1="40" y1="82" x2="38" y2="88" stroke="#c9762a" stroke-width="4" stroke-linecap="round"/><line x1="58" y1="82" x2="60" y2="88" stroke="#c9762a" stroke-width="4" stroke-linecap="round"/></g>` },
+    fact:'耳が とても よくて、雪の 下の ねずみの 音も 聞こえる。' },
   penguin: { name:'ペンギン',
-    fact:'鳥だけど 空を とばずに、海を およぐよ。およぐのは とても 早い。',
-    svg:`<g><ellipse cx="46" cy="62" rx="26" ry="30" fill="#33404d"/><ellipse cx="50" cy="66" rx="17" ry="24" fill="#fdfbf6"/><circle cx="54" cy="32" r="19" fill="#33404d"/><ellipse cx="58" cy="38" rx="12" ry="11" fill="#fdfbf6"/><path d="M70 33 l15 5 l-15 5 z" fill="#f4a63a"/><circle cx="63" cy="27" r="4.5" fill="#fff"/><circle cx="64.5" cy="28" r="2.2" fill="#222"/><path d="M22 58 q-12 14 -3 23 q9 -7 9 -19 z" fill="#2a343f"/><ellipse cx="40" cy="90" rx="10" ry="5" fill="#f4a63a"/><ellipse cx="60" cy="90" rx="10" ry="5" fill="#f4a63a"/></g>` },
+    fact:'鳥だけど 空を とばずに、海を およぐよ。およぐのは とても 早い。' },
 
   /* --- しま5（ちょうせん） --- */
   koorogi: { name:'コオロギ',
-    fact:'はねを こすり合わせて 鳴くよ。鳴くのは オスだけ。',
-    svg:`<g><path d="M40 60 L28 38 L36 36 L48 58 Z" fill="#4e3a2a"/><path d="M28 38 L20 78" stroke="#3d2d20" stroke-width="4.5" stroke-linecap="round"/><line x1="52" y1="70" x2="48" y2="84" stroke="#3d2d20" stroke-width="3.5" stroke-linecap="round"/><line x1="62" y1="70" x2="64" y2="84" stroke="#3d2d20" stroke-width="3.5" stroke-linecap="round"/><ellipse cx="48" cy="58" rx="30" ry="14" fill="#5b4535"/><ellipse cx="44" cy="53" rx="25" ry="8" fill="#6e5544"/><path d="M18 58 L6 70 M18 60 L8 76" stroke="#5b4535" stroke-width="2.5" fill="none" stroke-linecap="round"/><circle cx="76" cy="52" r="12" fill="#5b4535"/><path d="M82 44 Q96 28 98 12 M76 42 Q80 26 70 12" stroke="#5b4535" stroke-width="2.5" fill="none" stroke-linecap="round"/><circle cx="80" cy="50" r="4.5" fill="#fff"/><circle cx="81.5" cy="51" r="2.2" fill="#222"/></g>` },
+    fact:'はねを こすり合わせて 鳴くよ。鳴くのは オスだけ。' },
   yamori: { name:'ヤモリ',
-    fact:'かべや 天じょうを あるけるよ。足の うらに 小さな 毛が たくさん ある。',
-    svg:`<g><path d="M30 66 Q8 62 6 80 Q4 90 14 88" fill="none" stroke="#a89f88" stroke-width="7" stroke-linecap="round"/><path d="M34 70 L24 80 M24 80 l-5 -3 M24 80 l1 5 M24 80 l5 2" stroke="#a89f88" stroke-width="3.5" fill="none" stroke-linecap="round"/><path d="M62 70 L72 80 M72 80 l-3 4 M72 80 l5 2 M72 80 l3 -4" stroke="#a89f88" stroke-width="3.5" fill="none" stroke-linecap="round"/><path d="M34 50 L26 40 M26 40 l-4 3 M26 40 l1 -5 M26 40 l5 -1" stroke="#a89f88" stroke-width="3.5" fill="none" stroke-linecap="round"/><ellipse cx="48" cy="60" rx="24" ry="12" fill="#b8b09a"/><ellipse cx="48" cy="58" rx="17" ry="7" fill="#c9c2ac"/><circle cx="36" cy="54" r="2.5" fill="#8d8570"/><circle cx="52" cy="55" r="2.5" fill="#8d8570"/><circle cx="60" cy="51" r="2" fill="#8d8570"/><ellipse cx="76" cy="56" rx="12" ry="9" fill="#b8b09a"/><circle cx="78" cy="51" r="5" fill="#fff"/><circle cx="79.5" cy="51.5" r="2.6" fill="#222"/><path d="M84 60 q4 1 6 -1" stroke="#8d8570" stroke-width="2" fill="none" stroke-linecap="round"/></g>` },
+    fact:'かべや 天じょうを あるけるよ。足の うらに 小さな 毛が たくさん ある。' },
   zarigani: { name:'ザリガニ',
-    fact:'大きな はさみで じぶんを まもるよ。日本の 川に 多いのは アメリカから 来た ザリガニ。',
-    svg:`<g><path d="M18 60 L4 52 L8 68 L20 68 Z" fill="#c0392b"/><rect x="16" y="52" width="24" height="16" rx="6" fill="#d24a3a"/><path d="M22 52 v16 M30 52 v16" stroke="#c0392b" stroke-width="2"/><line x1="44" y1="70" x2="38" y2="84" stroke="#c0392b" stroke-width="3.5" stroke-linecap="round"/><line x1="54" y1="72" x2="52" y2="86" stroke="#c0392b" stroke-width="3.5" stroke-linecap="round"/><line x1="62" y1="70" x2="68" y2="84" stroke="#c0392b" stroke-width="3.5" stroke-linecap="round"/><ellipse cx="52" cy="58" rx="20" ry="14" fill="#e0533f"/><path d="M66 50 L82 36 L94 30 L88 42 L96 46 L82 52 Z" fill="#d24a3a"/><path d="M68 64 L84 66 L96 62 L90 72 L96 78 L82 76 Z" fill="#d24a3a"/><path d="M70 44 Q84 30 98 22 M72 46 Q88 42 100 44" stroke="#c0392b" stroke-width="2" fill="none" stroke-linecap="round"/><circle cx="68" cy="52" r="4" fill="#fff"/><circle cx="69.5" cy="52.5" r="2" fill="#222"/></g>` },
+    fact:'大きな はさみで じぶんを まもるよ。日本の 川に 多いのは アメリカから 来た ザリガニ。' },
   fukurou: { name:'フクロウ',
-    fact:'夜に かりを する 鳥。首が ぐるっと 回るよ。',
-    svg:`<g><ellipse cx="50" cy="62" rx="26" ry="28" fill="#8a6a45"/><ellipse cx="50" cy="68" rx="17" ry="18" fill="#d9c2a0"/><path d="M40 60 q5 3 10 0 M40 68 q5 3 10 0 M40 76 q5 3 10 0 M50 64 q5 3 10 0 M50 72 q5 3 10 0" stroke="#b39a75" stroke-width="2" fill="none"/><path d="M26 40 L32 22 L44 34 Z M74 40 L68 22 L56 34 Z" fill="#8a6a45"/><circle cx="38" cy="42" r="11" fill="#f3e6c8"/><circle cx="62" cy="42" r="11" fill="#f3e6c8"/><circle cx="38" cy="42" r="6" fill="#222"/><circle cx="62" cy="42" r="6" fill="#222"/><circle cx="40" cy="40" r="2" fill="#fff"/><circle cx="64" cy="40" r="2" fill="#fff"/><path d="M50 48 l-5 4 l5 6 l5 -6 z" fill="#f4a63a"/><path d="M40 90 l-3 4 M40 90 l0 5 M40 90 l3 4 M60 90 l-3 4 M60 90 l0 5 M60 90 l3 4" stroke="#f4a63a" stroke-width="3" stroke-linecap="round"/></g>` },
+    fact:'夜に かりを する 鳥。首が ぐるっと 回るよ。' },
   panda: { name:'パンダ',
-    fact:'たけを 一日に 10kg いじょう 食べるよ。',
-    svg:`<g><ellipse cx="50" cy="66" rx="28" ry="24" fill="#f5f5f2"/><ellipse cx="30" cy="80" rx="11" ry="9" fill="#2b2b2b"/><ellipse cx="70" cy="80" rx="11" ry="9" fill="#2b2b2b"/><path d="M24 58 q-6 10 4 22 M76 58 q6 10 -4 22" stroke="#2b2b2b" stroke-width="10" fill="none" stroke-linecap="round"/><circle cx="50" cy="40" r="22" fill="#f5f5f2"/><circle cx="32" cy="24" r="8" fill="#2b2b2b"/><circle cx="68" cy="24" r="8" fill="#2b2b2b"/><ellipse cx="40" cy="40" rx="7" ry="8" fill="#2b2b2b" transform="rotate(-15 40 40)"/><ellipse cx="60" cy="40" rx="7" ry="8" fill="#2b2b2b" transform="rotate(15 60 40)"/><circle cx="41" cy="40" r="2.6" fill="#fff"/><circle cx="59" cy="40" r="2.6" fill="#fff"/><ellipse cx="50" cy="50" rx="4" ry="3" fill="#2b2b2b"/><path d="M46 54 q4 3 8 0" stroke="#2b2b2b" stroke-width="2" fill="none" stroke-linecap="round"/></g>` },
+    fact:'たけを 一日に 10kg いじょう 食べるよ。' },
   neko: { name:'ネコ',
-    fact:'ひげで せまい ところを 通れるか たしかめるよ。',
-    svg:`<g><path d="M26 70 Q6 66 10 46 Q14 36 22 42" fill="none" stroke="#e59a4a" stroke-width="8" stroke-linecap="round"/><ellipse cx="48" cy="66" rx="26" ry="17" fill="#f0a852"/><path d="M34 56 q6 -6 4 4 M46 52 q6 -6 4 4 M58 54 q6 -6 4 4" stroke="#d68a3a" stroke-width="3" fill="none"/><circle cx="72" cy="50" r="16" fill="#f0a852"/><path d="M60 40 L58 22 L72 32 Z M84 40 L88 22 L76 32 Z" fill="#f0a852"/><path d="M62 38 L61 28 L69 34 Z M82 38 L84 28 L76 34 Z" fill="#f7c9d3"/><ellipse cx="66" cy="50" rx="3.5" ry="4.5" fill="#3a2a1e"/><ellipse cx="78" cy="50" rx="3.5" ry="4.5" fill="#3a2a1e"/><circle cx="67" cy="48" r="1.4" fill="#fff"/><circle cx="79" cy="48" r="1.4" fill="#fff"/><path d="M72 56 l-3 -3 l6 0 z" fill="#f7a6b5"/><path d="M68 60 q4 3 8 0" stroke="#3a2a1e" stroke-width="2" fill="none"/><path d="M56 56 l-12 -2 M56 58 l-12 2 M88 56 l12 -2 M88 58 l12 2" stroke="#3a2a1e" stroke-width="1.5"/><line x1="36" y1="82" x2="34" y2="90" stroke="#d68a3a" stroke-width="4" stroke-linecap="round"/><line x1="58" y1="82" x2="60" y2="90" stroke="#d68a3a" stroke-width="4" stroke-linecap="round"/></g>` },
+    fact:'ひげで せまい ところを 通れるか たしかめるよ。' },
 
   /* --- しま6（とくいわざ）※ ability を もつのは この しまの 生きものだけ --- */
   amagaeru: { name:'アマガエル', ability:'swim',
-    fact:'雨が ふる 前に よく 鳴くよ。',
-    svg:`<g><ellipse cx="50" cy="64" rx="27" ry="19" fill="#7ec850"/><ellipse cx="50" cy="70" rx="17" ry="10" fill="#e8f5c8"/><circle cx="35" cy="44" r="10" fill="#7ec850"/><circle cx="65" cy="44" r="10" fill="#7ec850"/><circle cx="35" cy="42" r="6" fill="#fff"/><circle cx="65" cy="42" r="6" fill="#fff"/><circle cx="36.5" cy="43" r="2.8" fill="#222"/><circle cx="66.5" cy="43" r="2.8" fill="#222"/><path d="M41 61 Q50 67 59 61" stroke="#4e9a30" stroke-width="3" fill="none" stroke-linecap="round"/><path d="M26 76 Q16 82 22 86 Q30 88 33 82" fill="#6bb444"/><path d="M74 76 Q84 82 78 86 Q70 88 67 82" fill="#6bb444"/><circle cx="20" cy="85" r="4" fill="#9ad86a"/><circle cx="80" cy="85" r="4" fill="#9ad86a"/></g>` },
+    fact:'雨が ふる 前に よく 鳴くよ。' },
   tonosama: { name:'トノサマガエル', ability:'swim',
-    fact:'日本の 田んぼに すむ 大きな カエル。',
-    svg:`<g><ellipse cx="50" cy="64" rx="29" ry="20" fill="#4e7a33"/><ellipse cx="50" cy="70" rx="18" ry="11" fill="#dbe8b8"/><rect x="47" y="46" width="6" height="28" rx="3" fill="#a8c86a"/><circle cx="33" cy="60" r="5" fill="#2f4d1e"/><circle cx="67" cy="60" r="5" fill="#2f4d1e"/><circle cx="41" cy="72" r="4" fill="#2f4d1e"/><circle cx="59" cy="72" r="4" fill="#2f4d1e"/><circle cx="34" cy="42" r="11" fill="#4e7a33"/><circle cx="66" cy="42" r="11" fill="#4e7a33"/><circle cx="34" cy="40" r="6.5" fill="#f7e06a"/><circle cx="66" cy="40" r="6.5" fill="#f7e06a"/><circle cx="35.5" cy="41" r="3" fill="#222"/><circle cx="67.5" cy="41" r="3" fill="#222"/><path d="M40 58 Q50 64 60 58" stroke="#33521f" stroke-width="3" fill="none" stroke-linecap="round"/><path d="M22 76 Q12 82 18 86 Q26 88 30 82" fill="#3f6628"/><path d="M78 76 Q88 82 82 86 Q74 88 70 82" fill="#3f6628"/></g>` },
+    fact:'日本の 田んぼに すむ 大きな カエル。' },
   ushigaeru: { name:'ウシガエル', ability:'swim',
-    fact:'ウシのような ひくい 声で 鳴くよ。',
-    svg:`<g><ellipse cx="50" cy="66" rx="32" ry="21" fill="#6e7a3a"/><ellipse cx="50" cy="72" rx="20" ry="11" fill="#d8d8a8"/><circle cx="32" cy="44" r="12" fill="#6e7a3a"/><circle cx="68" cy="44" r="12" fill="#6e7a3a"/><circle cx="32" cy="42" r="7" fill="#f0d878"/><circle cx="68" cy="42" r="7" fill="#f0d878"/><circle cx="33.5" cy="43" r="3.2" fill="#222"/><circle cx="69.5" cy="43" r="3.2" fill="#222"/><circle cx="24" cy="58" r="9" fill="#5c6630" stroke="#4a5326" stroke-width="2"/><circle cx="76" cy="58" r="9" fill="#5c6630" stroke="#4a5326" stroke-width="2"/><path d="M38 62 Q50 70 62 62" stroke="#4a5326" stroke-width="3.5" fill="none" stroke-linecap="round"/><path d="M20 78 Q8 84 15 89 Q25 91 30 84" fill="#5c6630"/><path d="M80 78 Q92 84 85 89 Q75 91 70 84" fill="#5c6630"/></g>` },
+    fact:'ウシのような ひくい 声で 鳴くよ。' },
   otama: { name:'オタマジャクシ', ability:'waterOnly',
-    fact:'カエルの 子ども。しっぽで およぐよ。',
-    svg:`<g><path d="M30 52 Q14 30 8 40 Q2 54 8 68 Q16 76 30 62 Z" fill="#3a3a3a"/><path d="M28 50 Q16 38 12 44 Q9 54 13 63 Q19 68 28 58 Z" fill="#565656"/><ellipse cx="58" cy="54" rx="28" ry="22" fill="#2e2e2e"/><ellipse cx="52" cy="44" rx="15" ry="8" fill="#4d4d4d" opacity=".75"/><circle cx="74" cy="46" r="5.5" fill="#fff"/><circle cx="75.5" cy="47" r="2.6" fill="#222"/><path d="M69 63 q7 3 13 -1" stroke="#1a1a1a" stroke-width="2.5" fill="none" stroke-linecap="round"/></g>` },
+    fact:'カエルの 子ども。しっぽで およぐよ。' },
 };
 
 /* とくいわざの 見せかた（ゲーム画面の 見出し／ずかんの しるし） */
@@ -667,6 +805,390 @@ const WOW = {
   otama:    '大きく なると 足が 生えて、しっぽは 体の 中に すいこまれて いくんだ。',
 };
 Object.keys(WOW).forEach(k => { if (CREATURES[k]) CREATURES[k].wow = WOW[k]; });
+
+/* =====================================================================
+   生きものの 絵（えほん風: ふちどり＋つや＋キラキラの 目＋まばたき）
+   viewBox 0 0 100 100・右むき・足もとは y≈88。
+   つや/ひかりの グラデーションは body 先頭の #art-defs（display:none に しないこと＝
+   Safari/Chrome は display:none の svg の グラデーションを ほかの svg から 使えない）
+===================================================================== */
+const OL = '#3a2618';
+const f1 = n => Math.round(n * 10) / 10;
+// 目: 白目＋黒目＋キラッ。ときどき まばたき（生きもの ごとに ずらす）
+const eye = (cx, cy, r = 5, look = 1, iris = '#1f1a17') =>
+  `<g class="mm-eye" style="animation-delay:-${((cx * 7 + cy * 3) % 50) / 10}s">` +
+  `<circle cx="${cx}" cy="${cy}" r="${r}" fill="#fff" stroke="${OL}" stroke-width="1.5"/>` +
+  `<circle cx="${f1(cx + look * r * 0.22)}" cy="${f1(cy + r * 0.08)}" r="${f1(r * 0.62)}" fill="${iris}"/>` +
+  `<circle cx="${f1(cx + look * r * 0.22 + r * 0.16)}" cy="${f1(cy - r * 0.2)}" r="${f1(r * 0.25)}" fill="#fff"/></g>`;
+// フクロウの 目（オレンジの ひとみ）
+const oeye = (cx, cy) =>
+  `<g class="mm-eye" style="animation-delay:-${(cx % 40) / 10}s">` +
+  `<circle cx="${cx}" cy="${cy}" r="8" fill="#fff" stroke="${OL}" stroke-width="1.5"/>` +
+  `<circle cx="${cx}" cy="${cy}" r="5.6" fill="#f2a62a"/><circle cx="${cx}" cy="${cy}" r="3.4" fill="#1f1a17"/>` +
+  `<circle cx="${cx + 1.6}" cy="${cy - 2}" r="1.6" fill="#fff"/></g>`;
+const sh = (cx, cy, rx, ry, rot = 0) =>
+  `<ellipse cx="${cx}" cy="${cy}" rx="${rx}" ry="${ry}" transform="rotate(${rot} ${cx} ${cy})" fill="url(#mm-sheen)"/>`;
+const bl = (cx, cy, r = 3.6) =>
+  `<ellipse cx="${cx}" cy="${cy}" rx="${r}" ry="${f1(r * 0.62)}" fill="#ff7b8a" opacity=".42"/>`;
+// ふちどり つきの 太い 線（ツノ・うで・しっぽ）
+const ln = (d, c, w) =>
+  `<path d="${d}" fill="none" stroke="${OL}" stroke-width="${f1(w + 2.8)}" stroke-linecap="round" stroke-linejoin="round"/>` +
+  `<path d="${d}" fill="none" stroke="${c}" stroke-width="${w}" stroke-linecap="round" stroke-linejoin="round"/>`;
+// 細い 足・しょっかく
+const lg = (d, w = 3) =>
+  `<path d="${d}" fill="none" stroke="${OL}" stroke-width="${w}" stroke-linecap="round" stroke-linejoin="round"/>`;
+// 中の かたちに まとめて ふちどりを かける
+const S = inner => `<g stroke="${OL}" stroke-width="2.3" stroke-linejoin="round" stroke-linecap="round">${inner}</g>`;
+const mouth = (d, w = 1.7) => `<path d="${d}" fill="none" stroke="${OL}" stroke-width="${w}" stroke-linecap="round"/>`;
+const toes = (pts, c) => `<g fill="${c}" stroke="${OL}" stroke-width="1.1">${pts.map(p => `<circle cx="${p[0]}" cy="${p[1]}" r="2.4"/>`).join('')}</g>`;
+
+const ART = {
+  /* --- しま1 --- */
+  kabuto:
+    lg('M28 72 q-6 6 -12 11 l-5 0') + lg('M42 77 q-1 6 -4 11 l-5 1') + lg('M58 75 q4 6 5 12 l5 1') +
+    S(`<path d="M11 62 C11 45 28 36 47 37 C60 38 67 47 67 59 C67 73 55 81 38 81 C22 81 11 74 11 62Z" fill="#8c4a20"/>
+       <ellipse cx="67" cy="57" rx="13" ry="12.5" fill="#5f2e12"/>`) +
+    `<path d="M49 38 C45 53 42 67 38 81" fill="none" stroke="#5a2a10" stroke-width="2"/>` +
+    S(`<path d="M77 62 C80 49 84 36 83 22 C83 17 89 17 89 22 C91 37 89 51 86 63Z" fill="#4d240d"/>`) +
+    ln('M86 21 l-5 -7 M86 21 l6 -6', '#4d240d', 3) +
+    S(`<ellipse cx="81" cy="65" rx="9" ry="7.5" fill="#4d240d"/>`) +
+    sh(29, 48, 13, 6, -22) + sh(63, 50, 5, 3, -25) + sh(84, 34, 1.6, 7, 5) + eye(84, 65, 3.4),
+
+  ari:
+    lg('M46 64 q-6 9 -15 14') + lg('M51 66 q-1 10 -4 19') + lg('M56 64 q8 8 12 19') +
+    lg('M74 42 q1 -12 -7 -17', 2.4) + lg('M81 43 q8 -9 5 -18', 2.4) +
+    `<circle cx="67" cy="25" r="2.6" fill="${OL}"/><circle cx="86" cy="25" r="2.6" fill="${OL}"/>` +
+    S(`<ellipse cx="25" cy="60" rx="17" ry="13" fill="#5c3727"/>
+       <ellipse cx="42" cy="62" rx="4.5" ry="4" fill="#5c3727"/>
+       <ellipse cx="53" cy="60" rx="9" ry="7" fill="#663e2c"/>
+       <circle cx="72" cy="54" r="13" fill="#6e4331"/>`) +
+    lg('M84 60 q6 2 4 7', 2.4) +
+    sh(20, 54, 9, 5, -20) + sh(67, 48, 5, 3, -20) + eye(76, 52, 4.6) + bl(80, 60, 3),
+
+  dango:
+    lg('M22 80 l-2 7') + lg('M32 82 l-1 6') + lg('M43 82 l0 6') + lg('M54 82 l1 6') + lg('M65 80 l2 6') +
+    lg('M88 68 q6 -8 5 -15', 2.4) + lg('M83 67 q1 -8 -4 -12', 2.4) +
+    S(`<path d="M9 81 Q8 40 46 36 Q80 36 86 72 Q86 81 76 81 Z" fill="#909aa8"/>
+       <ellipse cx="86" cy="74" rx="8" ry="7" fill="#7b8492"/>`) +
+    `<g fill="none" stroke="#6b7482" stroke-width="2.4" stroke-linecap="round">
+       <path d="M22 80 Q20 58 30 44"/><path d="M34 80 Q33 54 43 39"/><path d="M47 80 Q48 52 57 39"/>
+       <path d="M60 80 Q62 56 70 45"/><path d="M72 79 Q75 64 78 57"/></g>` +
+    sh(34, 48, 14, 6, -15) + eye(88, 72, 3.1) + bl(85, 78, 2.6),
+
+  katatsu:
+    ln('M81 52 L77 33', '#efd3a8', 4) + ln('M88 52 L93 31', '#efd3a8', 4) +
+    S(`<path d="M7 84 C7 78 20 77 40 77 L68 77 C75 77 77 70 77 60 C77 46 91 44 93 57 C95 71 89 85 70 87 L14 89 C9 89 7 87 7 84Z" fill="#f2d6ab"/>
+       <circle cx="41" cy="54" r="25" fill="#e0904f"/>`) +
+    `<circle cx="41" cy="54" r="17" fill="#eeac6c" opacity=".6"/>` +
+    `<path d="M41 54 a3 3 0 0 1 6 0 a6 6 0 0 1 -12 0 a9 9 0 0 1 18 0 a12 12 0 0 1 -24 0 a15 15 0 0 1 30 0 a18 18 0 0 1 -36 0" fill="none" stroke="#a95a26" stroke-width="3" stroke-linecap="round"/>` +
+    sh(31, 40, 10, 6, -30) + eye(77, 31, 4.4) + eye(93, 29, 4.4) +
+    mouth('M83 64 q4 3 8 0', 1.8) + bl(90, 60, 3),
+
+  risu:
+    S(`<path d="M36 80 C8 80 2 52 12 34 C20 20 40 22 40 37 C40 47 27 47 27 55 C27 65 41 67 46 73Z" fill="#c4773a"/>`) +
+    `<path d="M15 38 C21 28 34 29 35 38 C30 34 22 34 15 38Z" fill="#dd9d60"/>` +
+    S(`<ellipse cx="49" cy="86" rx="9" ry="4" fill="#b86f33"/><ellipse cx="64" cy="86" rx="8" ry="4" fill="#b86f33"/>
+       <ellipse cx="53" cy="67" rx="20" ry="19" fill="#cd8544"/>
+       <path d="M62 34 L60 17 L73 28Z" fill="#cd8544"/>
+       <circle cx="71" cy="45" r="16" fill="#cd8544"/>`) +
+    `<path d="M63 30 L62 22 L69 28Z" fill="#f2b3a0"/>` +
+    `<ellipse cx="58" cy="72" rx="11" ry="12" fill="#f5e0bd"/><ellipse cx="82" cy="51" rx="8" ry="6" fill="#f5e0bd"/>` +
+    `<circle cx="88" cy="48" r="2.6" fill="${OL}"/>` +
+    S(`<ellipse cx="70" cy="72" rx="6" ry="7" fill="#b3702f"/><path d="M63 68 q7 -8 14 0 Z" fill="#6e3d1a"/>
+       <ellipse cx="65" cy="74" rx="4" ry="3.2" fill="#cd8544"/><ellipse cx="75" cy="74" rx="4" ry="3.2" fill="#cd8544"/>`) +
+    sh(64, 37, 7, 4, -25) + eye(75, 42, 4.6) + bl(77, 52, 3.8),
+
+  kaeru:
+    S(`<circle cx="33" cy="38" r="12" fill="#6cbf58"/><circle cx="67" cy="38" r="12" fill="#6cbf58"/>
+       <path d="M22 74 C8 74 4 88 16 90 L36 90 C34 82 30 76 22 74Z" fill="#58a847"/>
+       <path d="M78 74 C92 74 96 88 84 90 L64 90 C66 82 70 76 78 74Z" fill="#58a847"/>
+       <path d="M17 70 C17 49 32 42 50 42 C68 42 83 49 83 70 C83 84 68 90 50 90 C32 90 17 84 17 70Z" fill="#6cbf58"/>`) +
+    `<ellipse cx="50" cy="75" rx="20" ry="12" fill="#dff2c4"/>` +
+    eye(33, 37, 7, 0) + eye(67, 37, 7, 0) + mouth('M36 58 Q50 67 64 58', 2.2) +
+    bl(27, 57, 5) + bl(73, 57, 5) + sh(40, 50, 9, 4, -15) +
+    S(`<ellipse cx="38" cy="89" rx="7" ry="3.5" fill="#58a847"/><ellipse cx="62" cy="89" rx="7" ry="3.5" fill="#58a847"/>`),
+
+  /* --- しま2 --- */
+  batta:
+    lg('M60 71 q-2 8 -6 14', 3) + lg('M71 69 q2 8 0 16', 3) +
+    lg('M79 41 q6 -16 18 -22', 2.2) + lg('M73 41 q0 -16 8 -26', 2.2) +
+    S(`<path d="M15 60 C15 50 30 46 52 46 L69 46 C77 46 81 53 80 61 C79 69 71 72 61 72 L28 72 C20 72 15 66 15 60Z" fill="#9dcc53"/>`) +
+    `<path d="M21 56 C30 49 52 49 64 52 C54 58 34 61 21 59Z" fill="#88b946" stroke="#6f9a35" stroke-width="1.4"/>` +
+    ln('M31 37 L22 82', '#7fb540', 3) + lg('M22 82 l-7 1', 2.6) +
+    ln('M52 60 Q40 46 31 37', '#7fb540', 8) +
+    S(`<path d="M65 40 C77 35 91 43 91 56 C91 66 81 70 71 68 C64 60 61 48 65 40Z" fill="#a8d65d"/>`) +
+    sh(40, 52, 15, 4, -5) + eye(80, 51, 5.2) + bl(84, 60, 3) + mouth('M86 63 q2 2 4 0', 1.6),
+
+  tento:
+    lg('M30 78 l-5 8') + lg('M46 82 l-1 7') + lg('M62 80 l4 7') +
+    lg('M88 57 q4 -8 2 -14', 2.2) + lg('M83 56 q0 -8 -4 -12', 2.2) +
+    S(`<ellipse cx="80" cy="65" rx="11" ry="10" fill="#2b1d18"/>
+       <path d="M13 68 C13 45 29 33 47 33 C66 33 79 46 79 64 C79 77 68 83 47 83 C26 83 13 79 13 68Z" fill="#e83a32"/>`) +
+    `<path d="M49 34 Q46 58 45 83" fill="none" stroke="#2b1d18" stroke-width="2.4"/>` +
+    `<g fill="#2b1d18"><circle cx="30" cy="51" r="6.5"/><circle cx="62" cy="49" r="6"/><circle cx="25" cy="69" r="5"/><circle cx="46" cy="70" r="6"/><circle cx="66" cy="67" r="5"/></g>` +
+    `<ellipse cx="84" cy="59" rx="3.6" ry="2.4" fill="#fff"/>` +
+    sh(32, 44, 14, 6, -22) + eye(86, 66, 3.6),
+
+  hachi:
+    lg('M36 78 l-3 8') + lg('M48 81 l0 7') + lg('M60 78 l3 8') +
+    S(`<path d="M15 58 L3 62 L15 66Z" fill="${OL}"/>
+       <ellipse cx="42" cy="62" rx="28" ry="20" fill="#ffd23d"/>`) +
+    `<g fill="none" stroke="${OL}" stroke-width="7" stroke-linecap="round"><path d="M29 48 Q26 62 29 76"/><path d="M45 46 Q42 62 45 78"/><path d="M59 51 Q57 62 59 73"/></g>` +
+    `<g class="mm-buzz"><ellipse cx="38" cy="32" rx="18" ry="10" transform="rotate(-25 38 32)" fill="#eef8ff" opacity=".88" stroke="#9cc6e4" stroke-width="1.6"/>
+       <ellipse cx="55" cy="29" rx="15" ry="8.5" transform="rotate(-8 55 29)" fill="#eef8ff" opacity=".88" stroke="#9cc6e4" stroke-width="1.6"/></g>` +
+    lg('M76 45 q2 -12 -4 -16', 2.2) + lg('M82 46 q6 -10 2 -18', 2.2) +
+    `<circle cx="72" cy="29" r="2.4" fill="${OL}"/><circle cx="84" cy="28" r="2.4" fill="${OL}"/>` +
+    S(`<circle cx="74" cy="57" r="13" fill="#4a3322"/>`) +
+    sh(33, 54, 11, 5, -15) + eye(78, 54, 5) + bl(82, 63, 3),
+
+  chou:
+    lg('M47 30 Q40 16 33 14', 2) + lg('M53 30 Q60 16 67 14', 2) +
+    `<circle cx="33" cy="14" r="2.6" fill="${OL}"/><circle cx="67" cy="14" r="2.6" fill="${OL}"/>` +
+    `<g class="mm-flapx">` +
+    S(`<path d="M48 50 C30 18 5 22 9 44 C11 59 31 61 48 56Z" fill="#ff9dc6"/>
+       <path d="M52 50 C70 18 95 22 91 44 C89 59 69 61 52 56Z" fill="#ff9dc6"/>
+       <path d="M48 58 C30 60 17 74 25 84 C33 92 46 80 48 64Z" fill="#ff78ad"/>
+       <path d="M52 58 C70 60 83 74 75 84 C67 92 54 80 52 64Z" fill="#ff78ad"/>`) +
+    `<g fill="#fff" opacity=".85"><circle cx="26" cy="41" r="6"/><circle cx="74" cy="41" r="6"/><circle cx="33" cy="75" r="4"/><circle cx="67" cy="75" r="4"/></g>` +
+    `<g fill="#c24c86"><circle cx="18" cy="35" r="2.4"/><circle cx="82" cy="35" r="2.4"/></g>` +
+    sh(24, 34, 9, 5, -30) + sh(76, 34, 9, 5, 30) + `</g>` +
+    S(`<ellipse cx="50" cy="62" rx="5" ry="22" fill="#5b3a24"/><circle cx="50" cy="36" r="8" fill="#5b3a24"/>`) +
+    eye(46.5, 35, 2.8, 0) + eye(53.5, 35, 2.8, 0),
+
+  semi:
+    lg('M34 72 l-4 10') + lg('M46 74 l-1 10') + lg('M58 72 l4 9') +
+    S(`<path d="M19 62 C19 50 36 46 54 48 C64 49 70 56 70 62 C70 70 60 74 46 74 C30 74 19 70 19 62Z" fill="#6c4c34"/>`) +
+    `<path d="M28 58 q14 -4 30 -2" fill="none" stroke="#4e3524" stroke-width="2"/>` +
+    `<path d="M24 40 C40 30 74 34 84 50 C66 51 40 53 16 61 C13 54 15 46 24 40Z" fill="#e3f3fb" opacity=".78" stroke="#89b6c9" stroke-width="1.6"/>` +
+    `<path d="M24 47 Q48 42 76 48 M22 53 Q46 50 70 50" fill="none" stroke="#9cc3d4" stroke-width="1.2"/>` +
+    S(`<ellipse cx="75" cy="58" rx="12" ry="11" fill="#5b3f2b"/>`) +
+    `<path d="M68 51 q6 -4 12 0" fill="none" stroke="#9ccc55" stroke-width="2"/>` +
+    sh(36, 61, 10, 3, -5) + eye(80, 54, 5) + bl(83, 64, 2.8),
+
+  /* --- しま3 --- */
+  kamakiri:
+    lg('M30 66 l-9 18', 2.6) + lg('M42 67 l1 20', 2.6) + lg('M52 64 l8 20', 2.6) +
+    S(`<path d="M7 62 C7 54 21 52 39 54 L52 56 C54 62 52 66 44 68 L19 70 C11 70 7 68 7 62Z" fill="#8cc84b"/>`) +
+    `<path d="M13 58 C24 52 40 52 50 56 C40 61 24 62 13 60Z" fill="#77b33d" stroke="#5f9a2f" stroke-width="1.3"/>` +
+    S(`<path d="M47 60 L64 46 L69 50 L53 65Z" fill="#9bd35a"/>`) +
+    ln('M64 50 L78 62 L85 56', '#9bd35a', 4.5) + ln('M85 56 L76 44', '#9bd35a', 4) +
+    `<path d="M79 49 l-3 -2 M82 52 l-3 -2" stroke="${OL}" stroke-width="1.4"/>` +
+    lg('M78 33 q4 -12 13 -18', 1.8) + lg('M74 33 q0 -12 5 -20', 1.8) +
+    S(`<path d="M63 38 C71 29 86 31 91 40 C89 48 81 52 74 50 C67 48 63 44 63 38Z" fill="#a8de63"/>`) +
+    sh(26, 58, 12, 3, -5) + eye(80, 38, 5.2) + bl(84, 46, 2.8),
+
+  tonbo:
+    `<g class="mm-flapy"><g fill="#e6f6fd" opacity=".82" stroke="#8fc4dc" stroke-width="1.4">
+       <ellipse cx="40" cy="36" rx="26" ry="7.5" transform="rotate(-12 40 36)"/>
+       <ellipse cx="40" cy="72" rx="26" ry="7.5" transform="rotate(12 40 72)"/>
+       <ellipse cx="59" cy="38" rx="20" ry="6.5" transform="rotate(-6 59 38)"/>
+       <ellipse cx="59" cy="70" rx="20" ry="6.5" transform="rotate(6 59 70)"/></g></g>` +
+    S(`<rect x="6" y="50" width="60" height="9" rx="4.5" fill="#2e8fc2"/>
+       <ellipse cx="66" cy="54.5" rx="9" ry="8" fill="#2a80b2"/>
+       <circle cx="80" cy="54" r="11" fill="#43a9d8"/>`) +
+    `<path d="M18 50 v9 M28 50 v9 M38 50 v9 M48 50 v9" stroke="#1f6d98" stroke-width="1.6"/>` +
+    sh(62, 50, 5, 3, 0) + eye(83, 49, 6.5) + bl(84, 61, 2.8),
+
+  kuwagata:
+    lg('M26 72 q-6 6 -12 11') + lg('M40 77 q-1 6 -4 11') + lg('M54 76 q4 6 6 11') +
+    S(`<path d="M81 55 C89 50 95 44 94 34 C93 29 88 31 89 36 C90 43 86 48 80 51Z" fill="#4a3220"/>
+       <path d="M81 65 C89 70 95 76 94 86 C93 91 88 89 89 84 C90 77 86 72 80 69Z" fill="#4a3220"/>`) +
+    `<path d="M90 44 l-4 -1 M90 76 l-4 1" stroke="${OL}" stroke-width="2" stroke-linecap="round"/>` +
+    S(`<ellipse cx="36" cy="62" rx="26" ry="18" fill="#433020"/>
+       <ellipse cx="61" cy="60" rx="11" ry="12" fill="#37251a"/>
+       <ellipse cx="76" cy="60" rx="10" ry="9.5" fill="#2e1e14"/>`) +
+    `<path d="M37 44 Q36 62 34 80" fill="none" stroke="#24170f" stroke-width="2"/>` +
+    sh(27, 52, 13, 5, -18) + sh(58, 53, 4, 3, -20) + eye(80, 58, 3.4),
+
+  hotaru:
+    `<circle class="mm-glow" cx="24" cy="62" r="24" fill="url(#mm-glowg)"/>` +
+    lg('M40 70 l-3 11') + lg('M52 71 l1 11') + lg('M62 69 l4 10') +
+    lg('M85 56 q6 -8 12 -8', 2) + lg('M84 58 q8 -2 13 2', 2) +
+    S(`<ellipse cx="27" cy="62" rx="14" ry="11" fill="#fff47c"/>
+       <ellipse cx="50" cy="60" rx="21" ry="13" fill="#3d3244"/>
+       <ellipse cx="80" cy="61" rx="7" ry="6" fill="#2b2230"/>
+       <ellipse cx="70" cy="56" rx="10" ry="9" fill="#ff6e5c"/>`) +
+    `<path d="M34 56 Q50 50 62 54" fill="none" stroke="#2a2230" stroke-width="1.8"/>` +
+    sh(24, 58, 7, 4, -15) + sh(44, 54, 10, 3.5, -10) + eye(82, 60, 3.2),
+
+  amenbo:
+    `<g fill="none" stroke="#8fcdef" stroke-width="1.6"><ellipse cx="12" cy="86" rx="8" ry="2.4"/><ellipse cx="40" cy="90" rx="7" ry="2"/><ellipse cx="88" cy="86" rx="8" ry="2.4"/><ellipse cx="70" cy="90" rx="7" ry="2"/></g>` +
+    lg('M44 58 Q24 60 12 85', 2.6) + lg('M50 60 Q42 76 40 89', 2.6) + lg('M58 58 Q76 62 88 85', 2.6) + lg('M62 60 Q68 76 70 89', 2.6) +
+    lg('M68 55 l9 -5', 2.4) + lg('M84 49 q6 -6 12 -6', 1.8) +
+    S(`<ellipse cx="50" cy="56" rx="24" ry="6.5" fill="#5f4d3e"/><ellipse cx="76" cy="52" rx="8.5" ry="6.5" fill="#4d3d31"/>`) +
+    sh(42, 53, 12, 2.6, 0) + eye(79, 50, 3.4),
+
+  /* --- しま4 --- */
+  usagi:
+    S(`<circle cx="16" cy="69" r="9" fill="#fff"/>
+       <path d="M57 40 C49 22 50 6 57 6 C64 6 67 22 65 40Z" fill="#fbf7ee"/>
+       <path d="M68 38 C67 20 73 7 80 9 C87 11 81 27 75 40Z" fill="#fbf7ee"/>
+       <ellipse cx="42" cy="68" rx="26" ry="20" fill="#fbf7ee"/>
+       <ellipse cx="33" cy="86" rx="12" ry="5" fill="#f1eadc"/>
+       <circle cx="68" cy="52" r="18" fill="#fbf7ee"/>
+       <ellipse cx="66" cy="86" rx="7" ry="4" fill="#f1eadc"/>`) +
+    `<path d="M58 36 C54 24 55 13 58 12 C61 13 62 24 62 36Z" fill="#f8b7c4"/><path d="M71 35 C71 23 75 14 78 15 C80 17 77 27 74 36Z" fill="#f8b7c4"/>` +
+    sh(58, 45, 8, 5, -20) + eye(75, 50, 4.8) +
+    `<path d="M86 55 l-4 -3 l7 0Z" fill="#f58aa0"/>` + mouth('M84 57 q-2 3 -5 2 M84 57 q2 3 5 2', 1.4) + bl(77, 60, 4),
+
+  kame:
+    S(`<path d="M9 73 l-7 2 l7 3Z" fill="#8fcc6a"/>
+       <ellipse cx="22" cy="80" rx="9" ry="6" fill="#8fcc6a"/><ellipse cx="66" cy="82" rx="9" ry="6" fill="#8fcc6a"/>
+       <ellipse cx="78" cy="66" rx="9" ry="7" fill="#8fcc6a"/>
+       <circle cx="86" cy="59" r="11" fill="#8fcc6a"/>
+       <path d="M10 71 L84 71 C84 75 80 77 76 77 L18 77 C14 77 10 75 10 71Z" fill="#dcc47e"/>
+       <path d="M12 71 C12 47 30 37 48 37 C66 37 82 47 82 71Z" fill="#6aa04a"/>`) +
+    `<g fill="#80ba5c" stroke="#4d7a33" stroke-width="1.8" stroke-linejoin="round">
+       <path d="M40 44 L56 44 L62 55 L56 66 L40 66 L34 55Z"/>
+       <path d="M20 60 L29 50 L34 55 L30 66 L18 68Z"/><path d="M76 60 L67 50 L62 55 L66 66 L78 68Z"/></g>` +
+    sh(36, 46, 14, 5, -15) + eye(88, 56, 4) + mouth('M92 64 q3 1 5 -1', 1.6) + bl(90, 64, 3),
+
+  harinezumi:
+    S(`<ellipse cx="38" cy="86" rx="6" ry="3.5" fill="#6f5640"/><ellipse cx="62" cy="86" rx="6" ry="3.5" fill="#6f5640"/>
+       <ellipse cx="48" cy="70" rx="30" ry="16" fill="#c9ac86"/>
+       <path d="M12 76 L7 66 L16 64 L11 54 L21 54 L19 44 L29 46 L29 36 L39 40 L41 30 L49 36 L53 28 L59 36 L65 32 L67 42 L74 42 L70 52 C66 60 62 66 62 76Z" fill="#7e6249"/>
+       <path d="M62 53 C74 51 88 58 93 68 C89 76 77 80 66 78 C60 70 58 61 62 53Z" fill="#f2e1c7"/>`) +
+    `<g stroke="#5e4633" stroke-width="1.6" fill="none" stroke-linecap="round"><path d="M20 62 l6 -6 M30 56 l6 -8 M40 52 l5 -9 M50 50 l4 -9 M24 70 l6 -6 M36 66 l6 -7 M48 62 l5 -8"/></g>` +
+    S(`<ellipse cx="65" cy="54" rx="4" ry="5" fill="#e4caa8"/>`) +
+    `<circle cx="93" cy="67" r="3.2" fill="${OL}"/>` + eye(77, 62, 4.2) + bl(81, 71, 3.4) + mouth('M86 72 q-3 2 -6 1', 1.4),
+
+  kitsune:
+    S(`<path d="M31 72 C9 72 2 52 10 40 C16 32 27 36 25 46 C23 56 31 62 39 64Z" fill="#ea8b3b"/>`) +
+    `<path d="M10 41 C13 35 20 34 23 39 C18 38 13 40 10 44Z" fill="#fff"/>` +
+    lg('M40 78 L39 88', 5) + lg('M56 80 L57 88', 5) +
+    S(`<ellipse cx="64" cy="58" rx="8" ry="12" fill="#f29b4c"/>
+       <ellipse cx="47" cy="68" rx="22" ry="15" fill="#f29b4c"/>
+       <path d="M63 43 L61 24 L74 36Z" fill="#f29b4c"/><path d="M74 38 L81 22 L85 40Z" fill="#f29b4c"/>
+       <path d="M60 50 C62 38 74 34 84 40 L97 52 C93 56 87 58 81 58 C71 60 62 58 60 50Z" fill="#f29b4c"/>`) +
+    `<path d="M64 38 L63 29 L70 36Z" fill="#5a3a24"/><path d="M77 38 L81 29 L82 38Z" fill="#5a3a24"/>` +
+    `<path d="M70 56 C78 60 90 57 97 52 C91 62 77 64 70 56Z" fill="#fff5e6"/>` +
+    `<ellipse cx="58" cy="71" rx="9" ry="9" fill="#fff5e6"/>` +
+    `<circle cx="97" cy="52" r="2.8" fill="${OL}"/>` + sh(60, 60, 8, 4, -15) + eye(77, 46, 3.8) + bl(82, 54, 3),
+
+  penguin:
+    S(`<ellipse cx="42" cy="90" rx="9" ry="4" fill="#f7a93b"/><ellipse cx="59" cy="90" rx="9" ry="4" fill="#f7a93b"/>
+       <ellipse cx="50" cy="60" rx="25" ry="30" fill="#2f3b48"/>
+       <path d="M27 56 C17 64 17 77 23 81 C29 75 31 66 31 58Z" fill="#232d38"/>`) +
+    `<ellipse cx="55" cy="67" rx="16" ry="22" fill="#fbfaf4"/>` +
+    `<path d="M56 32 C66 30 72 38 70 46 C66 50 58 48 56 42Z" fill="#fbfaf4"/>` +
+    S(`<path d="M72 42 l13 3 l-13 4Z" fill="#f7a93b"/>`) +
+    `<ellipse cx="66" cy="54" rx="5" ry="2.6" fill="#ffd35a" opacity=".9"/>` +
+    sh(38, 44, 8, 13, -10) + eye(64, 40, 4.4) + bl(67, 50, 3.2),
+
+  /* --- しま5 --- */
+  koorogi:
+    lg('M60 72 q-2 8 -6 14', 3) + lg('M70 70 q2 8 0 16', 3) +
+    lg('M14 60 l-10 -6', 2) + lg('M14 64 l-10 6', 2) +
+    S(`<path d="M14 62 C14 50 30 46 52 48 L66 48 C76 48 80 56 78 64 C76 72 68 74 58 74 L28 74 C18 74 14 68 14 62Z" fill="#5b4333"/>`) +
+    `<path d="M20 57 C32 49 52 51 62 55 C50 61 32 63 20 61Z" fill="#735846" stroke="#3e2c20" stroke-width="1.3"/>` +
+    `<path d="M28 57 l4 -3 l4 3 l4 -3 l4 3 l4 -3 l4 3" fill="none" stroke="#3e2c20" stroke-width="1.2"/>` +
+    ln('M32 39 L22 82', '#4c3727', 3) + lg('M22 82 l-7 1', 2.6) +
+    ln('M52 62 Q42 48 32 39', '#4c3727', 8) +
+    lg('M78 49 Q92 20 72 5', 1.8) + lg('M73 49 Q78 22 60 9', 1.8) +
+    S(`<circle cx="74" cy="59" r="11" fill="#43322a"/>`) +
+    sh(38, 54, 13, 3.5, -5) + eye(77, 56, 4.2) + bl(80, 65, 2.6),
+
+  yamori:
+    S(`<path d="M34 65 C18 65 8 71 6 81 C5 88 12 90 14 84 C16 76 24 72 36 71Z" fill="#bdb49d"/>`) +
+    ln('M38 69 L27 81', '#bdb49d', 3.5) + ln('M64 69 L72 80', '#bdb49d', 3.5) +
+    toes([[22, 83], [26, 86], [30, 84], [69, 84], [73, 85], [76, 82]], '#bdb49d') +
+    S(`<ellipse cx="50" cy="63" rx="22" ry="10" fill="#cac2ab"/><ellipse cx="76" cy="57" rx="13" ry="10" fill="#cac2ab"/>`) +
+    `<g fill="#9e9680"><circle cx="38" cy="60" r="2.3"/><circle cx="48" cy="58" r="2"/><circle cx="56" cy="62" r="2.3"/><circle cx="44" cy="66" r="1.8"/></g>` +
+    sh(46, 58, 12, 3, 0) + eye(79, 53, 5.6) + bl(83, 62, 3) + mouth('M88 61 q-4 3 -8 1', 1.4),
+
+  zarigani:
+    lg('M40 70 l-4 14', 2.6) + lg('M48 72 l-2 14', 2.6) + lg('M56 72 l2 14', 2.6) + lg('M62 70 l4 12', 2.6) +
+    lg('M79 56 Q92 48 99 58', 1.6) + lg('M79 59 Q90 62 98 72', 1.6) +
+    S(`<path d="M16 58 L3 50 L5 62 L3 74 L16 66Z" fill="#d8412e"/>
+       <rect x="14" y="54" width="25" height="16" rx="7" fill="#e8513c"/>
+       <ellipse cx="52" cy="61" rx="18" ry="13" fill="#ef5a42"/>
+       <path d="M66 55 L81 59 L66 65Z" fill="#ef5a42"/>`) +
+    `<path d="M22 54 v16 M30 54 v16" stroke="#c63a28" stroke-width="1.8"/>` +
+    ln('M62 53 L74 42', '#e8513c', 4.5) + ln('M64 68 L76 76', '#e8513c', 4.5) +
+    S(`<path d="M72 44 C75 31 89 26 96 32 C90 34 85 36 82 40 C88 40 94 42 96 46 C88 51 78 50 72 46Z" fill="#e8513c"/>
+       <path d="M74 76 C78 86 90 90 97 86 C91 84 86 82 83 80 C89 80 94 78 96 74 C88 70 79 71 74 74Z" fill="#e8513c"/>`) +
+    sh(46, 55, 9, 4, -10) + eye(70, 53, 3.2),
+
+  fukurou:
+    S(`<path d="M26 42 L28 18 L42 32Z" fill="#9b7550"/><path d="M74 42 L72 18 L58 32Z" fill="#9b7550"/>
+       <ellipse cx="50" cy="62" rx="27" ry="29" fill="#9b7550"/>
+       <path d="M24 56 C18 70 22 84 32 88 C30 76 30 64 32 56Z" fill="#7e5d3c"/>
+       <path d="M76 56 C82 70 78 84 68 88 C70 76 70 64 68 56Z" fill="#7e5d3c"/>`) +
+    `<ellipse cx="50" cy="71" rx="16" ry="17" fill="#ecd7b2"/>` +
+    `<g fill="none" stroke="#c9ae88" stroke-width="1.6" stroke-linecap="round"><path d="M42 64 q4 3 8 0 M50 64 q4 3 8 0 M38 72 q4 3 8 0 M46 72 q4 3 8 0 M54 72 q4 3 8 0 M42 80 q4 3 8 0 M50 80 q4 3 8 0"/></g>` +
+    `<circle cx="38" cy="44" r="13" fill="#f4e5c7"/><circle cx="62" cy="44" r="13" fill="#f4e5c7"/>` +
+    oeye(38, 44) + oeye(62, 44) +
+    S(`<path d="M50 50 l-5 4 l5 7 l5 -7Z" fill="#f2a62a"/>`) +
+    `<path d="M42 91 l-3 3 M44 91 l0 4 M58 91 l0 4 M60 91 l3 3" stroke="#f2a62a" stroke-width="3" stroke-linecap="round"/>` +
+    bl(28, 57, 4) + bl(72, 57, 4) + sh(40, 36, 8, 4, -20),
+
+  panda:
+    S(`<circle cx="30" cy="22" r="9" fill="#2b2b2b"/><circle cx="70" cy="22" r="9" fill="#2b2b2b"/>
+       <ellipse cx="50" cy="70" rx="28" ry="22" fill="#fbfaf5"/>
+       <path d="M24 60 C15 71 18 84 28 86 C34 80 34 70 32 61Z" fill="#2b2b2b"/>
+       <path d="M76 60 C85 71 82 84 72 86 C66 80 66 70 68 61Z" fill="#2b2b2b"/>
+       <ellipse cx="33" cy="88" rx="11" ry="6.5" fill="#2b2b2b"/><ellipse cx="67" cy="88" rx="11" ry="6.5" fill="#2b2b2b"/>
+       <circle cx="50" cy="40" r="22" fill="#fbfaf5"/>`) +
+    `<ellipse cx="40" cy="41" rx="7" ry="9" transform="rotate(-25 40 41)" fill="#2b2b2b"/><ellipse cx="60" cy="41" rx="7" ry="9" transform="rotate(25 60 41)" fill="#2b2b2b"/>` +
+    `<g class="mm-eye"><circle cx="41" cy="40" r="3.4" fill="#fff"/><circle cx="41.5" cy="40.5" r="2" fill="#111"/><circle cx="59" cy="40" r="3.4" fill="#fff"/><circle cx="58.5" cy="40.5" r="2" fill="#111"/></g>` +
+    `<ellipse cx="50" cy="50" rx="4" ry="3" fill="#2b2b2b"/>` + mouth('M46 55 q4 3 8 0', 1.8) +
+    bl(34, 51, 4) + bl(66, 51, 4) + sh(42, 29, 8, 4, -20) +
+    `<path d="M78 72 l10 -18" stroke="${OL}" stroke-width="5.2" stroke-linecap="round"/><path d="M78 72 l10 -18" stroke="#7fbf5a" stroke-width="3" stroke-linecap="round"/>` +
+    `<path d="M86 58 q8 -2 10 -8 q-8 0 -10 8Z" fill="#8cc760" stroke="${OL}" stroke-width="1.2"/>`,
+
+  neko:
+    ln('M26 66 C12 60 8 44 15 33', '#f2a65a', 6) +
+    ln('M33 74 L33 87', '#f2a65a', 5) + ln('M45 77 L45 87', '#f2a65a', 5) + ln('M57 77 L58 87', '#f2a65a', 5) + ln('M65 72 L67 87', '#f2a65a', 5) +
+    S(`<ellipse cx="46" cy="66" rx="24" ry="15" fill="#f2a65a"/>
+       <path d="M60 41 L57 24 L70 34Z" fill="#f2a65a"/><path d="M79 34 L87 21 L87 40Z" fill="#f2a65a"/>
+       <circle cx="72" cy="48" r="16" fill="#f2a65a"/>`) +
+    `<path d="M61 38 L60 29 L67 34Z" fill="#f7c2cc"/><path d="M81 34 L85 28 L85 37Z" fill="#f7c2cc"/>` +
+    `<g fill="none" stroke="#d9843a" stroke-width="3" stroke-linecap="round"><path d="M34 54 q4 6 2 12"/><path d="M44 52 q4 6 2 12"/><path d="M54 53 q4 6 2 12"/></g>` +
+    `<ellipse cx="82" cy="54" rx="6.5" ry="5" fill="#fff4e4"/>` +
+    `<path d="M87 51 l-3 -2 l5 0Z" fill="#f58aa0"/>` +
+    `<path d="M86 55 l12 -3 M86 57 l12 2" stroke="${OL}" stroke-width="1"/>` +
+    sh(64, 42, 7, 4, -25) + eye(74, 45, 4.4) + bl(76, 55, 3.4),
+
+  /* --- とくいわざ（カエル3種＋オタマジャクシ）: よこむきで ほかの カエルと 見わけやすく --- */
+  amagaeru:
+    S(`<circle cx="68" cy="49" r="11" fill="#79d45a"/>
+       <path d="M24 81 C11 81 9 70 17 64 C25 58 36 62 38 71Z" fill="#5cc14a"/>
+       <path d="M17 74 C17 57 35 47 55 49 C72 51 84 59 86 69 C86 79 76 85 60 85 L27 85 C21 85 17 81 17 74Z" fill="#79d45a"/>`) +
+    `<path d="M26 79 C40 83 64 84 80 77 C74 85 44 87 26 83Z" fill="#e9f8d4"/>` +
+    `<path d="M62 57 L82 61" stroke="#3a6b2a" stroke-width="3" opacity=".5" stroke-linecap="round"/>` +
+    ln('M64 72 L67 84', '#5cc14a', 3.5) + toes([[63, 86], [67, 87], [71, 86], [13, 85], [18, 87]], '#79d45a') +
+    eye(69, 47, 6.2) + mouth('M72 68 Q80 70 88 66', 1.8) + bl(78, 63, 3.6) + sh(40, 60, 13, 6, -10),
+
+  tonosama:
+    S(`<circle cx="66" cy="49" r="11" fill="#a9c563"/>
+       <path d="M24 81 C11 81 9 70 17 64 C25 58 36 62 38 71Z" fill="#8fab4c"/>
+       <path d="M15 74 C15 56 34 46 55 48 C72 50 85 58 87 69 C87 79 77 85 60 85 L26 85 C19 85 15 81 15 74Z" fill="#a9c563"/>`) +
+    `<path d="M20 60 C36 50 58 48 78 55" fill="none" stroke="#dbeca0" stroke-width="3" stroke-linecap="round"/>` +
+    `<g fill="#56702c"><ellipse cx="30" cy="66" rx="5" ry="3.4"/><ellipse cx="44" cy="63" rx="4.4" ry="3"/><ellipse cx="40" cy="73" rx="4" ry="2.8"/><ellipse cx="56" cy="69" rx="4" ry="2.8"/><ellipse cx="21" cy="75" rx="3.4" ry="2.4"/></g>` +
+    `<path d="M26 79 C40 83 64 84 80 77 C74 85 44 87 26 83Z" fill="#f2f4dc"/>` +
+    ln('M63 72 L66 84', '#8fab4c', 3.5) + toes([[62, 86], [66, 87], [70, 86], [12, 85], [17, 87]], '#a9c563') +
+    eye(67, 47, 6) + mouth('M71 68 Q79 70 87 66', 1.8) + bl(77, 63, 3.4) + sh(38, 58, 13, 5, -10),
+
+  ushigaeru:
+    S(`<circle cx="65" cy="46" r="11" fill="#6f8b3b"/>
+       <path d="M22 82 C8 82 5 69 14 62 C23 55 36 60 38 70Z" fill="#5d7630"/>
+       <path d="M11 73 C11 53 32 42 55 44 C74 46 88 56 90 68 C90 80 78 86 60 86 L24 86 C16 86 11 81 11 73Z" fill="#6f8b3b"/>`) +
+    `<path d="M48 80 C58 86 76 84 86 74 C82 86 60 90 48 84Z" fill="#f2df86"/>` +
+    `<circle cx="78" cy="58" r="6.5" fill="#5d7630" stroke="${OL}" stroke-width="1.6"/>` +
+    `<g fill="#4d6428" opacity=".8"><ellipse cx="26" cy="64" rx="5" ry="3"/><ellipse cx="40" cy="58" rx="4" ry="2.6"/><ellipse cx="34" cy="72" rx="4" ry="2.6"/></g>` +
+    ln('M64 74 L67 86', '#5d7630', 4) + toes([[63, 88], [67, 89], [71, 88], [9, 86], [14, 88]], '#6f8b3b') +
+    eye(66, 44, 6.4, 1, '#3b2a12') + mouth('M70 70 Q82 72 90 66', 2) + bl(84, 66, 3) + sh(36, 56, 14, 6, -10),
+
+  otama:
+    `<g class="mm-tail"><path d="M48 58 C36 48 24 66 5 55 C12 66 24 74 36 71 C42 69 46 65 50 62Z" fill="#8f7d6d" opacity=".5"/>` +
+    S(`<path d="M50 57 C38 52 26 62 10 57 C18 64 28 68 38 66 C44 65 48 63 51 61Z" fill="#5c4a3e"/>`) + `</g>` +
+    S(`<ellipse cx="64" cy="58" rx="20" ry="16" fill="#43352d"/>`) +
+    `<ellipse cx="66" cy="65" rx="12" ry="6.5" fill="#6f5b4d" opacity=".7"/>` +
+    sh(58, 50, 8, 4, -20) + eye(74, 52, 5.2) + bl(78, 61, 3) +
+    `<path d="M82 63 q2 2 4 0" fill="none" stroke="#f0e2d2" stroke-width="1.4" stroke-linecap="round"/>` +
+    `<g fill="none" stroke="#9fd6f2" stroke-width="1.6"><circle cx="88" cy="36" r="3.4"/><circle cx="94" cy="25" r="2.2"/></g>`,
+};
+Object.keys(ART).forEach(k => { if (CREATURES[k]) CREATURES[k].svg = `<g>${ART[k]}</g>`; });
 
 /* ---------------- 命令ノード ---------------- */
 let NID = 0;
@@ -1210,12 +1732,150 @@ function showScreen(name) {
 }
 function creatureSVG(key, size) {
   const c = CREATURES[key] || CREATURES.kabuto;
-  return `<svg viewBox="0 0 100 100" width="${size||64}" height="${size||64}" xmlns="http://www.w3.org/2000/svg">${c.svg}</svg>`;
+  return `<svg viewBox="0 0 100 100" width="${size||64}" height="${size||64}" xmlns="http://www.w3.org/2000/svg">` +
+         `<ellipse cx="50" cy="92" rx="30" ry="4.5" fill="#3a2618" opacity=".13"/>${c.svg}</svg>`;
+}
+
+
+/* =====================================================================
+   背景の 絵（タイトル＝野原、しま えらび＝海）と 島カードの 絵
+   ※ 同じ id の グラデーションが 2つ あると 見えない画面の 方が 使われて 消えるので
+     シーンごとに id の 頭（pre）を かえる
+===================================================================== */
+const FLOWER_COLS = ['#fff', '#ffe26a', '#ffb3cf', '#c9b6ff', '#ff9b7a'];
+function flowerMark(x, y, c, r = 5) {
+  return `<g transform="translate(${f1(x)} ${f1(y)})"><g fill="${c}" stroke="#d9cdb0" stroke-width="1">` +
+    [0, 72, 144, 216, 288].map(a => `<circle cx="${f1(Math.sin(a * Math.PI / 180) * r)}" cy="${f1(-Math.cos(a * Math.PI / 180) * r)}" r="${f1(r * .85)}"/>`).join('') +
+    `</g><circle r="${f1(r * .62)}" fill="#f5a623"/></g>`;
+}
+function treeMark(x, y, s = 1, c = '#6fbf4f') {
+  return `<g transform="translate(${x} ${y}) scale(${s})"><rect x="-6" y="-8" width="12" height="36" rx="5" fill="#9a6a3c" stroke="${OL}" stroke-width="3"/>` +
+    `<g fill="${c}" stroke="${OL}" stroke-width="3.2"><circle cx="-20" cy="-22" r="22"/><circle cx="20" cy="-22" r="22"/><circle cx="0" cy="-44" r="26"/></g>` +
+    `<g fill="${c}"><circle cx="-18" cy="-24" r="19"/><circle cx="18" cy="-24" r="19"/><circle cx="0" cy="-42" r="23"/></g>` +
+    `<ellipse cx="-10" cy="-50" rx="10" ry="6" fill="#fff" opacity=".35"/></g>`;
+}
+function cloudMark(x, y, s = 1) {
+  return `<g transform="translate(${x} ${y}) scale(${s})"><g fill="#fff"><ellipse cx="0" cy="0" rx="70" ry="26"/><circle cx="-26" cy="-14" r="28"/><circle cx="16" cy="-24" r="34"/><circle cx="46" cy="-6" r="22"/></g>` +
+    `<ellipse cx="4" cy="14" rx="62" ry="9" fill="#dbeefa" opacity=".8"/></g>`;
+}
+function skyBits(pre, sunX, sunY) {
+  let s = `<radialGradient id="${pre}-sun"><stop offset="0" stop-color="#fff8c4"/><stop offset=".45" stop-color="#ffe27a" stop-opacity=".8"/><stop offset="1" stop-color="#ffe27a" stop-opacity="0"/></radialGradient>`;
+  return s;
+}
+function sunMark(pre, x, y) {
+  let rays = '';
+  for (let i = 0; i < 12; i++) rays += `<path d="M0 -98 L11 -76 L-11 -76Z" fill="#ffe47d" transform="rotate(${i * 30})"/>`;
+  return `<g transform="translate(${x} ${y})"><circle r="150" fill="url(#${pre}-sun)"/><g class="sun-rays">${rays}</g>` +
+    `<circle r="62" fill="#ffd94a" stroke="#f2b52c" stroke-width="5"/>` +
+    `<circle cx="-20" cy="-8" r="6" fill="${OL}"/><circle cx="20" cy="-8" r="6" fill="${OL}"/>` +
+    `<path d="M-20 14 Q0 30 20 14" fill="none" stroke="${OL}" stroke-width="5" stroke-linecap="round"/>` +
+    `<ellipse cx="-34" cy="10" rx="9" ry="5" fill="#ff8f6b" opacity=".5"/><ellipse cx="34" cy="10" rx="9" ry="5" fill="#ff8f6b" opacity=".5"/></g>`;
+}
+function butterflyMark(c) {
+  return `<g class="bf-wing" fill="${c}" stroke="${OL}" stroke-width="2"><path d="M0 0 C-14 -20 -30 -12 -24 2 C-30 12 -14 20 0 4Z"/><path d="M0 0 C14 -20 30 -12 24 2 C30 12 14 20 0 4Z"/></g>` +
+    `<ellipse cx="0" cy="2" rx="2.6" ry="9" fill="${OL}"/>`;
+}
+function meadowScene(pre) {
+  let s = `<svg class="scene" viewBox="0 0 1200 800" preserveAspectRatio="xMidYMax slice" aria-hidden="true"><defs>` +
+    `<linearGradient id="${pre}-sky" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#7fcaf7"/><stop offset=".62" stop-color="#d2f0ff"/><stop offset="1" stop-color="#fff5d6"/></linearGradient>` +
+    skyBits(pre) + `</defs>` +
+    `<rect width="1200" height="800" fill="url(#${pre}-sky)"/>` +
+    `<g class="only-land">${sunMark(pre, 1010, 140)}</g>` +
+    `<g class="only-port"><g transform="translate(700 120) scale(.8)">${sunMark(pre, 0, 0)}</g></g>` +
+    `<g class="cloud" style="animation-duration:70s;animation-delay:-20s">${cloudMark(0, 120, 1)}</g>` +
+    `<g class="cloud" style="animation-duration:95s;animation-delay:-60s">${cloudMark(0, 220, .7)}</g>` +
+    `<g class="cloud" style="animation-duration:80s;animation-delay:-5s">${cloudMark(0, 80, .55)}</g>` +
+    `<path d="M0 520 C200 440 380 470 560 500 C760 430 960 440 1200 488 V800 H0Z" fill="#c3e6a0"/>` +
+    treeMark(170, 470, .9, '#8fcf62') + treeMark(250, 488, .7, '#7cc253') + treeMark(880, 452, .85, '#8fcf62') +
+    `<path d="M0 600 C220 540 420 560 640 600 C840 548 1020 556 1200 588 V800 H0Z" fill="#a8d879"/>` +
+    treeMark(1080, 572, 1.05, '#6fbf4f') + treeMark(90, 588, .8, '#7cc253') +
+    `<g class="only-port">${treeMark(470, 600, .75, '#7cc253') + treeMark(760, 590, .85, '#6fbf4f')}</g>` +
+    `<path d="M0 684 C300 640 600 652 900 668 C1020 662 1120 650 1200 658 V800 H0Z" fill="#8cca5c"/>`;
+  for (let i = 0; i < 26; i++) {
+    const x = h01(i, 1, 60) * 1200, y = 700 + h01(i, 2, 61) * 90;
+    s += flowerMark(x, y, FLOWER_COLS[i % FLOWER_COLS.length], 6 + h01(i, 3, 62) * 4);
+  }
+  for (let i = 0; i < 40; i++) {
+    const x = i * 30 + h01(i, 4, 63) * 20, y = 672 + Math.sin(i * .7) * 10;
+    s += `<path d="M${f1(x)} ${f1(y + 14)} l4 -16 l4 16" fill="none" stroke="#6ea744" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>`;
+  }
+  s += `<g class="bf bf1">${butterflyMark('#ffb3d4')}</g><g class="bf bf2">${butterflyMark('#ffe16b')}</g></svg>`;
+  return s;
+}
+function seaScene(pre) {
+  let s = `<svg class="scene" viewBox="0 0 1200 800" preserveAspectRatio="xMidYMid slice" aria-hidden="true"><defs>` +
+    `<linearGradient id="${pre}-sky" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#8fd4ff"/><stop offset="1" stop-color="#e6f7ff"/></linearGradient>` +
+    `<linearGradient id="${pre}-sea" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#7fd6f5"/><stop offset="1" stop-color="#2f97d0"/></linearGradient>` +
+    skyBits(pre) + `</defs>` +
+    `<rect width="1200" height="800" fill="url(#${pre}-sky)"/>` + `<g transform="translate(600 20) scale(.62)">${sunMark(pre, 0, 0)}</g>` +
+    `<g class="cloud" style="animation-duration:85s;animation-delay:-30s">${cloudMark(0, 110, .8)}</g>` +
+    `<g class="cloud" style="animation-duration:110s;animation-delay:-70s">${cloudMark(0, 60, .55)}</g>` +
+    `<rect y="190" width="1200" height="610" fill="url(#${pre}-sea)"/>` +
+    `<path d="M0 190 H1200" stroke="#fff" stroke-opacity=".7" stroke-width="3"/>`;
+  const wv = ['', ''];
+  for (let r = 0; r < 9; r++) for (let i = 0; i < 9; i++) {
+    const x = i * 140 + (r % 2) * 70 + h01(i, r, 70) * 30, y = 230 + r * 64 + h01(i, r, 71) * 16;
+    wv[r % 2] += `<path d="M${f1(x)} ${f1(y)} q14 -10 28 0 q14 10 28 0" stroke-opacity="${f1(.35 + r * .04)}"/>`;
+  }
+  s += `<g class="wave" fill="none" stroke="#fff" stroke-width="4" stroke-linecap="round">${wv[0]}</g>` +
+       `<g class="wave" style="animation-delay:-1.6s" fill="none" stroke="#fff" stroke-width="4" stroke-linecap="round">${wv[1]}</g>`;
+  s += `<g class="boat"><path d="M-40 0 H40 L28 18 H-28Z" fill="#e8784a" stroke="${OL}" stroke-width="3" stroke-linejoin="round"/>` +
+    `<path d="M0 0 V-62" stroke="${OL}" stroke-width="3.4"/><path d="M3 -58 L36 -8 H3Z" fill="#fff" stroke="${OL}" stroke-width="3" stroke-linejoin="round"/>` +
+    `<path d="M-3 -50 L-28 -8 H-3Z" fill="#ffe0a8" stroke="${OL}" stroke-width="3" stroke-linejoin="round"/></g></svg>`;
+  return s;
+}
+// しまの 色と かざり（しまの id で きめる。ならびを かえても 色は かわらない）
+const IS_THEME = {
+  1: { c:'#8fd16a', t:'#e5f6d6' }, 2: { c:'#b9e27a', t:'#eef8d8' }, 3: { c:'#6fbf6a', t:'#dff2dc' },
+  6: { c:'#7fd0b0', t:'#dcf4ec' }, 4: { c:'#b9a7f0', t:'#ece6fc' }, 5: { c:'#f4c95a', t:'#fdf1cc' }, 7: { c:'#ff9ec4', t:'#ffe6f0' },
+};
+function islandFeature(id) {
+  switch (id) {
+    case 1: return treeMark(154, 70, .42, '#7fc85a') + flowerMark(44, 86, '#fff', 4) + flowerMark(58, 90, '#ffe26a', 4);
+    case 2: return `<g transform="translate(152 64)"><path d="M-7 30 L-4 -4 H4 L7 30Z" fill="#f4e2c0" stroke="${OL}" stroke-width="2"/>` +
+      `<g class="spin"><g fill="#fff" stroke="${OL}" stroke-width="1.8"><path d="M0 0 L-4 -24 L4 -24Z"/><path d="M0 0 L24 -4 L24 4Z"/><path d="M0 0 L4 24 L-4 24Z"/><path d="M0 0 L-24 4 L-24 -4Z"/></g></g>` +
+      `<circle r="3.4" fill="#e8784a" stroke="${OL}" stroke-width="1.6"/></g>` + flowerMark(40, 84, '#ffb3cf', 4) + flowerMark(54, 90, '#c9b6ff', 4) + flowerMark(62, 80, '#fff', 3.4);
+    case 3: return treeMark(40, 78, .36, '#5cae55') + `<g transform="translate(154 64)"><rect x="-2.5" y="0" width="5" height="26" fill="#9a6a3c" stroke="${OL}" stroke-width="1.8"/>` +
+      `<rect x="-14" y="-16" width="28" height="18" rx="4" fill="#ffe7a8" stroke="${OL}" stroke-width="2"/><text y="-2" font-size="15" font-weight="bold" text-anchor="middle" fill="#e8784a">?</text></g>`;
+    case 6: return `<ellipse cx="148" cy="84" rx="22" ry="8" fill="#6cc3ee" stroke="${OL}" stroke-width="2"/><ellipse cx="142" cy="83" rx="7" ry="3" fill="#6cbf58" stroke="${OL}" stroke-width="1.4"/>` +
+      `<path d="M44 90 V66 M50 90 V62 M56 90 V70" stroke="#4f8a3c" stroke-width="3" stroke-linecap="round"/><ellipse cx="50" cy="60" rx="3" ry="7" fill="#8a5a31"/>`;
+    case 4: return `<path d="M128 90 L152 52 L176 90Z" fill="#a89a8a" stroke="${OL}" stroke-width="2.2" stroke-linejoin="round"/><path d="M146 61 L152 52 L158 61 L154 64 L150 60Z" fill="#fff" stroke="${OL}" stroke-width="1.6" stroke-linejoin="round"/>` +
+      `<text x="48" y="84" font-size="22" text-anchor="middle">⚡</text>`;
+    case 5: return `<g transform="translate(152 58)"><rect x="-12" y="0" width="24" height="32" fill="#e9d9b5" stroke="${OL}" stroke-width="2"/>` +
+      `<path d="M-14 0 V-6 H-8 V0 M-3 0 V-6 H3 V0 M8 0 V-6 H14 V0" fill="#e9d9b5" stroke="${OL}" stroke-width="2"/>` +
+      `<path d="M0 -6 V-24" stroke="${OL}" stroke-width="2"/><path d="M1 -24 L14 -19 L1 -14Z" fill="#ff6b5a" stroke="${OL}" stroke-width="1.6"/>` +
+      `<path d="M-5 32 V22 A5 5 0 0 1 5 22 V32" fill="#8a5a31"/></g><text x="46" y="86" font-size="20" text-anchor="middle">🏆</text>`;
+    case 7: return `<g fill="none" stroke-width="5" stroke-linecap="round" opacity=".85"><path d="M34 88 A66 58 0 0 1 166 88" stroke="#ff8a8a"/><path d="M40 88 A60 52 0 0 1 160 88" stroke="#ffd36a"/><path d="M46 88 A54 46 0 0 1 154 88" stroke="#8fe06a"/><path d="M52 88 A48 40 0 0 1 148 88" stroke="#6cc6ff"/></g>` +
+      `<text x="152" y="88" font-size="20" text-anchor="middle">🎨</text>`;
+  }
+  return '';
+}
+function islandArt(is, open) {
+  const t = IS_THEME[is.id] || IS_THEME[1];
+  const crit = is.free ? ((typeof FREE !== 'undefined' && FREE && FREE.creature) || 'kabuto') : is.levels[0].creature;
+  let w = '';
+  for (let i = 0; i < 6; i++) w += `<path d="M${10 + i * 34} ${i % 2 ? 22 : 30} q7 -5 14 0 q7 5 14 0" fill="none" stroke="#fff" stroke-opacity=".55" stroke-width="2.4" stroke-linecap="round"/>`;
+  return `<svg class="is-art" viewBox="0 0 200 118" aria-hidden="true">` +
+    `<rect width="200" height="118" fill="url(#mm-sea)"/>${w}` +
+    `<ellipse cx="100" cy="98" rx="88" ry="15" fill="#2f97d0" opacity=".35"/>` +
+    `<ellipse cx="100" cy="94" rx="86" ry="15" fill="#f3e2a4" stroke="${OL}" stroke-width="2"/>` +
+    `<path d="M20 94 C28 62 62 46 100 46 C138 46 172 62 180 94 Z" fill="${t.c}" stroke="${OL}" stroke-width="2.4" stroke-linejoin="round"/>` +
+    `<ellipse cx="74" cy="60" rx="26" ry="8" fill="#fff" opacity=".3" transform="rotate(-12 74 60)"/>` +
+    islandFeature(is.id) +
+    `<g transform="translate(76 6) scale(.48)">${CREATURES[crit].svg}</g>` +
+    (open ? '' : `<g class="fog"><g fill="#fff" opacity=".92"><ellipse cx="60" cy="70" rx="46" ry="22"/><ellipse cx="120" cy="60" rx="56" ry="28"/><ellipse cx="100" cy="88" rx="80" ry="20"/></g>` +
+                 `<text x="100" y="76" font-size="30" text-anchor="middle">🔒</text></g>`) +
+    `</svg>`;
 }
 
 /* ---------------- タイトル ---------------- */
 function initTitle() {
-  $('title-parade').innerHTML = ['kabuto','tento','kamakiri','chou','risu','kaeru'].map(k => creatureSVG(k)).join('');
+  $('title-parade').innerHTML = ['kabuto','tento','amagaeru','chou','risu','usagi','hachi'].map(k => creatureSVG(k)).join('');
+  $('title-scene').innerHTML = meadowScene('ts');
+  const cols = ['#ff8a3d', '#4fb3e8', '#7cc24f', '#ff6fa3', '#ffb400', '#9b7bea', '#ff8a3d', '#4fb3e8', '#7cc24f', '#ff6fa3', '#ffb400'];
+  const chars = Array.from('むしむし').map((c, i) => `<span style="--c:${cols[i]};--i:${i}">${c}</span>`).join('') + '<br>' +
+                Array.from('プログラミング').map((c, i) => `<span class="l2" style="--c:${cols[i + 4]};--i:${i + 4}">${c}</span>`).join('');
+  $('title-logo').innerHTML = chars;
   $('title-ver').textContent = 'v' + APP_VERSION;
   $('parent-ver').textContent = 'むしむしプログラミング v' + APP_VERSION + '（データ形式 ' + DATA_SCHEMA + '）';
 }
@@ -1259,8 +1919,9 @@ function levelUnlocked(lv) {
 }
 
 function renderIslands() {
-  const wrap = $('island-list');
-  wrap.innerHTML = '';
+  if (!$('islands-scene').firstChild) $('islands-scene').innerHTML = seaScene('is');
+  $('island-list').innerHTML = '<div class="card-grid"></div>';
+  const wrap = $('island-list').firstChild;
   const allDone = ALL_LEVELS.filter(lv => levelCleared(lv.id)).length;
   const allPerf = ALL_LEVELS.filter(lv => SAVE.cleared[lv.id] && SAVE.cleared[lv.id].perfect).length;
   $('island-total').textContent = `⭐${allDone}／${ALL_LEVELS.length}　🏅${allPerf}`;
@@ -1275,7 +1936,9 @@ function renderIslands() {
     const prog = is.free
       ? (open ? '🎨 いつでも あそべる' : lockMsg)
       : (open ? '⭐'.repeat(done) + '・'.repeat(is.levels.length - done) + (perf ? `　🏅${perf}` : '') : lockMsg);
-    b.innerHTML = `<span class="is-icon">${is.icon}</span><span class="is-name">${is.name}</span>` +
+    b.style.setProperty('--tc', (IS_THEME[is.id] || IS_THEME[1]).c);
+    b.innerHTML = islandArt(is, open) +
+                  `<span class="is-name"><span class="is-icon">${is.icon}</span> ${is.name}</span>` +
                   `<span class="is-sub">${is.sub}</span><span class="is-prog">${prog}</span>`;
     b.addEventListener('click', () => {
       if (!open) { SFX.fail(); showToast(KID_MSG.islandLocked); return; }
@@ -1304,16 +1967,19 @@ let CUR_ISLAND = 0;
 function renderMap(ii) {
   CUR_ISLAND = ii;
   const is = ISLANDS[ii];
+  if (!$('map-scene').firstChild) $('map-scene').innerHTML = meadowScene('ms');
+  const theme = IS_THEME[is.id] || IS_THEME[1];
   $('map-title').textContent = is.icon + ' ' + is.name;
-  const wrap = $('map-levels');
-  wrap.innerHTML = '';
+  $('map-levels').innerHTML = '<div class="card-grid"></div>';
+  const wrap = $('map-levels').firstChild;
   is.levels.forEach((lv, li) => {
     const open = levelUnlocked(lv);
     const b = document.createElement('button');
     b.className = 'lv-btn' + (open ? '' : ' locked');
     const rec = SAVE.cleared[lv.id] || {};
     const badges = (rec.clear ? '⭐' : '') + (rec.perfect ? '🏅' : '');
-    b.innerHTML = `<span class="lv-num">ステージ${li+1}</span>${creatureSVG(lv.creature, 60)}` +
+    b.style.setProperty('--tc', theme.c); b.style.setProperty('--tt', theme.t);
+    b.innerHTML = `<span class="lv-num">ステージ${li+1}</span><span class="lv-pic">${creatureSVG(lv.creature, 60)}</span>` +
                   `<span class="lv-name">${lv.name}</span><span class="lv-badges">${badges}</span>`;
     b.addEventListener('click', () => {
       if (!open) { SFX.fail(); return; }
@@ -1332,6 +1998,7 @@ function renderZukan() {
   $('zukan-title').textContent = `📖 生きもの ずかん（${got}／${all.length}）`;
   ISLANDS.forEach(is => {
     if (!is.levels.length) return;
+    const theme = IS_THEME[is.id] || IS_THEME[1];
     const sec = document.createElement('div');
     sec.className = 'zk-sec';
     sec.textContent = is.icon + ' ' + is.name;
@@ -1343,11 +2010,12 @@ function renderZukan() {
       const known = SAVE.zukan.includes(k);
       const div = document.createElement('div');
       div.className = 'zk-card' + (known ? '' : ' unknown');
+      div.style.setProperty('--tc', theme.c); div.style.setProperty('--tt', theme.t);
       const mark = c.ability ? `<div class="zk-ability">${ABILITY_MARK[c.ability]}</div>` : '';
       div.innerHTML = known
-        ? `${creatureSVG(k, 66)}<div class="zk-name">${c.name}</div>${mark}<div class="zk-fact">${c.fact}</div>` +
+        ? `<div class="zk-pic">${creatureSVG(k, 66)}</div><div class="zk-name">${c.name}</div>${mark}<div class="zk-fact">${c.fact}</div>` +
           `<div class="zk-wow">🔎 ${c.wow}</div>`
-        : `${creatureSVG(k, 66)}<div class="zk-name">？？？</div><div class="zk-fact">クリアすると なかま入りするよ</div>`;
+        : `<div class="zk-pic">${creatureSVG(k, 66)}<span class="zk-q">？</span></div><div class="zk-name">？？？</div><div class="zk-fact">クリアすると なかま入りするよ</div>`;
       if (known) div.addEventListener('click', () => { SFX.tap(); speak(c.name + '。' + c.fact + ' ' + c.wow); });
       row.appendChild(div);
     });
@@ -1787,40 +2455,180 @@ function askLoopCount(cb, current) {
   openModal(KID_MSG.loopCountAsk, items, cb);
 }
 
-/* --- ステージ描画 --- */
+/* --- ステージ描画（えほん風の 地形。地形の いみは terrainAt と おなじ） --- */
+const PAD = 18;                         // 木わくの ぶん（viewBox を 外に ひろげる）
+let STAGE_UID = 0;
+function stageViewBox(level) {
+  return `${-PAD} ${-PAD} ${level.grid.w * CELL + PAD * 2} ${level.grid.h * CELL + PAD * 2}`;
+}
+// マスごとに きまった「ばらつき」（毎回 おなじ 絵に なるように 乱数は つかわない）
+function h01(x, y, k) {
+  let h = Math.imul(x + 11, 374761393) ^ Math.imul(y + 7, 668265263) ^ Math.imul(k + 3, 1274126177);
+  h = Math.imul(h ^ (h >>> 13), 1103515245); h ^= h >>> 16;
+  return (h >>> 0) / 4294967296;
+}
+// 池として 水を かく マス（とび石の 面は 石の マスも 池の 中）。そとは null
+function pondAt(level, x, y) {
+  if (x < 0 || y < 0 || x >= level.grid.w || y >= level.grid.h) return null;
+  const t = terrainAt(level, x, y);
+  return t === 'water' || (!!level.stones && t !== 'rock');
+}
+// かどを まるめた マスの かたち（r = [左上, 右上, 右下, 左下]）
+function cellPath(X, Y, r) {
+  const S = CELL;
+  const a = (rr, ex, ey) => rr ? `A${rr} ${rr} 0 0 1 ${ex} ${ey}` : '';
+  return `M${X + r[0]} ${Y} H${X + S - r[1]} ${a(r[1], X + S, Y + r[1])} V${Y + S - r[2]} ${a(r[2], X + S - r[2], Y + S)} ` +
+         `H${X + r[3]} ${a(r[3], X, Y + S - r[3])} V${Y + r[0]} ${a(r[0], X + r[0], Y)}Z`;
+}
+function grassDecor(x, y, busy) {
+  const X = x * CELL, Y = y * CELL;
+  let d = '';
+  // くさの しげみ（マスの すみっこ。まん中は 生きもの・たべものの ために あけておく）
+  const spots = [[10, 86], [74, 90], [80, 14], [14, 18]];
+  spots.forEach((p, i) => {
+    if (h01(x, y, i) < 0.55) return;
+    const px = X + p[0] + h01(x, y, i + 9) * 8, py = Y + p[1];
+    d += `<path d="M${f1(px)} ${py} l2.5 -9 l2.5 9 M${f1(px + 5)} ${py} l3.5 -7" stroke="#6ea744" stroke-width="2.4" fill="none" stroke-linecap="round" stroke-linejoin="round"/>`;
+  });
+  // 小さな 花（ときどき）
+  if (!busy && h01(x, y, 20) > 0.72) {
+    const cols = ['#fff', '#ffe26a', '#ffb3cf', '#c9b6ff'];
+    const c = cols[Math.floor(h01(x, y, 21) * cols.length)];
+    const fx = X + 18 + h01(x, y, 22) * 64, fy = Y + (h01(x, y, 23) < 0.5 ? 16 : 84);
+    d += `<g transform="translate(${f1(fx)} ${fy})"><g fill="${c}" stroke="#d9cdb0" stroke-width=".8">` +
+         `<circle cx="0" cy="-4" r="3.4"/><circle cx="3.8" cy="-1.2" r="3.4"/><circle cx="2.4" cy="3.3" r="3.4"/><circle cx="-2.4" cy="3.3" r="3.4"/><circle cx="-3.8" cy="-1.2" r="3.4"/></g>` +
+         `<circle r="2.3" fill="#f5a623"/></g>`;
+  }
+  return d;
+}
+function rockArt(x, y) {
+  const flip = h01(x, y, 30) < 0.5;
+  return `<g transform="translate(${x * CELL + (flip ? CELL : 0)},${y * CELL}) scale(${flip ? -1 : 1},1)">` +
+    `<ellipse cx="50" cy="83" rx="37" ry="8" fill="#2d2418" opacity=".18"/>` +
+    `<path d="M14 78 C9 62 19 40 38 33 C52 28 71 32 81 45 C90 56 90 71 83 79 C70 86 29 86 14 78Z" fill="url(#mm-rock)" stroke="#57504a" stroke-width="3" stroke-linejoin="round"/>` +
+    `<path d="M26 50 C32 41 45 36 55 38" stroke="#fff" stroke-opacity=".5" stroke-width="5" stroke-linecap="round" fill="none"/>` +
+    `<path d="M60 51 l6 8 l-4 9 M36 66 l6 4" stroke="#6b645b" stroke-width="2.2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>` +
+    `<path d="M40 34 q7 -8 16 -3 q-4 4 -16 3Z" fill="#7cb04a" stroke="#4f7a2c" stroke-width="1.4"/></g>`;
+}
+function stoneArt(x, y) {
+  const X = x * CELL, Y = y * CELL, r = h01(x, y, 40) * 5;
+  return `<ellipse cx="${X + 50}" cy="${Y + 58}" rx="${f1(43 + r)}" ry="${f1(34 + r * .5)}" fill="none" stroke="#fff" stroke-opacity=".45" stroke-width="2.4"/>` +
+    `<ellipse cx="${X + 50}" cy="${Y + 62}" rx="39" ry="28" fill="#2d4a5e" opacity=".25"/>` +
+    `<ellipse cx="${X + 50}" cy="${Y + 56}" rx="${f1(37 + r)}" ry="28" fill="url(#mm-stone)" stroke="#8f8676" stroke-width="3"/>` +
+    `<ellipse cx="${X + 41}" cy="${Y + 46}" rx="14" ry="6" fill="#fff" opacity=".4"/>`;
+}
 function stageMarkup(level, withActor) {
-  const w = level.grid.w, h = level.grid.h;
+  const w = level.grid.w, h = level.grid.h, W = w * CELL, H = h * CELL;
+  const uid = 'b' + (++STAGE_UID);
+  const busyAt = (x, y) => level.foods.some(f => f.x === x && f.y === y) || (level.start.x === x && level.start.y === y);
   let s = '';
+  // 木わく
+  s += `<rect x="${-PAD + 3}" y="${-PAD + 9}" width="${W + PAD * 2 - 6}" height="${H + PAD * 2 - 6}" rx="26" fill="#2d2418" opacity=".18"/>`;
+  s += `<rect x="${-PAD}" y="${-PAD}" width="${W + PAD * 2}" height="${H + PAD * 2}" rx="26" fill="url(#mm-frame)" stroke="#6b4a2c" stroke-width="3"/>`;
+  s += `<path d="M${-PAD + 30} ${-PAD + 7} h${Math.max(0, W - 40)} M${-PAD + 20} ${H + PAD - 7} h${Math.max(0, W - 60)}" stroke="#fff" stroke-opacity=".25" stroke-width="3" stroke-linecap="round"/>`;
+  s += `<clipPath id="${uid}"><rect x="0" y="0" width="${W}" height="${H}" rx="12"/></clipPath>`;
+  s += `<g clip-path="url(#${uid})">`;
+  // 草の じめん（市松に すこし 色を かえる）
   for (let y = 0; y < h; y++) for (let x = 0; x < w; x++) {
-    const b = terrainAt(level, x, y);   // 絵は 地形の まま（およげる 生きものでも 水は 水に かく）
-    if (b === 'water') {
-      s += `<rect x="${x*CELL}" y="${y*CELL}" width="${CELL}" height="${CELL}" fill="#7cbfec"/>`;
-      s += `<path d="M${x*CELL+18} ${y*CELL+55} q10 -8 20 0 q10 8 20 0 q10 -8 24 0" stroke="#a8d8f5" stroke-width="4" fill="none" stroke-linecap="round"/>`;
-    } else {
-      s += `<rect x="${x*CELL}" y="${y*CELL}" width="${CELL}" height="${CELL}" fill="${(x+y)%2===0?'var(--grass1)':'var(--grass2)'}"/>`;
-      if (level.stones && b !== 'rock') s += `<ellipse cx="${x*CELL+50}" cy="${y*CELL+55}" rx="38" ry="30" fill="#d8d2c2" stroke="#b8b2a2" stroke-width="3"/>`;
+    s += `<rect x="${x * CELL}" y="${y * CELL}" width="${CELL}" height="${CELL}" fill="url(#mm-grass${(x + y) % 2 ? 'B' : 'A'})"/>`;
+  }
+  for (let y = 0; y < h; y++) for (let x = 0; x < w; x++) {
+    if (!pondAt(level, x, y) && terrainAt(level, x, y) !== 'rock') s += grassDecor(x, y, busyAt(x, y));
+  }
+  // 池: ①すなはま ②あわ ③水 の じゅんに かさねる（となりの 水の マスが つなぎ目を かくす）
+  const ponds = [];
+  for (let y = 0; y < h; y++) for (let x = 0; x < w; x++) {
+    if (!pondAt(level, x, y)) continue;
+    const land = (dx, dy) => pondAt(level, x + dx, y + dy) === false;
+    const R = 20;
+    const r = [land(-1, 0) && land(0, -1) ? R : 0, land(1, 0) && land(0, -1) ? R : 0,
+               land(1, 0) && land(0, 1) ? R : 0, land(-1, 0) && land(0, 1) ? R : 0];
+    ponds.push({ x, y, d: cellPath(x * CELL, y * CELL, r) });
+  }
+  if (ponds.length) {
+    s += `<g fill="none" stroke="#e8d59c" stroke-width="16" stroke-linejoin="round">${ponds.map(p => `<path d="${p.d}"/>`).join('')}</g>`;
+    s += `<g fill="none" stroke="#fff" stroke-opacity=".75" stroke-width="7" stroke-linejoin="round">${ponds.map(p => `<path d="${p.d}"/>`).join('')}</g>`;
+    s += `<g fill="#7cbfec">${ponds.map(p => `<path d="${p.d}"/>`).join('')}</g>`;
+    s += `<g fill="url(#mm-water)">${ponds.map(p => `<path d="${p.d}"/>`).join('')}</g>`;
+    let waveA = '', waveB = '';
+    ponds.forEach(p => {
+      const X = p.x * CELL, Y = p.y * CELL, o = h01(p.x, p.y, 50) * 20;
+      if (!level.stones || terrainAt(level, p.x, p.y) === 'water') {
+        waveA += `<path d="M${f1(X + 14 + o)} ${Y + 40} q9 -7 18 0 q9 7 18 0"/>`;
+        waveB += `<path d="M${f1(X + 40 - o * .6)} ${Y + 72} q8 -6 16 0 q8 6 16 0"/>`;
+        if (h01(p.x, p.y, 53) > 0.6) {
+          const sx = X + 20 + h01(p.x, p.y, 54) * 60, sy = Y + 18 + h01(p.x, p.y, 55) * 64;
+          s += `<path class="twinkle" style="animation-delay:-${f1(h01(p.x, p.y, 56) * 2.4)}s" d="M${f1(sx)} ${f1(sy - 6)} l1.6 4.4 l4.4 1.6 l-4.4 1.6 l-1.6 4.4 l-1.6 -4.4 l-4.4 -1.6 l4.4 -1.6Z" fill="#fff"/>`;
+        }
+      }
+    });
+    if (waveA) {
+      s += `<g class="wave" stroke="#b9e3fa" stroke-width="3.4" fill="none" stroke-linecap="round">${waveA}</g>` +
+           `<g class="wave" style="animation-delay:-1.6s" stroke="#b9e3fa" stroke-width="3" fill="none" stroke-linecap="round">${waveB}</g>`;
+    }
+    if (level.stones) {
+      for (let y = 0; y < h; y++) for (let x = 0; x < w; x++) {
+        if (terrainAt(level, x, y) === null) s += stoneArt(x, y);
+      }
     }
   }
-  s += `<g stroke="rgba(255,255,255,.35)" stroke-width="2">`;
-  for (let x = 1; x < w; x++) s += `<line x1="${x*CELL}" y1="0" x2="${x*CELL}" y2="${h*CELL}"/>`;
-  for (let y = 1; y < h; y++) s += `<line x1="0" y1="${y*CELL}" x2="${w*CELL}" y2="${y*CELL}"/>`;
+  // マス目（歩数を 数えやすく うすく のこす）
+  s += `<g stroke="#fff" stroke-opacity=".3" stroke-width="2">`;
+  for (let x = 1; x < w; x++) s += `<line x1="${x * CELL}" y1="0" x2="${x * CELL}" y2="${H}"/>`;
+  for (let y = 1; y < h; y++) s += `<line x1="0" y1="${y * CELL}" x2="${W}" y2="${y * CELL}"/>`;
   s += `</g>`;
-  (level.rocks || []).forEach(r => {
-    s += `<g transform="translate(${r.x*CELL},${r.y*CELL})"><ellipse cx="50" cy="62" rx="36" ry="26" fill="#9a938a"/><ellipse cx="42" cy="50" rx="26" ry="20" fill="#aaa39a"/><ellipse cx="36" cy="44" rx="8" ry="5" fill="#c2bbb2"/></g>`;
-  });
+  (level.rocks || []).forEach(r => { s += rockArt(r.x, r.y); });
+  s += `</g>`;
+  // スタートの しるし（小さな はた）
+  const SX = level.start.x * CELL, SY = level.start.y * CELL;
+  s += `<ellipse cx="${SX + 50}" cy="${SY + 80}" rx="36" ry="11" fill="#fff" opacity=".35"/>` +
+       `<ellipse cx="${SX + 50}" cy="${SY + 80}" rx="36" ry="11" fill="none" stroke="#fff" stroke-width="2.4" stroke-dasharray="7 6" opacity=".9"/>` +
+       `<path d="M${SX + 12} ${SY + 40} V${SY + 12}" stroke="${OL}" stroke-width="2.6" stroke-linecap="round"/>` +
+       `<path d="M${SX + 13} ${SY + 12} l16 5 l-16 6Z" fill="#ff6b5a" stroke="${OL}" stroke-width="1.6" stroke-linejoin="round"/>`;
+  // たべもの（かげ つき。id は 食べたとき うすくする ため）
   level.foods.forEach((f, i) => {
-    s += `<text id="food-${i}" class="food-emoji" style="animation-delay:${(i*0.4).toFixed(1)}s" x="${f.x*CELL+50}" y="${f.y*CELL+68}" font-size="56" text-anchor="middle">${f.emoji}</text>`;
+    s += `<g id="food-${i}"><ellipse cx="${f.x * CELL + 50}" cy="${f.y * CELL + 80}" rx="21" ry="6" fill="#2d2418" opacity=".16"/>` +
+         `<text class="food-emoji" style="animation-delay:${(i * 0.4).toFixed(1)}s" x="${f.x * CELL + 50}" y="${f.y * CELL + 68}" font-size="56" text-anchor="middle">${f.emoji}</text></g>`;
   });
-  s += `<rect x="${level.start.x*CELL+6}" y="${level.start.y*CELL+6}" width="${CELL-12}" height="${CELL-12}" rx="14" fill="none" stroke="#fff" stroke-width="3" stroke-dasharray="8 7" opacity=".7"/>`;
   if (withActor) {
-    s += `<g id="actor" style="transition:transform .55s ease-in-out"><g id="actor-flip" transform-origin="50 50"><g class="idle">${(CREATURES[level.creature]||CREATURES.kabuto).svg}</g></g></g>`;
+    s += `<g id="actor" style="transition:transform .55s ease-in-out">` +
+         `<ellipse cx="50" cy="89" rx="29" ry="6.5" fill="#2d2418" opacity=".2"/>` +
+         `<g id="actor-hop"><g id="actor-flip" transform-origin="50 50"><g class="idle">${(CREATURES[level.creature] || CREATURES.kabuto).svg}</g></g></g></g>`;
   }
   return s;
+}
+// ぴょんと はねる（うごく たびに）
+function hopActor() {
+  const h = $('actor-hop');
+  if (!h) return;
+  h.classList.remove('hopping'); void h.getBoundingClientRect(); h.classList.add('hopping');
+}
+// キラキラ／ことばの ふきだし（ステージの 上に 出して すぐ けす）
+function sparkAt(x, y, kind) {
+  const svg = $('stage');
+  if (!svg) return;
+  const g = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+  g.setAttribute('transform', `translate(${x * CELL + 50},${y * CELL + 50})`);
+  let h = '';
+  if (kind === 'eat') {
+    const cols = ['#ffd84a', '#ff8fb3', '#8fe06a', '#6cc6ff', '#ffb347'];
+    for (let i = 0; i < 10; i++) {
+      const a = i / 10 * Math.PI * 2, d = 40 + (i % 3) * 9;
+      h += `<path class="spark" d="M0 -7 L2 -2 L7 0 L2 2 L0 7 L-2 2 L-7 0 L-2 -2Z" fill="${cols[i % 5]}" stroke="#fff" stroke-width=".8"` +
+           ` style="--dx:${f1(Math.cos(a) * d)}px;--dy:${f1(Math.sin(a) * d)}px;animation-delay:${(i % 2) * 40}ms"/>`;
+    }
+    h += `<text class="pop-up" y="-26" font-size="30" text-anchor="middle">💖</text>`;
+  } else {
+    h += `<text class="pop-up" x="26" y="-30" font-size="30" text-anchor="middle">${kind === 'bad' ? '💦' : '💥'}</text>`;
+  }
+  g.innerHTML = h;
+  svg.appendChild(g);
+  setTimeout(() => g.remove(), 1100);
 }
 function renderStage() {
   const lv = G.level;
   const svg = $('stage');
-  svg.setAttribute('viewBox', `0 0 ${lv.grid.w*CELL} ${lv.grid.h*CELL}`);
+  svg.setAttribute('viewBox', stageViewBox(lv));
   svg.setAttribute('preserveAspectRatio', 'xMidYMid meet');
   svg.innerHTML = stageMarkup(lv, true);
   placeActor(lv.start.x, lv.start.y, true);
@@ -1964,6 +2772,7 @@ async function runProgram() {
     if (r.type === 'move') {
       faceActor(node.c); SFX.step();
       placeActor(r.x, r.y);
+      hopActor();
       await sl(450);
     } else if (r.type === 'blocked') {
       faceActor(node.c);
@@ -1974,6 +2783,7 @@ async function runProgram() {
       a.style.transform = `translate(${G.state.x*CELL}px, ${G.state.y*CELL}px)`;
       await sl(200);
       a.style.transition = 'transform .55s ease-in-out';
+      sparkAt(G.state.x, G.state.y, 'bump');
       $('stage').classList.add('stage-shake');
       setTimeout(() => $('stage').classList.remove('stage-shake'), 450);
       SFX.fail();
@@ -1987,12 +2797,14 @@ async function runProgram() {
       const fi = G.level.foods.findIndex(f => f.x === r.food.x && f.y === r.food.y);
       const fe = $('food-' + fi);
       if (fe) { fe.style.transition = 'opacity .4s'; fe.style.opacity = '0'; }
+      sparkAt(r.food.x, r.food.y, 'eat');
       showBubble(KID_MSG.eatOk(r.food.name), 1500);
       await sl(620);
       if (G.stopReq) break;                       // さいごの ひとくちの 途中で とめても クリアに しない
       if (r.allEaten) { if (el) el.classList.remove('exec'); await sl(250); onClear(used); return; }
     } else if (r.type === 'eat-bad') {
       SFX.fail();
+      sparkAt(G.state.x, G.state.y, 'bad');
       showBubble(KID_MSG.eatBad(r.food.name), 2600);
       failed = true; failMsg = '';
     } else if (r.type === 'eat-empty') {
@@ -2071,6 +2883,7 @@ function onClear(usedSteps) {
     $('btn-next').style.display = 'none';
     $('overlay-fact').classList.remove('show');
     $('overlay').classList.add('show');
+    confetti();
     return;
   }
   $('btn-map2').textContent = 'マップへ';
@@ -2108,9 +2921,26 @@ function onClear(usedSteps) {
   showWowFact(lv.creature);
   $('btn-next').style.display = last ? 'none' : '';
   $('overlay').classList.add('show');
+  confetti();
   if (firstClear) speak('やったー！クリアだよ！ ' + CREATURES[lv.creature].wow);
 }
 /* とっておきの まめちしきを 出す */
+// 紙ふぶき（クリア画面）
+function confetti() {
+  const ov = $('overlay');
+  const cols = ['#ff8a3d', '#4fb3e8', '#7cc24f', '#ff6fa3', '#ffd23d', '#9b7bea'];
+  for (let i = 0; i < 36; i++) {
+    const d = document.createElement('i');
+    d.className = 'confetti';
+    d.style.left = (h01(i, Date.now() % 997, 80) * 100) + '%';
+    d.style.background = cols[i % cols.length];
+    d.style.animationDelay = f1(h01(i, 3, 81) * .9) + 's';
+    d.style.animationDuration = f1(2.2 + h01(i, 4, 82) * 1.4) + 's';
+    d.style.setProperty('--rot', Math.round(h01(i, 5, 83) * 720 - 360) + 'deg');
+    ov.appendChild(d);
+    setTimeout(() => d.remove(), 4200);
+  }
+}
 function showWowFact(key) {
   const c = CREATURES[key];
   const fx = $('overlay-fact');
@@ -2286,9 +3116,9 @@ function freeToLevel(f, opts) {
 function renderFreeStage() {
   const lv = freeToLevel(FREE);
   const svg = $('free-stage');
-  svg.setAttribute('viewBox', `0 0 ${FREE.w*CELL} ${FREE.h*CELL}`);
+  svg.setAttribute('viewBox', stageViewBox(lv));
   svg.setAttribute('preserveAspectRatio', 'xMidYMid meet');
-  let s = stageMarkup(lv, false);
+  let s = stageMarkup(lv, false).replace(/ id="food-/g, ' data-food="');   // ゲーム画面の food-N と id が ぶつからないように
   s += `<g transform="translate(${FREE.start.x*CELL},${FREE.start.y*CELL}) scale(0.62) translate(30,30)"><g class="idle">${CREATURES[FREE.creature].svg}</g></g>`;
   for (let y = 0; y < FREE.h; y++) for (let x = 0; x < FREE.w; x++) {
     s += `<rect class="fcell" data-x="${x}" data-y="${y}" x="${x*CELL}" y="${y*CELL}" width="${CELL}" height="${CELL}" fill="transparent"/>`;
@@ -2764,6 +3594,26 @@ function runSelftest() {
     return failAdvice(st, P('RRR'), 3).includes('わすれてるよ');
   })());
   T('しっぱい助言: のこり数を 出す', failAdvice(makeState(L('1-1')), P('R'), 1).includes('あと1こ'));
+
+  // --- 絵（えほん風）の 整合 ---
+  T('生きもの 全員に 新しい 絵が ある（ART）', Object.keys(CREATURES).every(k => typeof ART[k] === 'string' && CREATURES[k].svg.includes(ART[k])));
+  T('ART に 生きもの 以外の 名前が ない', Object.keys(ART).every(k => !!CREATURES[k]));
+  T('絵の 共通パーツは display:none に なっていない（Safariで つやが 消えない）',
+    getComputedStyle($('art-defs')).display !== 'none' && !!document.getElementById('mm-sheen') && !!document.getElementById('mm-rock'));
+  T('ステージは 木わくの ぶん viewBox を 外に ひろげる', stageViewBox(L('1-1')) === `${-PAD} ${-PAD} ${5 * CELL + PAD * 2} ${3 * CELL + PAD * 2}`);
+  T('ステージに 木わく・岩・スタートの はたが かかれる', (() => {
+    const m = stageMarkup(L('1-3'), true);
+    return m.includes('url(#mm-frame)') && m.includes('url(#mm-rock)') && m.includes('#ff6b5a') && m.includes('id="actor-hop"');
+  })());
+  T('とび石の 面は 石を かく（1-6）', stageMarkup(L('1-6'), true).includes('url(#mm-stone)'));
+  T('たべものは かげごと うすくなる（id が グループに ある）', /<g id="food-0"><ellipse/.test(stageMarkup(L('1-1'), true)));
+  T('島カードの 絵が すべての しまで できる', ISLANDS.every(is => islandArt(is, true).startsWith('<svg') && islandArt(is, false).includes('fog')));
+  T('しまの 色が すべての しまに ある', ISLANDS.every(is => !!IS_THEME[is.id]));
+  T('ステージの 地形の ばらつきは 毎回 おなじ（h01 は 決まった 値）', h01(3, 4, 5) === h01(3, 4, 5) && h01(3, 4, 5) !== h01(4, 3, 5));
+  T('画面の 中に 同じ id が 2つ ない（グラデーションが 消える 事故の 予防）', (() => {
+    const ids = Array.from(document.querySelectorAll('[id]')).map(e => e.id);
+    return new Set(ids).size === ids.length;
+  })());
 
   // --- まめちしき ---
   T(`全${Object.keys(CREATURES).length}匹に とっておきの まめちしきが ある`,
